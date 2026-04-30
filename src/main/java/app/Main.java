@@ -8,11 +8,10 @@ import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinThymeleaf;
 
 public class Main {
-    private static final String USER = "postgres";
-    private static final String PASSWORD = "postgres";
-    //Erstat "database" i nedstående string
-    private static final String URL = "jdbc:postgresql://database/%s?currentSchema=public";
-    private static final String DB = "";
+    private static final String USER = "carport_user";
+    private static final String PASSWORD = "hqx*Jdwqf7j!-k3ZKEmqbczQGpqPMW";
+    private static final String URL = "jdbc:postgresql://167.172.103.174:5432/%s?currentSchema=public";
+    private static final String DB = "Carport";
     private static final ConnectionPool connectionPool = ConnectionPool.getInstance(USER, PASSWORD, URL, DB);
     public static void main(String[] args) {
         // Initializing Javalin and Jetty webserver
