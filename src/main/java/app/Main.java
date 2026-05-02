@@ -7,6 +7,8 @@ import app.persistence.ConnectionPool;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinThymeleaf;
 
+import java.util.UUID;
+
 public class Main {
     private static final String USER = "carport_user";
     private static final String PASSWORD = "hqx*Jdwqf7j!-k3ZKEmqbczQGpqPMW";
@@ -17,14 +19,14 @@ public class Main {
         // Initializing Javalin and Jetty webserver
 
         Javalin app = Javalin.create(config -> {
-            config.staticFiles.add("/public");
+            config.staticFiles.add("/static");
             config.jetty.modifyServletContextHandler(handler -> handler.setSessionHandler(SessionConfig.sessionConfig()));
             config.fileRenderer(new JavalinThymeleaf(ThymeleafConfig.templateEngine()));
         }).start(7070);
 
         // Routing
 
-        app.get("/", ctx -> ctx.render("index.html"));
+        app.get("/", ctx -> ctx.redirect("Side1"));
         UserController.addRouts(app, connectionPool);
     }
 }
