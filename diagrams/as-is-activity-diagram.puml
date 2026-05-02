@@ -1,0 +1,56 @@
+@startuml
+title AS-IS aktivitetsdiagram - Fog carport forespørgsel
+
+|Kunde|
+start
+:Vælg egne mål for carport;
+
+if (Ønskes skur?) then (Ja)
+  :Vælg mål og placering for skur;
+else (Nej)
+endif
+
+:Indsend forespørgsel;
+
+|Shop|
+:Modtag forespørgsel;
+
+|Mailsystem|
+:Send mail til sælger inkl. forespørgselsdata;
+
+|Sælger|
+:Modtag mail fra kunde;
+:Opret tilbud;
+
+|Tilbudsberegning|
+:Indtast forespørgselsdata;
+
+|Sælger|
+:Ring til kunde;
+
+if (Accepterer tilbud?) then (Ja)
+  |Kunde|
+  :Betal;
+
+  |Sælger|
+  :Opret ordre;
+
+  |Drift / Logistik|
+  :Ordre genereres til plukliste;
+  :Pakkes;
+  :Følgeseddel / stykliste printes og lægges med ordre;
+  :Sendes;
+
+  |Mailsystem|
+  :Send ordrebekræftelse til kunde;
+
+  |Kunde|
+  stop
+
+else (Nej)
+  |Kunde|
+  :Afsluttet;
+  stop
+endif
+
+@enduml
