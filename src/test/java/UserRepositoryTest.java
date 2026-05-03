@@ -1,19 +1,19 @@
 import app.entities.User;
+import app.exceptions.UserNotFoundException;
 import app.persistence.UserRepository;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+public class UserRepositoryTest extends DatabaseTest {
 
-public class UserRepositoryTest extends DatabaseTest{
-
-    private UserRepository userRepository = new UserRepository();
+    private final UserRepository userRepository = new UserRepository();
 
     @Test
-    void shouldCreateUser() throws Exception{
+    void shouldCreateUser() throws Exception {
+
         // Arrange
-        String email = "test@example.com";
+        String email = "CreateUser@example.com";
         String password = "password123";
 
         // Act
@@ -25,6 +25,17 @@ public class UserRepositoryTest extends DatabaseTest{
         assertEquals(email, user.getEmail());
         assertEquals(password, user.getPassword());
 
+    }
+
+    @Test
+    void shouldReturnNullWhenUserNotFound() throws Exception {
+        // Arrange
+        String email = "UserNotFound@example.com";
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class, () -> {
+            userRepository.findUserByEmail(email, connectionPool);
+        });
     }
 
 }
