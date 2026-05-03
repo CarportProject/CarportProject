@@ -121,3 +121,32 @@ body {
     background-color: #1a4f96;
     outline: none;
 }
+
+/* ===== FEJLBESKED ===== */
+.error-message {
+    font-size: 14px;
+    color: #c0392b;
+    background-color: #fdf0ef;
+    border: 1px solid #f5c6c2;
+    border-radius: 4px;
+    padding: 10px 14px;
+    width: 100%;
+    text-align: center;
+}
+
+/* ===== SKIFT SIDE LINK ===== */
+.login-switch {
+    text-align: center;
+    font-size: 14px;
+    color: #5f646b;
+    margin-top: 4px;
+}
+
+.login-switch a {
+    color: #2563b0;
+    text-decoration: none;
+}
+
+.login-switch a:hover {
+    text-decoration: underline;
+}

@@ -47,9 +47,11 @@
                 >
             </div>
 
-            <a th:href="@{/create-user}" class="create-user">Opret bruger?</a>
+            <p th:if="${error}" th:text="${error}" class="error-message"></p>
 
             <button type="submit" class="login-btn">Log på</button>
+
+            <p class="login-switch">Har du ikke en bruger? <a th:href="@{/create-user}">Opret bruger her</a></p>
 
         </form>
 
