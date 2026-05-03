@@ -12,6 +12,7 @@ public class UserController {
 
     public static void addRouts(Javalin app, ConnectionPool connectionPool) {
         app.get("/Side1", ctx -> ctx.render("fog-carport.html"));
+        app.get("/login-site", ctx -> ctx.render("login.html"));
     }
 
 }

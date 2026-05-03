@@ -26,7 +26,7 @@ public class Main {
 
         // Routing
 
-        app.get("/", ctx -> ctx.redirect("Side1"));
+        app.get("/", ctx -> ctx.redirect("/login-site"));
         UserController.addRouts(app, connectionPool);
     }
 }

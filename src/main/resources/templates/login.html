@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Log på – Johannes Fog</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+<div class="login-wrapper">
+    <div class="login-card">
+
+        <!-- Logo -->
+        <a href="/" class="login-logo" aria-label="Johannes Fog - gå til forside">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60" aria-hidden="true">
+                <rect width="60" height="60" fill="#013d7a"/>
+                <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle"
+                      fill="#ffffff" font-family="helvetica,arial,sans-serif" font-weight="bold" font-size="22">FOG</text>
+            </svg>
+        </a>
+
+        <h1 class="login-heading">Log på</h1>
+        <p class="login-subheading">Log på med din mailadresse</p>
+
+        <form class="login-form" th:action="@{/login}" method="post">
+
+            <div class="login-field">
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Mailadresse"
+                    autocomplete="email"
+                    required
+                >
+            </div>
+
+            <div class="login-field">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Adgangskode"
+                    autocomplete="current-password"
+                    required
+                >
+            </div>
+
+            <a th:href="@{/create-user}" class="create-user">Opret bruger?</a>
+
+            <button type="submit" class="login-btn">Log på</button>
+
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>
