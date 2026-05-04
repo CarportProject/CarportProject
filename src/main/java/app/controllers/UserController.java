@@ -9,8 +9,6 @@ import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controller responsible for handling HTTP requests related to user accounts,
@@ -55,10 +53,10 @@ public class UserController {
             ctx.redirect("/Side1");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
-            ctx.attribute("error", "Username or password incorrect");
+            ctx.attribute("error", "Brugernavn eller adgangskode forkert");
             ctx.render("login.html");
         } catch (Exception e) {
-            ctx.attribute("error", "Something went wrong, try again later");
+            ctx.attribute("error", "Noget gik galt, prøv igen senere");
             ctx.render("login.html");
         }
     }
@@ -85,10 +83,12 @@ public class UserController {
             ctx.sessionAttribute("user", user);
             ctx.redirect("/Side1");
         } catch (InvalidCredentialsException e) {
-            ctx.attribute("error", "Passwords do not match");
+
+            // TODO ændre fejlbesked
+            ctx.attribute("error", "Adgangskoderne stemmer ikke overens");
             ctx.render("create-user.html");
         } catch (DatabaseException | UserNotFoundException e) {
-            ctx.attribute("error", "Something went wrong, please try again");
+            ctx.attribute("error", "Noget gik galt, prøv igen senere");
             ctx.render("create-user.html");
         }
     }
@@ -108,5 +108,6 @@ public class UserController {
         // Redirect back to the referring page, falling back to the front page
         String ref = ctx.header("Referer");
         ctx.redirect(null != ref ? ref : "/");
+
     }
 }
