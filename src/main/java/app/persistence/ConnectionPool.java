@@ -98,4 +98,11 @@ public class ConnectionPool
         config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
         return new HikariDataSource(config);
     }
+    public static void resetInstance(){
+        if (null != ds){
+            ds.close();
+        }
+        instance = null;
+        ds = null;
+    }
 }
