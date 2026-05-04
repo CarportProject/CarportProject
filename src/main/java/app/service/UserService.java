@@ -6,7 +6,9 @@ import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
 import app.persistence.UserRepository;
+import app.util.GmailEmailSender;
 import io.javalin.http.Context;
+import jakarta.mail.MessagingException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Objects;
@@ -64,5 +66,13 @@ public class UserService {
         // Hash the password before storing it in the database
         String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
         userRepository.insertUser(email, hashedPassword, connectionPool);
+
+        //Send welcome mail
+        GmailEmailSender emailSender = new GmailEmailSender();
+        try{
+            emailSender.sendPlainTextEmail(email, "Velkommen til Fog!", "Hej!\n\nDin konto er nu oprettet.\n\nMed venlig hilsen\nFog");
+        } catch (MessagingException e) {
+            System.err.println("Could not send welcome email: " + e.getMessage());
+        }
     }
 }

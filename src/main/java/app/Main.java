@@ -10,11 +10,13 @@ import io.javalin.rendering.template.JavalinThymeleaf;
 import java.util.UUID;
 
 public class Main {
-    private static final String USER = "carport_user";
-    private static final String PASSWORD = "hqx*Jdwqf7j!-k3ZKEmqbczQGpqPMW";
-    private static final String URL = "jdbc:postgresql://167.172.103.174:5432/%s?currentSchema=public";
-    private static final String DB = "Carport";
-    private static final ConnectionPool connectionPool = ConnectionPool.getInstance(USER, PASSWORD, URL, DB);
+    private static final String USER = System.getenv("JDBC_USER");
+    private static final String PASSWORD = System.getenv("JDBC_PASSWORD");
+    private static final String URL = System.getenv("JDBC_CONNECTION_STRING");
+    private static final String SCHEMA = "public";
+    private static final String DB = System.getenv("JDBC_DB");
+    private static final ConnectionPool connectionPool = ConnectionPool.getInstance(USER, PASSWORD, URL, SCHEMA, DB);
+
     public static void main(String[] args) {
         // Initializing Javalin and Jetty webserver
 
