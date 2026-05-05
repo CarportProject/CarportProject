@@ -1,0 +1,65 @@
+@startuml
+title TO-BE aktivitetsdiagram - Fog carport forespørgsel
+
+|Kunde|
+:Vælg carport type;
+note right
+  Fladt tag eller høj rejsning
+end note
+:Udfyld formular med mål, materialer og tagtype;
+
+|System|
+:Opret formular;
+note right
+  Gem forespørgsel i database
+end note
+:Generér PDF-tegning og stykliste;
+:Udregn tilbudspris;
+
+|Mailsystem|
+:Send oprettelsesmail;
+fork
+  |Kunde|
+  :Modtag bekræftelsesmail og PDF;
+  stop
+fork again
+  |Sælger|
+  :Modtag mail vedrørende forespørgsel;
+
+|System|
+:Sælger bekræfter eller afviser forespørgsel;
+note right
+  Evt. justér tilbudspris
+end note
+
+if (Bekræfter forespørgsel?) then (Ja)
+  |Mailsystem|
+  :Send betalingsmail til kunde;
+  |Kunde|
+  :Modtag betalingsmail;
+
+  if (Bekræfter ordre?) then (Ja)
+    |System|
+    :Kunde udfører transaktion;
+    :Betaling gennemført;
+    |Mailsystem|
+    :Send kvittering og stykliste til kunde;
+    |Kunde|
+    :Modtag kvittering og stykliste;
+    stop
+  else (Nej)
+  |Mailsystem|
+  :Modtag om afvist ordre;
+  |Sælger|
+  :Modtager at kunden afviser ordre;
+    stop
+  endif
+
+else (Nej)
+  |Mailsystem|
+  :Send afvist forespørgsel til kunde;
+  |Kunde|
+  :Modtag mail om afvist forespørgsel;
+  stop
+
+@enduml
