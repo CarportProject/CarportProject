@@ -8,15 +8,16 @@ import java.sql.Statement;
 
 public abstract class DatabaseTest {
     protected static ConnectionPool connectionPool;
-    private static final String USER = "carport_user";
-    private static final String PASSWORD = "hqx*Jdwqf7j!-k3ZKEmqbczQGpqPMW";
-    private static final String URL = "jdbc:postgresql://167.172.103.174:5432/%s?currentSchema=test";
-    private static final String DB = "Carport";
+    private static final String USER = System.getenv("JDBC_USER");
+    private static final String PASSWORD = System.getenv("JDBC_PASSWORD");
+    private static final String URL = System.getenv("JDBC_CONNECTION_STRING");
+    private static final String SCHEMA = "test";
+    private static final String DB = System.getenv("JDBC_DB");
 
     @BeforeAll
     static void setup() {
         ConnectionPool.resetInstance();
-        connectionPool = ConnectionPool.getInstance(USER, PASSWORD, URL, DB);
+        connectionPool = ConnectionPool.getInstance(USER, PASSWORD, URL, SCHEMA, DB);
     }
 
     @BeforeEach
