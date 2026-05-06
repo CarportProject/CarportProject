@@ -5,7 +5,7 @@ import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
-import app.service.UserService;
+import app.mapper.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -16,7 +16,7 @@ import io.javalin.http.Context;
  */
 public class UserController {
 
-    private static final UserService userService = new UserService();
+    private static final UserService USER_SERVICE = new UserService();
 
     /**
      * Registers all user-related routes on the Javalin application.
@@ -47,7 +47,7 @@ public class UserController {
         String password = ctx.formParam("password");
 
         try {
-            User user = userService.login(email, password, connectionPool);
+            User user = USER_SERVICE.login(email, password, connectionPool);
             // Store the authenticated user in the session for subsequent requests
             ctx.sessionAttribute("user", user);
             ctx.redirect("/Side1");
@@ -76,10 +76,10 @@ public class UserController {
         String confirmPassword = ctx.formParam("confirmPassword");
 
         try {
-            userService.createUser(email, password, confirmPassword, connectionPool);
+            USER_SERVICE.createUser(email, password, confirmPassword, connectionPool);
 
             // Automatically log the user in after successful registration
-            User user = userService.login(email, password, connectionPool);
+            User user = USER_SERVICE.login(email, password, connectionPool);
             ctx.sessionAttribute("user", user);
             ctx.redirect("/Side1");
         } catch (InvalidCredentialsException e) {

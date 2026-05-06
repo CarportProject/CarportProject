@@ -14,7 +14,7 @@ import java.sql.SQLException;
  * Repository class responsible for all database operations related to users.
  * Communicates directly with the {@code public.users} table.
  */
-public class UserRepository {
+public class UserMapper {
 
     /**
      * Looks up a user in the database by their email address.

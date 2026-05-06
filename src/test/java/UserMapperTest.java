@@ -1,13 +1,13 @@
 import app.entities.User;
 import app.exceptions.UserNotFoundException;
-import app.persistence.UserRepository;
+import app.persistence.UserMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserRepositoryTest extends DatabaseTest {
+public class UserMapperTest extends DatabaseTest {
 
-    private final UserRepository userRepository = new UserRepository();
+    private final UserMapper userMapper = new UserMapper();
 
     @Test
     void shouldCreateUser() throws Exception {
@@ -17,10 +17,10 @@ public class UserRepositoryTest extends DatabaseTest {
         String password = "password123";
 
         // Act
-        userRepository.insertUser(email, password, connectionPool);
+        userMapper.insertUser(email, password, connectionPool);
 
         // Assert
-        User user = userRepository.findUserByEmail(email, connectionPool);
+        User user = userMapper.findUserByEmail(email, connectionPool);
         assertNotNull(user);
         assertEquals(email, user.getEmail());
         assertEquals(password, user.getPassword());
@@ -34,7 +34,7 @@ public class UserRepositoryTest extends DatabaseTest {
 
         // Act & Assert
         assertThrows(UserNotFoundException.class, () -> {
-            userRepository.findUserByEmail(email, connectionPool);
+            userMapper.findUserByEmail(email, connectionPool);
         });
     }
 
