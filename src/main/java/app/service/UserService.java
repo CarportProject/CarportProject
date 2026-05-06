@@ -7,7 +7,6 @@ import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
 import app.persistence.UserRepository;
 import app.util.GmailEmailSender;
-import io.javalin.http.Context;
 import jakarta.mail.MessagingException;
 import org.mindrot.jbcrypt.BCrypt;
 
