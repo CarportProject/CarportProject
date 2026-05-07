@@ -69,6 +69,33 @@ public class Customer {
     private Customer() {
     }
 
+    /** @return the customer's database ID */
+    public int getId() { return id; }
+
+    /** @return the customer's email address */
+    public String getEmail() { return email; }
+
+    /** @return the customer's street address */
+    public String getAddress() { return address; }
+
+    /** @return the customer's first name */
+    public String getFirstName() { return firstName; }
+
+    /** @return the customer's last name */
+    public String getLastName() { return lastName; }
+
+    /** @return the customer's postal code */
+    public int getPostalCode() { return postalCode; }
+
+    /** @return the city corresponding to the customer's postal code */
+    public String getCity() { return city; }
+
+    /** @return the customer's phone number */
+    public String getPhoneNumber() { return phoneNumber; }
+
+    /** @return the user linked to this customer, or {@code null} if none */
+    public User getUser() { return user; }
+
     /**
      * Builder for constructing {@link Customer} instances.
      * <p>

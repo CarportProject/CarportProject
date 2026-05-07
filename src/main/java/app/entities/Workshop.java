@@ -30,6 +30,15 @@ public class Workshop {
     private Workshop() {
     }
 
+    /** @return the workshop's database ID */
+    public int getId() { return id; }
+
+    /** @return the width of the workshop in centimetres */
+    public int getWidthCm() { return widthCm; }
+
+    /** @return the length of the workshop in centimetres */
+    public int getLengthCm() { return lengthCm; }
+
     /**
      * Builder for constructing {@link Workshop} instances.
      * <p>

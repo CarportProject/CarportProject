@@ -42,6 +42,24 @@ public class Specifications {
     private Specifications() {
     }
 
+    /** @return the specifications' database ID */
+    public int getId() { return id; }
+
+    /** @return whether the roof is flat or raised */
+    public RoofType getRoofType() { return roofType; }
+
+    /** @return the chosen roof cladding style */
+    public RoofStyle getRoofStyle() { return roofStyle; }
+
+    /** @return the width of the carport in centimetres */
+    public int getWidthCm() { return widthCm; }
+
+    /** @return the length of the carport in centimetres */
+    public int getLengthCm() { return lengthCm; }
+
+    /** @return the pitch of the roof in degrees */
+    public int getRoofPitch() { return roofPitch; }
+
     /**
      * Builder for constructing {@link Specifications} instances.
      * <p>

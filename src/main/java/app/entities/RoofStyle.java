@@ -34,6 +34,18 @@ public class RoofStyle {
     private RoofStyle() {
     }
 
+    /** @return the roof style's database ID */
+    public int getId() { return id; }
+
+    /** @return the display name of the roof style */
+    public String getName() { return name; }
+
+    /** @return the colour of the roof cladding */
+    public String getColor() { return color; }
+
+    /** @return the price per square metre in øre */
+    public int getPrice() { return price; }
+
     /**
      * Builder for constructing {@link RoofStyle} instances.
      * <p>

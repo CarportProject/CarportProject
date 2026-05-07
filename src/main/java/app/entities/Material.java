@@ -35,6 +35,18 @@ public class Material {
     private Material() {
     }
 
+    /** @return the material's database ID */
+    public int getId() { return id; }
+
+    /** @return the display name of the material */
+    public String getName() { return name; }
+
+    /** @return the detailed description of the material */
+    public String getDescription() { return description; }
+
+    /** @return the unit price of the material in øre */
+    public int getPrice() { return price; }
+
     /**
      * Builder for constructing {@link Material} instances.
      * <p>

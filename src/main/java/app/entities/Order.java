@@ -42,6 +42,24 @@ public class Order {
     private Order() {
     }
 
+    /** @return the order's database ID */
+    public int getId() { return id; }
+
+    /** @return the customer who placed this order */
+    public Customer getCustomer() { return customer; }
+
+    /** @return the list of materials required for this order */
+    public List<Material> getMaterialList() { return materialList; }
+
+    /** @return the carport specifications for this order */
+    public Specifications getSpecifications() { return specifications; }
+
+    /** @return the attached workshop, or {@code null} if none */
+    public Workshop getWorkshop() { return workshop; }
+
+    /** @return any free-text remarks for this order */
+    public String getRemarks() { return remarks; }
+
     /**
      * Builder for constructing {@link Order} instances.
      * <p>
