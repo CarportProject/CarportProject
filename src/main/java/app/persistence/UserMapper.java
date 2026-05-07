@@ -43,7 +43,12 @@ public class UserMapper {
                 // Convert the role string from the database to the Role enum
                 Role role = Role.valueOf(roleColumn);
 
-                return new User(email, role, userID, password);
+                return new User.Builder()
+                        .id(userID)
+                        .password(password)
+                        .role(role)
+                        .email(email)
+                        .build();
             } else {
                 throw new UserNotFoundException("No user found in findUserByEmail");
             }

@@ -1,53 +1,72 @@
 @startuml
 
 class Customer {
-    name
-    email
-    address
-    postalCode
-    city
-    phone
+    id : int
+    firstName : String
+    lastName : String
+    email : String
+    address : String
+    postalCode : int
+    city : String
+    phoneNumber : String
 }
 
 class Order {
-    remarks
+    id : int
+    remarks : String
 }
 
 class Specifications {
-    roofType
-    roofStyle
-    widthCm
-    lengthCm
-    roofPitch
+    id : int
+    widthCm : int
+    lengthCm : int
+    roofPitch : int
 }
 
 class Workshop {
-    widthCm
-    lengthCm
+    id : int
+    widthCm : int
+    lengthCm : int
 }
 
 class Material {
-    name
-    description
-    price
+    id : int
+    name : String
+    description : String
+    price : int
 }
 
 class RoofStyle {
-    name
-    color
-    pricePerM2
-}
-class User{
-email
-role
-password
+    id : int
+    name : String
+    color : String
+    price : int
 }
 
+class User {
+    id : int
+    email : String
+    password : String
+}
+
+enum Role {
+    ADMIN
+    SALES
+    CUSTOMER
+}
+
+enum RoofType {
+    FLAT
+    RAISED
+}
+
+Customer "many" -- "0..1" User : linked to
 Customer "1" -- "many" Order : places
 Order "1" -- "1" Specifications : has
 Order "1" -- "0..1" Workshop : has
-User "0..1" -- "1" Order : places
 Order "many" -- "many" Material : contains
 Specifications "many" -- "1" RoofStyle : has
+Specifications "many" -- "1" RoofType : has
+User "1" -- "1" Role : has
 
 @enduml

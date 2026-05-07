@@ -18,31 +18,54 @@ package app.entities;
  */
 public class Customer {
 
-    /** Unique identifier for the customer in the database. */
+    /**
+     * Unique identifier for the customer in the database.
+     */
     private int id;
 
-    /** Customer's email address, used for login and communication. */
+    /**
+     * Customer's email address, used for login and communication.
+     */
     private String email;
 
-    /** Street address of the customer. */
+    /**
+     * Street address of the customer.
+     */
     private String address;
 
-    /** Customer's first name. */
+    /**
+     * Customer's first name.
+     */
     private String firstName;
 
-    /** Customer's last name. */
+    /**
+     * Customer's last name.
+     */
     private String lastName;
 
-    /** Danish postal code (postnummer) for the customer's address. */
+    /**
+     * Danish postal code (postnummer) for the customer's address.
+     */
     private int postalCode;
 
-    /** City corresponding to the customer's postal code. */
+    /**
+     * City corresponding to the customer's postal code.
+     */
     private String city;
 
-    /** Customer's phone number. */
+    /**
+     * Customer's phone number.
+     */
     private String phoneNumber;
 
-    /** Private constructor — use {@link Builder} to create instances. */
+    /**
+     * Potential user connected to the order
+     */
+    User user;
+
+    /**
+     * Private constructor — use {@link Builder} to create instances.
+     */
     private Customer() {
     }
 
@@ -62,6 +85,7 @@ public class Customer {
         private int postalCode;
         private String city;
         private String phoneNumber;
+        private User user;
 
         /**
          * Sets the customer's database ID.
@@ -152,6 +176,17 @@ public class Customer {
         }
 
         /**
+         * Links the customer to a user
+         *
+         * @param user the user
+         * @return this builder
+         */
+        public Builder user(User user) {
+            this.user = user;
+            return this;
+        }
+
+        /**
          * Builds and returns a new {@link Customer} with the values set on this builder.
          *
          * @return a fully constructed {@link Customer} instance
@@ -166,6 +201,7 @@ public class Customer {
             customer.postalCode = this.postalCode;
             customer.city = this.city;
             customer.phoneNumber = this.phoneNumber;
+            customer.user = this.user;
             return customer;
         }
     }
