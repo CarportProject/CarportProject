@@ -5,9 +5,8 @@ import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
-import app.persistence.UserRepository;
+import app.persistence.UserMapper;
 import app.util.GmailEmailSender;
-import io.javalin.http.Context;
 import jakarta.mail.MessagingException;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -19,7 +18,7 @@ import java.util.Objects;
  */
 public class UserService {
 
-    private static final UserRepository userRepository = new UserRepository();
+    private static final UserMapper USER_MAPPER = new UserMapper();
 
     /**
      * Authenticates a user by verifying their email and password.
@@ -35,7 +34,7 @@ public class UserService {
      * @throws DatabaseException           if a database error occurs during lookup
      */
     public User login(String email, String password, ConnectionPool connectionPool) throws DatabaseException, InvalidCredentialsException, UserNotFoundException {
-        User user = userRepository.findUserByEmail(email, connectionPool);
+        User user = USER_MAPPER.findUserByEmail(email, connectionPool);
 
         // Compare the provided plain-text password with the stored BCrypt hash
         if (!BCrypt.checkpw(password, user.getPassword())) {
@@ -65,7 +64,7 @@ public class UserService {
 
         // Hash the password before storing it in the database
         String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
-        userRepository.insertUser(email, hashedPassword, connectionPool);
+        USER_MAPPER.insertUser(email, hashedPassword, connectionPool);
 
         //Send welcome mail
         GmailEmailSender emailSender = new GmailEmailSender();
