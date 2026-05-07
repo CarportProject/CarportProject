@@ -46,6 +46,8 @@ public class UserController {
         String email = ctx.formParam("email");
         String password = ctx.formParam("password");
 
+        if (validateLogin(ctx, email, password)) return;
+
         try {
             User user = USER_SERVICE.login(email, password, connectionPool);
             // Store the authenticated user in the session for subsequent requests
@@ -53,12 +55,36 @@ public class UserController {
             ctx.redirect("/Side1");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
-            ctx.attribute("error", "Brugernavn eller adgangskode forkert");
+            ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert");
             ctx.render("login.html");
         } catch (Exception e) {
-            ctx.attribute("error", "Noget gik galt, prøv igen senere");
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
             ctx.render("login.html");
         }
+    }
+
+    /**
+     * Validates that email and password form parameters are present and non-blank.
+     * Renders the registration page with an error message and returns {@code true}
+     * if validation fails, so the caller can return early.
+     *
+     * @param ctx      the Javalin request/response context
+     * @param email    the email parameter from the form, may be {@code null}
+     * @param password the password parameter from the form, may be {@code null}
+     * @return {@code true} if validation failed, {@code false} if both fields are valid
+     */
+    private static boolean validateLogin(Context ctx, String email, String password) {
+        if (email == null || email.isBlank()) {
+            ctx.attribute("errorMessage", "Email is required");
+            ctx.render("create-user.html");
+            return true;
+        }
+        if (password == null || password.isBlank()) {
+            ctx.attribute("errorMessage", "Password is required");
+            ctx.render("create-user.html");
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -75,6 +101,8 @@ public class UserController {
         String password = ctx.formParam("password");
         String confirmPassword = ctx.formParam("confirmPassword");
 
+        if (validateLogin(ctx, email, password)) return;
+
         try {
             USER_SERVICE.createUser(email, password, confirmPassword, connectionPool);
 
@@ -83,12 +111,10 @@ public class UserController {
             ctx.sessionAttribute("user", user);
             ctx.redirect("/Side1");
         } catch (InvalidCredentialsException e) {
-
-            // TODO ændre fejlbesked
-            ctx.attribute("error", "Adgangskoderne stemmer ikke overens");
+            ctx.attribute("errorMessage", "Adgangskoderne stemmer ikke overens");
             ctx.render("create-user.html");
         } catch (DatabaseException | UserNotFoundException e) {
-            ctx.attribute("error", "Noget gik galt, prøv igen senere");
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
             ctx.render("create-user.html");
         }
     }

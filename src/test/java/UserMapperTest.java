@@ -44,7 +44,7 @@ public class UserMapperTest extends DatabaseTest {
      * throws {@link UserNotFoundException} rather than returning {@code null}.
      */
     @Test
-    void shouldReturnNullWhenUserNotFound() throws Exception {
+    void shouldThrowExceptionWhenUserNotFound() throws Exception {
         // Arrange
         String email = "UserNotFound@example.com";
 

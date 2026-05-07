@@ -38,6 +38,7 @@ public class UserService {
 
         // Compare the provided plain-text password with the stored BCrypt hash
         if (!BCrypt.checkpw(password, user.getPassword())) {
+            System.err.println("[UserService.login] Incorrect password attempt for email: " + email);
             throw new InvalidCredentialsException("Password wrong in login");
         }
 
