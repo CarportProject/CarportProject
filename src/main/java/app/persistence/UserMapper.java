@@ -23,6 +23,7 @@ public class UserMapper {
      * @param connectionPool the database connection pool
      * @return the matching {@link User}
      * @throws UserNotFoundException if no user with the given email exists
+     * @throws DatabaseException     if {@link Role} could not be parsed from database
      * @throws DatabaseException     if a SQL error occurs during the query
      */
     public User findUserByEmail(String email, ConnectionPool connectionPool) throws DatabaseException, UserNotFoundException {
@@ -41,14 +42,27 @@ public class UserMapper {
                 String roleColumn = resultSet.getString("role");
 
                 // Convert the role string from the database to the Role enum
-                Role role = Role.valueOf(roleColumn);
+                Role role = null;
+                try {
+                    role = Role.valueOf(roleColumn);
+                } catch (IllegalArgumentException e){
+                    System.err.println("Unknown role in database : " + roleColumn);
+                    throw new DatabaseException("An error occurred while fetching the user");
+                }
 
-                return new User(email, role, userID, password);
+                return new User.Builder()
+                        .id(userID)
+                        .password(password)
+                        .role(role)
+                        .email(email)
+                        .build();
             } else {
-                throw new UserNotFoundException("No user found in findUserByEmail");
+                System.err.println("Could not find user in database [Usermapper.findUserByEmail]");
+                throw new UserNotFoundException("User not found");
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Database error in findUserByEmail: " + e.getMessage());
+            System.err.println("[Usermapper.findUserByEmail]" + e.getMessage());
+            throw new DatabaseException("An error occurred while fetching the user");
         }
     }
 
@@ -71,7 +85,8 @@ public class UserMapper {
             preparedStatement.setString(2, password);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            throw new DatabaseException("Database error in insertUser: " + e.getMessage());
+            System.err.println("[UserMapper.insertUser] " + e.getMessage());
+            throw new DatabaseException("An error occurred while creating the user");
         }
     }
 }

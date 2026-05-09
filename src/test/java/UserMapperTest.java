@@ -5,10 +5,22 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Integration tests for {@link UserMapper}.
+ * <p>
+ * Each test runs against the {@code test} schema via the shared connection pool
+ * provided by {@link DatabaseTest}. The database is wiped before every test,
+ * so tests are fully independent of each other.
+ * </p>
+ */
 public class UserMapperTest extends DatabaseTest {
 
     private final UserMapper userMapper = new UserMapper();
 
+    /**
+     * Verifies that a newly inserted user can be retrieved by email,
+     * and that the stored email and password match the inserted values.
+     */
     @Test
     void shouldCreateUser() throws Exception {
 
@@ -27,8 +39,12 @@ public class UserMapperTest extends DatabaseTest {
 
     }
 
+    /**
+     * Verifies that looking up an email that does not exist in the database
+     * throws {@link UserNotFoundException} rather than returning {@code null}.
+     */
     @Test
-    void shouldReturnNullWhenUserNotFound() throws Exception {
+    void shouldThrowExceptionWhenUserNotFound() throws Exception {
         // Arrange
         String email = "UserNotFound@example.com";
 
