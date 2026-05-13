@@ -3,7 +3,7 @@ package app.entities;
 import java.util.List;
 
 /**
- * Represents a carport order placed by a customer.
+ * Represents a carport order placed by a contactInfo.
  * <p>
  * Instances are created via the nested {@link Builder} class using the builder pattern,
  * which ensures all fields are set before the object is constructed.
@@ -12,8 +12,9 @@ import java.util.List;
  * <pre>{@code
  * Order order = new Order.Builder()
  *     .id(1)
- *     .customer(customer)
+ *     .contactInfo(contactInfo)
  *     .specifications(specs)
+ *     .workshop(workshop)
  *     .remarks("Delivery before noon")
  *     .build();
  * }</pre>
@@ -23,13 +24,13 @@ public class Order {
     /** Unique identifier for the order in the database. */
     private int id;
 
-    /** The customer who placed this order. */
-    private Customer customer;
+    /** The contactInfo who placed this order. */
+    private ContactInfo contactInfo;
 
     /** List of materials required to fulfil this order. */
     private List<Material> materialList;
 
-    /** The carport dimensions and roof configuration chosen by the customer. */
+    /** The carport dimensions and roof configuration chosen by the contactInfo. */
     private Specifications specifications;
 
     /** Optional workshop (shed) attached to the carport, if requested. */
@@ -45,8 +46,8 @@ public class Order {
     /** @return the order's database ID */
     public int getId() { return id; }
 
-    /** @return the customer who placed this order */
-    public Customer getCustomer() { return customer; }
+    /** @return the contactInfo who placed this order */
+    public ContactInfo getCustomer() { return contactInfo; }
 
     /** @return the list of materials required for this order */
     public List<Material> getMaterialList() { return materialList; }
@@ -69,7 +70,7 @@ public class Order {
      */
     public static class Builder {
         private int id;
-        private Customer customer;
+        private ContactInfo contactInfo;
         private List<Material> materialList;
         private Specifications specifications;
         private Workshop workshop;
@@ -87,13 +88,13 @@ public class Order {
         }
 
         /**
-         * Sets the customer who placed the order.
+         * Sets the contactInfo who placed the order.
          *
-         * @param customer the customer
+         * @param contactInfo the contactInfo
          * @return this builder
          */
-        public Builder customer(Customer customer) {
-            this.customer = customer;
+        public Builder contactInfo(ContactInfo contactInfo) {
+            this.contactInfo = contactInfo;
             return this;
         }
 
@@ -149,7 +150,7 @@ public class Order {
         public Order build() {
             Order order = new Order();
             order.id = this.id;
-            order.customer = this.customer;
+            order.contactInfo = this.contactInfo;
             order.materialList = this.materialList;
             order.specifications = this.specifications;
             order.workshop = this.workshop;

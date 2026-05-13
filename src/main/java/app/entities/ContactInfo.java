@@ -8,7 +8,7 @@ package app.entities;
  * </p>
  *
  * <pre>{@code
- * Customer customer = new Customer.Builder()
+ * ContactInfo customer = new ContactInfo.Builder()
  *     .id(1)
  *     .firstName("John")
  *     .lastName("Doe")
@@ -16,7 +16,7 @@ package app.entities;
  *     .build();
  * }</pre>
  */
-public class Customer {
+public class ContactInfo {
 
     /**
      * Unique identifier for the customer in the database.
@@ -24,7 +24,7 @@ public class Customer {
     private int id;
 
     /**
-     * Customer's email address, used for login and communication.
+     * ContactInfo's email address, used for login and communication.
      */
     private String email;
 
@@ -34,12 +34,12 @@ public class Customer {
     private String address;
 
     /**
-     * Customer's first name.
+     * ContactInfo's first name.
      */
     private String firstName;
 
     /**
-     * Customer's last name.
+     * ContactInfo's last name.
      */
     private String lastName;
 
@@ -54,7 +54,7 @@ public class Customer {
     private String city;
 
     /**
-     * Customer's phone number.
+     * ContactInfo's phone number.
      */
     private String phoneNumber;
 
@@ -66,7 +66,7 @@ public class Customer {
     /**
      * Private constructor — use {@link Builder} to create instances.
      */
-    private Customer() {
+    private ContactInfo() {
     }
 
     /** @return the customer's database ID */
@@ -97,7 +97,7 @@ public class Customer {
     public User getUser() { return user; }
 
     /**
-     * Builder for constructing {@link Customer} instances.
+     * Builder for constructing {@link ContactInfo} instances.
      * <p>
      * Each setter method returns the builder itself to allow method chaining.
      * Call {@link #build()} when all desired fields have been set.
@@ -214,22 +214,22 @@ public class Customer {
         }
 
         /**
-         * Builds and returns a new {@link Customer} with the values set on this builder.
+         * Builds and returns a new {@link ContactInfo} with the values set on this builder.
          *
-         * @return a fully constructed {@link Customer} instance
+         * @return a fully constructed {@link ContactInfo} instance
          */
-        public Customer build() {
-            Customer customer = new Customer();
-            customer.id = this.id;
-            customer.email = this.email;
-            customer.address = this.address;
-            customer.firstName = this.firstName;
-            customer.lastName = this.lastName;
-            customer.postalCode = this.postalCode;
-            customer.city = this.city;
-            customer.phoneNumber = this.phoneNumber;
-            customer.user = this.user;
-            return customer;
+        public ContactInfo build() {
+            ContactInfo contactInfo = new ContactInfo();
+            contactInfo.id = this.id;
+            contactInfo.email = this.email;
+            contactInfo.address = this.address;
+            contactInfo.firstName = this.firstName;
+            contactInfo.lastName = this.lastName;
+            contactInfo.postalCode = this.postalCode;
+            contactInfo.city = this.city;
+            contactInfo.phoneNumber = this.phoneNumber;
+            contactInfo.user = this.user;
+            return contactInfo;
         }
     }
 
