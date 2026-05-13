@@ -17,27 +17,47 @@ package app.entities;
  */
 public class Workshop {
 
-    /** Unique identifier for the workshop in the database. */
+    /**
+     * Unique identifier for the workshop in the database.
+     */
     private int id;
 
-    /** Width of the workshop in centimetres. */
+    /**
+     * Width of the workshop in centimetres.
+     */
     private int widthCm;
 
-    /** Length of the workshop in centimetres. */
+    /**
+     * Length of the workshop in centimetres.
+     */
     private int lengthCm;
 
-    /** Private constructor — use {@link Builder} to create instances. */
+    /**
+     * Private constructor — use {@link Builder} to create instances.
+     */
     private Workshop() {
     }
 
-    /** @return the workshop's database ID */
-    public int getId() { return id; }
+    /**
+     * @return the workshop's database ID
+     */
+    public int getId() {
+        return id;
+    }
 
-    /** @return the width of the workshop in centimetres */
-    public int getWidthCm() { return widthCm; }
+    /**
+     * @return the width of the workshop in centimetres
+     */
+    public int getWidthCm() {
+        return widthCm;
+    }
 
-    /** @return the length of the workshop in centimetres */
-    public int getLengthCm() { return lengthCm; }
+    /**
+     * @return the length of the workshop in centimetres
+     */
+    public int getLengthCm() {
+        return lengthCm;
+    }
 
     /**
      * Builder for constructing {@link Workshop} instances.
