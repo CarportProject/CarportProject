@@ -1,4 +1,4 @@
-package app.mapper;
+package app.service;
 
 import app.entities.User;
 import app.exceptions.DatabaseException;

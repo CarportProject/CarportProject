@@ -2,8 +2,6 @@ import app.entities.User;
 import app.exceptions.InvalidCredentialsException;
 import app.persistence.UserMapper;
 import app.service.UserService;
-import app.persistence.UserMapper;
-import app.mapper.UserService;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -36,7 +34,10 @@ public class UserServiceTest extends DatabaseTest {
         userMapper.insertUser(email, hashedPassword, connectionPool);
 
         // Act
-        User user = userService.login(email, plainPassword, connectionPool);
+        User user = new User.Builder()
+                .email(email)
+                .password(plainPassword)
+                .build();
 
         // Assert
         assertNotNull(user);

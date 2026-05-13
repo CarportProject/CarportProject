@@ -9,7 +9,7 @@ public class SalesEmailObserver implements OrderObserver {
     @Override
     public void update(Order order, OrderEvent event) {
         GmailEmailSender gmailEmailSender = new GmailEmailSender();
-        String email = order.getEmail();
+        String email = order.getCustomer().getEmail();
         String subject = "";
         String body = "";
         try {

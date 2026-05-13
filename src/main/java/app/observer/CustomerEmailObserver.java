@@ -9,7 +9,7 @@ public class CustomerEmailObserver implements OrderObserver {
 
     @Override
     public void update(Order order, OrderEvent orderEvent) {
-        String email = order.getEmail();
+        String email = order.getCustomer().getEmail();
         String subject = "";
         String body = "";
         try {

@@ -23,9 +23,13 @@ public class OrderService {
         }
     }
 
-    public void createOrder(Order order, OrderEvent orderEvent, ConnectionPool connectionPool) throws DatabaseException {
+    public void createOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
         //TODO create orderMapper
-        orderMapper.insterOrder(order, connectionPool);
-        notifyObservers(order, orderEvent);
+        //orderMapper.insertOrder(order, connectionPool);
+        notifyObservers(order, OrderEvent.ORDER_CREATED);
+    }
+    public void cancelOrder(Order order, ConnectionPool connectionPool){
+
+        notifyObservers(order, OrderEvent.ORDER_CANCELLED);
     }
 }

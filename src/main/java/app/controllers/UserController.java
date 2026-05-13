@@ -5,7 +5,7 @@ import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
-import app.mapper.UserService;
+import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
