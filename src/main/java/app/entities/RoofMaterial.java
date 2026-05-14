@@ -43,6 +43,8 @@ public class RoofMaterial {
      */
     private RoofType roofType;
 
+    private String displayName;
+
     /**
      * Private constructor — use {@link Builder} to create instances.
      */
@@ -84,6 +86,16 @@ public class RoofMaterial {
         return roofType;
     }
 
+    public String getDisplayName() {
+        String display = null;
+        if(color == null || color.isBlank()){
+            display = name;
+        } else {
+            display = name + " - " + color;
+        }
+        return display;
+    }
+
     /**
      * Builder for constructing {@link RoofMaterial} instances.
      * <p>
@@ -97,6 +109,7 @@ public class RoofMaterial {
         private String color;
         private int price;
         private RoofType roofType;
+        private String displayName;
 
         /**
          * Sets the roof style's database ID.

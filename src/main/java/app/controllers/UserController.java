@@ -1,16 +1,15 @@
 package app.controllers;
 
+import app.entities.RoofType;
 import app.entities.User;
 import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
+import app.service.FormService;
 import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -62,10 +61,10 @@ public class UserController {
             ctx.redirect("/Side1");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
-            ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert");
+            ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert.");
             ctx.render("login.html");
         } catch (Exception e) {
-            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
             ctx.render("login.html");
         }
     }
@@ -82,12 +81,12 @@ public class UserController {
      */
     private static boolean validateLogin(Context ctx, String email, String password) {
         if (email == null || email.isBlank()) {
-            ctx.attribute("errorMessage", "Email is required");
+            ctx.attribute("errorMessage", "Email mangler.");
             ctx.render("create-user.html");
             return true;
         }
         if (password == null || password.isBlank()) {
-            ctx.attribute("errorMessage", "Password is required");
+            ctx.attribute("errorMessage", "Adgangskode mangler.");
             ctx.render("create-user.html");
             return true;
         }
@@ -118,10 +117,11 @@ public class UserController {
             ctx.sessionAttribute("user", user);
             ctx.redirect("/Side1");
         } catch (InvalidCredentialsException e) {
-            ctx.attribute("errorMessage", "Adgangskoderne stemmer ikke overens");
+            ctx.attribute("errorMessage", "Adgangskoderne stemmer ikke overens.");
             ctx.render("create-user.html");
         } catch (DatabaseException | UserNotFoundException e) {
-            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
+            System.err.println("[UserController.createUser] " + e.getMessage());
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
             ctx.render("create-user.html");
         }
     }
@@ -145,20 +145,17 @@ public class UserController {
     }
 
     private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
-        List<Integer> dimensions = new ArrayList<>();
-        Integer i = 240;
-
-        dimensions.add(i);
-
-        while (i < 780) {
-            i = i + 30;
-            dimensions.add(i);
+        FormService formService = new FormService();
+        try {
+            ctx.attribute("tiles", formService.getRoofByRoofType(RoofType.FLAT, connectionPool));
+        } catch (DatabaseException e) {
+            System.err.println("[UserController.getFlatRoof] " + e.getMessage());
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
         }
-
-        List<Integer> widths = dimensions.stream().filter(o -> o <= 600).toList();
-
-        ctx.attribute("widths", widths);
-        ctx.attribute("lengths", dimensions);
+        ctx.attribute("widths", formService.getRange(240, 600, 30));
+        ctx.attribute("lengths", formService.getRange(240, 780, 30));
+        ctx.attribute("workshopWidths", formService.getRange(150, 690, 30));
+        ctx.attribute("workshopLengths", formService.getRange(210, 720, 30));
         ctx.render("flat-roof.html");
     }
 }
