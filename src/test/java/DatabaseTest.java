@@ -57,7 +57,7 @@ public abstract class DatabaseTest {
     @BeforeEach
     void cleanDatabase() throws SQLException {
         // Add more tables as needed
-        String sql = "DELETE FROM users;";
+        String sql = "DELETE FROM test.users;";
         try (
                 Connection connection = connectionPool.getConnection();
                 Statement statement = connection.createStatement()

@@ -21,7 +21,7 @@ end note
 fork
   |Kunde|
   :Modtag bekræftelsesmail og PDF;
-  stop
+  detach
 fork again
   |Sælger|
   :Modtag mail vedrørende forespørgsel;
@@ -48,11 +48,11 @@ if (Bekræfter forespørgsel?) then (Ja)
     :Modtag kvittering og stykliste;
     stop
   else (Nej)
-  |Mailsystem|
-  :Modtag om afvist ordre;
-  |Sælger|
-  :Modtager at kunden afviser ordre;
-    stop
+    |Mailsystem|
+    :Modtag om afvist ordre;
+    |Sælger|
+    :Modtager at kunden afviser ordre;
+    detach
   endif
 
 else (Nej)
@@ -60,6 +60,9 @@ else (Nej)
   :Send afvist forespørgsel til kunde;
   |Kunde|
   :Modtag mail om afvist forespørgsel;
-  stop
+  detach
+endif
+
+end fork
 
 @enduml

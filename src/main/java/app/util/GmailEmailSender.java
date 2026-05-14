@@ -1,16 +1,12 @@
 package app.util;
-
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
-
 import java.util.Properties;
 
 public class GmailEmailSender {
-
     private final String username;
     private final String password;
-
     public GmailEmailSender() {
         this.username = System.getenv("MAIL_USERNAME");
         this.password = System.getenv("MAIL_PASSWORD");
