@@ -47,7 +47,7 @@ public class OrderMapper {
      * @throws DatabaseException if a SQL error occurs during the insert
      */
     private void insertOrderRecord(Order order, ConnectionPool connectionPool) throws DatabaseException {
-        String sql = "INSERT INTO orders (remarks, order_status) VALUES (?, ?)";
+        String sql = "INSERT INTO orders (remarks, status) VALUES (?, ?)";
 
         try (
                 Connection connection = connectionPool.getConnection();
