@@ -21,45 +21,95 @@ import java.util.List;
  */
 public class Order {
 
-    /** Unique identifier for the order in the database. */
+    /**
+     * Unique identifier for the order in the database.
+     */
     private int id;
 
-    /** The contactInfo who placed this order. */
+    /**
+     * The contactInfo who placed this order.
+     */
     private ContactInfo contactInfo;
 
-    /** List of materials required to fulfil this order. */
+    /**
+     * List of materials required to fulfil this order.
+     */
     private List<Material> materialList;
 
-    /** The carport dimensions and roof configuration chosen by the contactInfo. */
+    /**
+     * The carport dimensions and roof configuration chosen by the contactInfo.
+     */
     private Specifications specifications;
 
-    /** Optional workshop (shed) attached to the carport, if requested. */
+    /**
+     * Optional workshop (shed) attached to the carport, if requested.
+     */
     private Workshop workshop;
 
-    /** Free-text remarks or special instructions for this order. */
+    /**
+     * Free-text remarks or special instructions for this order.
+     */
     private String remarks;
 
-    /** Private constructor — use {@link Builder} to create instances. */
+    /**
+     * The status of the order
+     */
+    private OrderStatus orderStatus;
+
+    /**
+     * Private constructor — use {@link Builder} to create instances.
+     */
     private Order() {
     }
 
-    /** @return the order's database ID */
-    public int getId() { return id; }
+    /**
+     * @return the order's database ID
+     */
+    public int getId() {
+        return id;
+    }
 
-    /** @return the contactInfo who placed this order */
-    public ContactInfo getCustomer() { return contactInfo; }
+    /**
+     * @return the contactInfo who placed this order
+     */
+    public ContactInfo getCustomer() {
+        return contactInfo;
+    }
 
-    /** @return the list of materials required for this order */
-    public List<Material> getMaterialList() { return materialList; }
+    /**
+     * @return the list of materials required for this order
+     */
+    public List<Material> getMaterialList() {
+        return materialList;
+    }
 
-    /** @return the carport specifications for this order */
-    public Specifications getSpecifications() { return specifications; }
+    /**
+     * @return the carport specifications for this order
+     */
+    public Specifications getSpecifications() {
+        return specifications;
+    }
 
-    /** @return the attached workshop, or {@code null} if none */
-    public Workshop getWorkshop() { return workshop; }
+    /**
+     * @return the attached workshop, or {@code null} if none
+     */
+    public Workshop getWorkshop() {
+        return workshop;
+    }
 
-    /** @return any free-text remarks for this order */
-    public String getRemarks() { return remarks; }
+    /**
+     * @return any free-text remarks for this order
+     */
+    public String getRemarks() {
+        return remarks;
+    }
+
+    /**
+     * @return the status of the order
+     */
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
 
     /**
      * Builder for constructing {@link Order} instances.
@@ -75,6 +125,7 @@ public class Order {
         private Specifications specifications;
         private Workshop workshop;
         private String remarks;
+        private OrderStatus orderStatus;
 
         /**
          * Sets the order's database ID.
@@ -143,6 +194,17 @@ public class Order {
         }
 
         /**
+         * Sets the current status of the order.
+         *
+         * @param orderStatus the order status
+         * @return this builder
+         */
+        public Builder orderStatus(OrderStatus orderStatus) {
+            this.orderStatus = orderStatus;
+            return this;
+        }
+
+        /**
          * Builds and returns a new {@link Order} with the values set on this builder.
          *
          * @return a fully constructed {@link Order} instance
@@ -155,6 +217,7 @@ public class Order {
             order.specifications = this.specifications;
             order.workshop = this.workshop;
             order.remarks = this.remarks;
+            order.orderStatus = this.orderStatus;
             return order;
         }
     }
