@@ -11,7 +11,7 @@ package app.entities;
  * Specifications specs = new Specifications.Builder()
  *     .id(1)
  *     .roofType(RoofType.RAISED)
- *     .roofStyle(roofStyle)
+ *     .roofMaterial(roofMaterial)
  *     .widthCm(600)
  *     .lengthCm(780)
  *     .roofPitch(25)
@@ -27,7 +27,7 @@ public class Specifications {
     private RoofType roofType;
 
     /** The chosen roof cladding style and colour. */
-    private RoofStyle roofStyle;
+    private RoofMaterial roofMaterial;
 
     /** Width of the carport in centimetres. */
     private int widthCm;
@@ -49,7 +49,7 @@ public class Specifications {
     public RoofType getRoofType() { return roofType; }
 
     /** @return the chosen roof cladding style */
-    public RoofStyle getRoofStyle() { return roofStyle; }
+    public RoofMaterial getRoofStyle() { return roofMaterial; }
 
     /** @return the width of the carport in centimetres */
     public int getWidthCm() { return widthCm; }
@@ -70,7 +70,7 @@ public class Specifications {
     public static class Builder {
         private int id;
         private RoofType roofType;
-        private RoofStyle roofStyle;
+        private RoofMaterial roofMaterial;
         private int widthCm;
         private int lengthCm;
         private int roofPitch;
@@ -100,11 +100,11 @@ public class Specifications {
         /**
          * Sets the chosen roof cladding style.
          *
-         * @param roofStyle the roof style
+         * @param roofMaterial the roof style
          * @return this builder
          */
-        public Builder roofStyle(RoofStyle roofStyle) {
-            this.roofStyle = roofStyle;
+        public Builder roofStyle(RoofMaterial roofMaterial) {
+            this.roofMaterial = roofMaterial;
             return this;
         }
 
@@ -150,7 +150,7 @@ public class Specifications {
             Specifications specifications = new Specifications();
             specifications.id = this.id;
             specifications.roofType = this.roofType;
-            specifications.roofStyle = this.roofStyle;
+            specifications.roofMaterial = this.roofMaterial;
             specifications.widthCm = this.widthCm;
             specifications.lengthCm = this.lengthCm;
             specifications.roofPitch = this.roofPitch;

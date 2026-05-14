@@ -9,6 +9,9 @@ import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
  * Controller responsible for handling HTTP requests related to user accounts,
@@ -28,9 +31,13 @@ public class UserController {
         app.get("/Side1", ctx -> ctx.render("fog-carport.html"));
         app.get("/login-page", ctx -> ctx.render("login.html"));
         app.get("/create-user", ctx -> ctx.render("create-user.html"));
+        app.get("/carport/raised-roof-page", ctx -> getFlatRoof(ctx, connectionPool));
+        app.get("/carport/flat-roof-page", ctx -> getFlatRoof(ctx, connectionPool));
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
+
+
     }
 
     /**
@@ -135,5 +142,23 @@ public class UserController {
         String ref = ctx.header("Referer");
         ctx.redirect(null != ref ? ref : "/");
 
+    }
+
+    private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
+        List<Integer> dimensions = new ArrayList<>();
+        Integer i = 240;
+
+        dimensions.add(i);
+
+        while (i < 780) {
+            i = i + 30;
+            dimensions.add(i);
+        }
+
+        List<Integer> widths = dimensions.stream().filter(o -> o <= 600).toList();
+
+        ctx.attribute("widths", widths);
+        ctx.attribute("lengths", dimensions);
+        ctx.render("flat-roof.html");
     }
 }

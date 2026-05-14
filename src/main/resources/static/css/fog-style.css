@@ -1040,6 +1040,153 @@ a {
     margin: 30px 0;
 }
 
+/* ===== ORDER PAGE LAYOUT ===== */
+.order-page {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 40px 0;
+}
+
+@media (min-width: 900px) {
+    .order-page {
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: start;
+    }
+}
+
+.order-intro h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #101820;
+    line-height: 1.3;
+    margin-bottom: 20px;
+}
+
+@media (min-width: 1024px) {
+    .order-intro h1 {
+        font-size: 28px;
+    }
+}
+
+/* ===== FORM CARD ===== */
+.form-card {
+    background-color: #dde3e8;
+    padding: 25px 30px 35px;
+}
+
+.form-card-title {
+    font-size: 17px;
+    font-weight: bold;
+    color: #101820;
+    margin-bottom: 20px;
+}
+
+.form-section {
+    margin-bottom: 20px;
+}
+
+.form-section-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: #101820;
+    margin-bottom: 12px;
+}
+
+.form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.form-row-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.form-row-1 {
+    margin-bottom: 10px;
+}
+
+.form-card label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #101820;
+    margin-bottom: 5px;
+}
+
+.form-card select,
+.form-card input[type="text"],
+.form-card input[type="email"],
+.form-card input[type="tel"],
+.form-card input[type="number"],
+.form-card textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #c8cfd6;
+    border-radius: 2px;
+    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-size: 14px;
+    color: #101820;
+    background-color: #ffffff;
+    outline: none;
+    appearance: none;
+}
+
+.form-card select:focus,
+.form-card input:focus,
+.form-card textarea:focus {
+    border-color: #1a35c0;
+}
+
+.form-card textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.consent-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.consent-group input[type="checkbox"] {
+    margin-top: 3px;
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.consent-group label {
+    font-size: 13px;
+    color: #101820;
+    line-height: 1.5;
+    font-weight: normal;
+    margin-bottom: 0;
+}
+
+.consent-link {
+    display: inline-block;
+    font-size: 13px;
+    color: #1a35c0;
+    text-decoration: underline;
+    margin-bottom: 25px;
+}
+
 /* ===== OVERLAY (til mobile menu) ===== */
 .overlay {
     display: none;

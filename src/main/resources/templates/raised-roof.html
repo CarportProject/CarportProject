@@ -3,10 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description"
-          content="Med et specialudviklet computerprogram kan vi lynhurtigt beregne prisen og udskrive en skitsetegning på en carport indenfor vores standardprogram.">
     <meta name="theme-color" content="#1a35c0">
-    <title>QuickByg fra Fog - få et tilbud på en carport i specialmål</title>
+    <title>Bestil Quick-Byg tilbud - carport med høj rejsning</title>
     <link rel="stylesheet" href="/css/fog-style.css">
 </head>
 <body>
@@ -71,7 +69,7 @@
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
                     <li><a href="#">Byg selv-produkter</a></li>
-                    <li><a href="#" class="nav-active">Carporte</a></li>
+                    <li><a href="/Side1" class="nav-active">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>
                     <li><a href="#">Tilbud</a></li>
                     <li><a href="#">Inspiration</a></li>
@@ -130,19 +128,6 @@
 
     <!-- ===== MAIN ===== -->
     <main class="main-content">
-
-        <!-- Hero billede -->
-        <div class="hero">
-            <img
-                    src="https://cms.johannesfog.dk/cdn-cgi/image/format=auto,width=1440/media/zcznkc5a/carport.jpg"
-                    alt="Quick-Byg carport fra Fog"
-                    width="1440"
-                    height="600"
-                    fetchpriority="high"
-            >
-        </div>
-
-        <!-- Brødtekst-sektion -->
         <div class="container content-padding">
 
             <!-- Breadcrumb -->
@@ -151,15 +136,18 @@
                 <span aria-hidden="true">/</span>
                 <a href="/byg-selv-produkter">Byg selv-produkter</a>
                 <span aria-hidden="true">/</span>
-                <a href="/byg-selv-produkter/carporte">Carporte</a>
+                <a href="/Side1">Carporte</a>
                 <span aria-hidden="true">/</span>
-                <span aria-current="page">Quick-Byg carporte</span>
+                <a href="/Side1">Quick-Byg carporte</a>
+                <span aria-hidden="true">/</span>
+                <span aria-current="page">Quick-Byg carport med høj rejsning</span>
             </nav>
 
-            <!-- Intro sektion med tekst og spec-bokse -->
-            <section class="intro-section">
-                <div class="intro-text">
-                    <h1>Lad os tegne din carport drøm - bestil et Quick-Byg tilbud</h1>
+            <div class="order-page">
+
+                <!-- Venstre: beskrivelse -->
+                <div class="order-intro">
+                    <h1>Bestil Quick-Byg tilbud - carport med høj rejsning</h1>
                     <div class="body-text">
                         <p>
                             Med et specialudviklet computerprogram kan vi lynhurtigt beregne prisen og udskrive en
@@ -168,42 +156,147 @@
                             Ved bestilling medfølger standardbyggevejledning.
                         </p>
                         <p>
-                            Vælg nedenfor, om du ønsker tilbud på carport med fladt tag eller carport med høj rejsning.
+                            Udfyld formularen omhyggeligt og klik på "Bestil tilbud".
+                            Felter markeret med * SKAL udfyldes!
                         </p>
                     </div>
                 </div>
 
-                <!-- Vælg tagtype -->
-                <div class="tagtype-chooser">
-                    <a th:href="@{/carport/flat-roof-page}" class="tagtype-card">
-                        <div class="tagtype-card-icon">
-                            <img alt="Flatroof" loading="lazy" width="90" height="90" decoding="async"
-                                 srcset="https://cms.johannesfog.dk/media/4vjjv2pp/flatroof.svg?ud=QPYQywGQ2gg 1x, https://cms.johannesfog.dk/media/4vjjv2pp/flatroof.svg?ud=QPYQywGQ2gg 2x"
-                                 src="https://cms.johannesfog.dk/media/4vjjv2pp/flatroof.svg?ud=QPYQywGQ2gg"
-                                 style="object-fit: contain;">
-                        </div>
-                        <span class="tagtype-card-label">Carport med fladt tag</span>
-                        <div class="tagtype-card-link">Bestil tilbud på Quick-Byg carport med fladt tag
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"><path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path></svg>
-                        </div>
-                    </a>
+                <!-- Højre: formular -->
+                <div class="form-card">
+                    <p class="form-card-title">Carport med høj rejsning</p>
 
-                    <a th:href="@{/carport/raised-roof-page}" class="tagtype-card">
-                        <div class="tagtype-card-icon">
-                            <img alt="Highroof" loading="lazy" width="90" height="90" decoding="async"
-                                 srcset="https://cms.johannesfog.dk/media/hmifcnrf/highroof.svg?ud=8BErvQGQ2gg 1x, https://cms.johannesfog.dk/media/hmifcnrf/highroof.svg?ud=8BErvQGQ2gg 2x"
-                                 src="https://cms.johannesfog.dk/media/hmifcnrf/highroof.svg?ud=8BErvQGQ2gg"
-                                 style="object-fit: contain;">
+                    <form th:action="@{/carport/rejsning}" method="post">
+
+                        <!-- Carport mål -->
+                        <div class="form-row-4">
+                            <div>
+                                <label for="roofMaterial">Tagtype *</label>
+                                <select id="roofMaterial" name="roofMaterial" required>
+                                    <option value="">Vælg tagtype</option>
+                                    <option value="1">Eternit antracit</option>
+                                    <option value="2">Eternit rød</option>
+                                    <option value="3">Trapezplade antracit</option>
+                                    <option value="4">Trapezplade sort</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="roofPitch">Taghældning *</label>
+                                <select id="roofPitch" name="roofPitch" required>
+                                    <option value="10">10°</option>
+                                    <option value="15">15°</option>
+                                    <option value="20">20°</option>
+                                    <option value="25" selected>25°</option>
+                                    <option value="30">30°</option>
+                                    <option value="35">35°</option>
+                                    <option value="40">40°</option>
+                                    <option value="45">45°</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="widthCm">Carport bredde *</label>
+                                <select id="widthCm" name="widthCm" required>
+                                    <option value="240">240 cm</option>
+                                    <option value="270">270 cm</option>
+                                    <option value="300" selected>300 cm</option>
+                                    <option value="330">330 cm</option>
+                                    <option value="360">360 cm</option>
+                                    <option value="390">390 cm</option>
+                                    <option value="420">420 cm</option>
+                                    <option value="450">450 cm</option>
+                                    <option value="480">480 cm</option>
+                                    <option value="510">510 cm</option>
+                                    <option value="540">540 cm</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="lengthCm">Carport længde *</label>
+                                <select id="lengthCm" name="lengthCm" required>
+                                    <option value="480">480 cm</option>
+                                    <option value="510">510 cm</option>
+                                    <option value="540">540 cm</option>
+                                    <option value="570">570 cm</option>
+                                    <option value="600" selected>600 cm</option>
+                                    <option value="630">630 cm</option>
+                                    <option value="660">660 cm</option>
+                                    <option value="690">690 cm</option>
+                                    <option value="720">720 cm</option>
+                                    <option value="750">750 cm</option>
+                                    <option value="780">780 cm</option>
+                                </select>
+                            </div>
                         </div>
-                        <span class="tagtype-card-label">Carport med høj rejsning</span>
-                        <div class="tagtype-card-link">Bestil tilbud på Quick-Byg carport med høj rejsning
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"><path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path></svg>
+
+                        <!-- Redskabsrum -->
+                        <div class="form-section">
+                            <p class="form-section-title">Redskabsrum</p>
+                            <div>
+                                <label for="workshop">Redskabsrum *</label>
+                                <select id="workshop" name="workshop" required>
+                                    <option value="none">Uden redskabsrum</option>
+                                    <option value="150x240">150 x 240 cm</option>
+                                    <option value="150x270">150 x 270 cm</option>
+                                    <option value="150x300">150 x 300 cm</option>
+                                    <option value="240x240">240 x 240 cm</option>
+                                    <option value="240x270">240 x 270 cm</option>
+                                    <option value="240x300">240 x 300 cm</option>
+                                </select>
+                            </div>
                         </div>
-                    </a>
+
+                        <!-- Bemærkninger -->
+                        <div class="form-section">
+                            <label for="remarks">Evt. bemærkninger</label>
+                            <textarea id="remarks" name="remarks" placeholder="Skriv eventuelle bemærkninger her..."></textarea>
+                        </div>
+
+                        <!-- Kontakt oplysninger -->
+                        <div class="form-section">
+                            <p class="form-section-title">Kontakt oplysninger *</p>
+                            <div class="form-row-2">
+                                <input type="text" name="firstName" placeholder="Fornavn" required>
+                                <input type="text" name="lastName" placeholder="Efternavn" required>
+                            </div>
+                            <div class="form-row-1">
+                                <input type="text" name="address" placeholder="Adresse" required>
+                            </div>
+                            <div class="form-row-2">
+                                <input type="text" name="postalCode" placeholder="Postnummer" required>
+                                <input type="text" name="city" placeholder="By" required>
+                            </div>
+                            <div class="form-row-2">
+                                <input type="email" name="email" placeholder="Email" required>
+                                <input type="tel" name="phoneNumber" placeholder="Telefon" required>
+                            </div>
+                        </div>
+
+                        <!-- Samtykke -->
+                        <div class="form-section">
+                            <p class="form-section-title">Kontakt samtykke *</p>
+                            <div class="consent-group">
+                                <input type="checkbox" id="consent" name="consent" required>
+                                <label for="consent">
+                                    Jeg giver samtykke til, at Erhvervsakademi København må kontakte mig via telefon
+                                    og/eller e-mail i forbindelse med tilbud på QuickByg carport og at de afgivne
+                                    oplysninger opbevares og behandles jf. persondatapolitik.
+                                </label>
+                            </div>
+                            <a href="#" class="consent-link">Læs mere om persondatapolitik her</a>
+                        </div>
+
+                        <button type="submit" class="btn-primary">
+                            Send forespørgsel
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"
+                                 style="margin-left: 6px;" aria-hidden="true">
+                                <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
+                                      stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"/>
+                            </svg>
+                        </button>
+
+                    </form>
                 </div>
 
-            </section>
-
+            </div>
         </div>
     </main>
 
@@ -225,11 +318,11 @@
                             </ul>
                         </div>
                         <div class="footer-col">
-                            <h4>Om Fog</h4>
+                            <h4>Om os</h4>
                             <ul>
                                 <li><a href="#">Om os</a></li>
                                 <li><a href="#">Butikker</a></li>
-                                <li><a href="#">Job hos Fog</a></li>
+                                <li><a href="#">Job hos os</a></li>
                                 <li><a href="#">Presse</a></li>
                             </ul>
                         </div>
@@ -260,7 +353,7 @@
                         </a>
                         <p style="margin-top: 15px;">Erhvervsakademi København<br>Firskovvej 18, 2800 Lyngby</p>
                         <p>Tlf.: <a href="tel:+4530324833">30 32 48 33</a></p>
-                        <p>E-mail: <a href="mailto:mikkelfuglsig@gmail.com">Mikkelfuglsig@gmail.com</a></p>
+                        <p>E-mail: <a href="mailto:mikkelfuglsig@gmail.com">mikkelfuglsig@gmail.com</a></p>
                     </div>
                 </div>
 
