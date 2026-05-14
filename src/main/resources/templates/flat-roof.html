@@ -209,13 +209,20 @@
                             <div>
                                 <label for="workshop">Redskabsrum *</label>
                                 <select id="workshop" name="workshop" required>
-                                    <option value="none">Uden redskabsrum</option>
-                                    <option value="150x240">150 x 240 cm</option>
-                                    <option value="150x270">150 x 270 cm</option>
-                                    <option value="150x300">150 x 300 cm</option>
-                                    <option value="240x240">240 x 240 cm</option>
-                                    <option value="240x270">240 x 270 cm</option>
-                                    <option value="240x300">240 x 300 cm</option>
+                                    <option value="WITHOUT" selected>Uden redskabsrum</option>
+                                    <option value="WITH">Med redskabsrum</option>
+                                </select>
+                            </div>
+                            <div class="workshop-dimensions">
+                                <label for="workshop-width">Redskabsrum bredde *</label>
+                                <select id="workshop-width" name="workshop-width">
+                                    <option th:each="width : ${widths}" th:value="${width}" th:text="${width}"></option>
+                                </select>
+                            </div>
+                            <div class="workshop-dimensions">
+                                <label for="workshop-length">Redskabsrum længde *</label>
+                                <select id="workshop-length" name="workshop-length">
+                                    <option th:each="length : ${lengths}" th:value="${length}" th:text="${length}"></option>
                                 </select>
                             </div>
                         </div>
@@ -347,5 +354,6 @@
     </footer>
 
 </div>
+<script src="/js/workshopfields.js"></script>
 </body>
 </html>
