@@ -1,7 +1,6 @@
 package app.controllers;
 
-import app.entities.RoofType;
-import app.entities.User;
+import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
@@ -30,11 +29,12 @@ public class UserController {
         app.get("/Side1", ctx -> ctx.render("fog-carport.html"));
         app.get("/login-page", ctx -> ctx.render("login.html"));
         app.get("/create-user", ctx -> ctx.render("create-user.html"));
-        app.get("/carport/raised-roof-page", ctx -> getFlatRoof(ctx, connectionPool));
-        app.get("/carport/flat-roof-page", ctx -> getFlatRoof(ctx, connectionPool));
+        app.get("/carport/raised-roof", ctx -> getRaisedRoof(ctx, connectionPool));
+        app.get("/carport/flat-roof", ctx -> getFlatRoof(ctx, connectionPool));
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
+        app.post("/send-form", )
 
 
     }
@@ -144,18 +144,78 @@ public class UserController {
 
     }
 
-    private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
+    /**
+     * Populates the Javalin context with the model attributes required by the carport order forms.
+     * Fetches roof materials filtered by {@code roofType} from the database and adds dimension
+     * ranges for carport width/length and workshop width/length.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     * @param roofType       the roof type used to filter which tiles are shown in the form
+     */
+    private static void setFormAttributes(Context ctx, ConnectionPool connectionPool, RoofType roofType) {
         FormService formService = new FormService();
         try {
-            ctx.attribute("tiles", formService.getRoofByRoofType(RoofType.FLAT, connectionPool));
+            ctx.attribute("tiles", formService.getRoofByRoofType(roofType, connectionPool));
         } catch (DatabaseException e) {
-            System.err.println("[UserController.getFlatRoof] " + e.getMessage());
+            System.err.println("[UserController.getRaisedRoof] " + e.getMessage());
             ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
         }
         ctx.attribute("widths", formService.getRange(240, 600, 30));
         ctx.attribute("lengths", formService.getRange(240, 780, 30));
         ctx.attribute("workshopWidths", formService.getRange(150, 690, 30));
         ctx.attribute("workshopLengths", formService.getRange(210, 720, 30));
+    }
+
+    /**
+     * Handles GET /carport/raised-roof. Loads form attributes for raised-roof carporten
+     * and renders the raised-roof order page.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     */
+    private static void getRaisedRoof(Context ctx, ConnectionPool connectionPool) {
+        setFormAttributes(ctx, connectionPool, RoofType.RAISED);
+        ctx.render("raised-roof.html");
+    }
+
+    /**
+     * Handles GET /carport/flat-roof. Loads form attributes for flat-roof carporten
+     * and renders the flat-roof order page.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     */
+    private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
+        setFormAttributes(ctx, connectionPool, RoofType.FLAT);
         ctx.render("flat-roof.html");
+    }
+
+    private static Order buildOrderWithForm(Context ctx) {
+        RoofType roofType = null;
+        String roof = ctx.formParam("roofType");
+        try {
+            if (null == roof) {
+                System.err.println("[UserController.buildOrderWithForm]" + "Roof value is null");
+                ctx.attribute("errorMessage", "Ugyldig forespørgsel");
+            } else {
+                roofType = RoofType.valueOf(roof.toUpperCase());
+            }
+        } catch (Exception e) {
+            System.err.println("[UserController.buildOrderWithForm]" + e.getMessage());
+            ctx.attribute("errorMessage", "Ugyldig forespørgsel");
+        }
+        int roofMaterial = Integer.parseInt(ctx.formParam("roofMaterial"));
+        String roofPitchParam = ctx.formParam("roofPitch");
+        int roofPitch = roofPitchParam != null ? Integer.parseInt(roofPitchParam) : 0;
+
+        Specifications specifications = new Specifications.Builder()
+                .roofType(roofType)
+                .roofMaterial(new RoofMaterial.Builder().id(roofMaterial).build())
+                .widthCm(Integer.parseInt(ctx.formParam("widthCm")))
+                .lengthCm(Integer.parseInt(ctx.formParam("lengthCm")))
+                .roofPitch(roofPitch)
+                .build();
+
     }
 }

@@ -168,6 +168,8 @@
 
                     <form th:action="@{/carport/send-form}" method="post">
 
+                        <!-- Carports tagtype -->
+                        <input type="hidden" name="roofType" value="FLAT">
                         <!-- Carport mål -->
                         <div class="form-row-3">
                             <div>
@@ -217,12 +219,12 @@
                                 <label for="workshop-width">Redskabsrum bredde *</label>
                                 <select id="workshop-width" name="workshop-width">
                                     <option th:each="workshopWidth : ${workshopWidths}" th:value="${workshopWidth}"
-                                            th:text="${workshopWidth}"></option>
+                                            th:text="${workshopWidth} + ' cm'"></option>
                                 </select>
                                 <label for="workshop-length">Redskabsrum længde *</label>
                                 <select id="workshop-length" name="workshop-length">
                                     <option th:each="workshopLength : ${workshopLengths}" th:value="${workshopLength}"
-                                            th:text="${workshopLength}"></option>
+                                            th:text="${workshopLength} + ' cm'"></option>
                                 </select>
                             </div>
                         </div>

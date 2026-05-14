@@ -49,7 +49,7 @@ public class Specifications {
     public RoofType getRoofType() { return roofType; }
 
     /** @return the chosen roof cladding style */
-    public RoofMaterial getRoofStyle() { return roofMaterial; }
+    public RoofMaterial getRoofMaterial() { return roofMaterial; }
 
     /** @return the width of the carport in centimetres */
     public int getWidthCm() { return widthCm; }
@@ -103,7 +103,7 @@ public class Specifications {
          * @param roofMaterial the roof style
          * @return this builder
          */
-        public Builder roofStyle(RoofMaterial roofMaterial) {
+        public Builder roofMaterial(RoofMaterial roofMaterial) {
             this.roofMaterial = roofMaterial;
             return this;
         }
