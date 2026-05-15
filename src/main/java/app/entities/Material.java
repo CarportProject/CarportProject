@@ -31,6 +31,10 @@ public class Material {
     /** Unit price of the material in øre (whole number, no decimals). */
     private int price;
 
+    private int width;
+
+    private int height;
+
     /** Private constructor — use {@link Builder} to create instances. */
     private Material() {
     }
@@ -47,6 +51,10 @@ public class Material {
     /** @return the unit price of the material in øre */
     public int getPrice() { return price; }
 
+    public int getWidth() { return width; }
+
+    public int getHeight() { return height; }
+
     /**
      * Builder for constructing {@link Material} instances.
      * <p>
@@ -59,6 +67,8 @@ public class Material {
         private String name;
         private String description;
         private int price;
+        private int width;
+        private int height;
 
         /**
          * Sets the material's database ID.
@@ -104,6 +114,16 @@ public class Material {
             return this;
         }
 
+        public Builder width(int width) {
+            this.price = width;
+            return this;
+        }
+
+        public Builder height(int height) {
+            this.price = height;
+            return this;
+        }
+
         /**
          * Builds and returns a new {@link Material} with the values set on this builder.
          *
@@ -115,6 +135,8 @@ public class Material {
             material.name = this.name;
             material.description = this.description;
             material.price = this.price;
+            material.width = this.width;
+            material.height = this.height;
             return material;
         }
     }

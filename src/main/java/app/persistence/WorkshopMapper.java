@@ -5,6 +5,7 @@ import app.exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -21,7 +22,7 @@ public class WorkshopMapper {
      * @throws DatabaseException if a SQL error occurs during the insert
      */
     public void insertWorkshop(Workshop workshop, ConnectionPool connectionPool) throws DatabaseException {
-        int widthCm  = workshop.getWidthCm();
+        int widthCm = workshop.getWidthCm();
         int lengthCm = workshop.getLengthCm();
 
         String sql = "INSERT INTO workshop (width_cm, length_cm) VALUES (?, ?)";
@@ -35,6 +36,38 @@ public class WorkshopMapper {
         } catch (SQLException e) {
             System.err.println("[WorkshopMapper.insertWorkshop] " + e.getMessage());
             throw new DatabaseException("An error occurred while creating the workshop");
+        }
+    }
+
+    public Workshop findWorkshopById(int id, ConnectionPool connectionPool) throws DatabaseException {
+
+        String sql = "SELECT * FROM workshop WHERE id=?";
+
+        try (
+                Connection connection = connectionPool.getConnection();
+                PreparedStatement preparedStatement =
+                        connection.prepareStatement(sql)
+        ) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+
+                return new Workshop.Builder()
+                        .id(id)
+                        .widthCm(resultSet.getInt("width_cm"))
+                        .lengthCm(resultSet.getInt("length_cm"))
+                        .build();
+            } else {
+                System.err.println("[WorkshopMapper.findById] ");
+                throw new DatabaseException("Workshop not found");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[WorkshopMapper.findById] " + e.getMessage());
+            throw new DatabaseException("An error occurred while fetching workshop");
         }
     }
 }
