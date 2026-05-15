@@ -1,5 +1,7 @@
 package app.entities;
 
+import app.persistence.OrderDetails;
+
 import java.util.List;
 
 /**
@@ -37,7 +39,7 @@ public class Order {
     private Workshop workshop;
 
     /** Free-text remarks or special instructions for this order. */
-    private String remarks;
+    private OrderDetails orderDetails;
 
     /** Private constructor — use {@link Builder} to create instances. */
     private Order() {
@@ -59,7 +61,7 @@ public class Order {
     public Workshop getWorkshop() { return workshop; }
 
     /** @return any free-text remarks for this order */
-    public String getRemarks() { return remarks; }
+    public String getOrderDetails() { return orderDetails; }
 
     /**
      * Builder for constructing {@link Order} instances.
@@ -74,7 +76,7 @@ public class Order {
         private List<Material> materialList;
         private Specifications specifications;
         private Workshop workshop;
-        private String remarks;
+        private OrderDetails orderDetails;
 
         /**
          * Sets the order's database ID.
@@ -134,11 +136,11 @@ public class Order {
         /**
          * Sets any free-text remarks or special instructions for the order.
          *
-         * @param remarks the remarks
+         * @param orderDetails the remarks
          * @return this builder
          */
-        public Builder remarks(String remarks) {
-            this.remarks = remarks;
+        public Builder orderDetails(OrderDetails orderDetails) {
+            this.orderDetails = orderDetails;
             return this;
         }
 
@@ -154,7 +156,7 @@ public class Order {
             order.materialList = this.materialList;
             order.specifications = this.specifications;
             order.workshop = this.workshop;
-            order.remarks = this.remarks;
+            order.orderDetails = this.orderDetails;
             return order;
         }
     }

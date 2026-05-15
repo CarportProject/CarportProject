@@ -22,7 +22,7 @@ public class WorkshopMapper {
      * @throws DatabaseException if a SQL error occurs during the insert
      */
     public void insertWorkshop(Workshop workshop, ConnectionPool connectionPool) throws DatabaseException {
-        int widthCm  = workshop.getWidthCm();
+        int widthCm = workshop.getWidthCm();
         int lengthCm = workshop.getLengthCm();
 
         String sql = "INSERT INTO workshop (width_cm, length_cm) VALUES (?, ?)";
