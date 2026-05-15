@@ -1,16 +1,14 @@
 package app.controllers;
 
-import app.entities.User;
+import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
+import app.service.FormService;
 import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -31,11 +29,12 @@ public class UserController {
         app.get("/Side1", ctx -> ctx.render("fog-carport.html"));
         app.get("/login-page", ctx -> ctx.render("login.html"));
         app.get("/create-user", ctx -> ctx.render("create-user.html"));
-        app.get("/carport/raised-roof-page", ctx -> getFlatRoof(ctx, connectionPool));
-        app.get("/carport/flat-roof-page", ctx -> getFlatRoof(ctx, connectionPool));
+        app.get("/carport/raised-roof", ctx -> getRaisedRoof(ctx, connectionPool));
+        app.get("/carport/flat-roof", ctx -> getFlatRoof(ctx, connectionPool));
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
+        app.post("/send-form", )
 
 
     }
@@ -62,10 +61,10 @@ public class UserController {
             ctx.redirect("/Side1");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
-            ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert");
+            ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert.");
             ctx.render("login.html");
         } catch (Exception e) {
-            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
             ctx.render("login.html");
         }
     }
@@ -82,12 +81,12 @@ public class UserController {
      */
     private static boolean validateLogin(Context ctx, String email, String password) {
         if (email == null || email.isBlank()) {
-            ctx.attribute("errorMessage", "Email is required");
+            ctx.attribute("errorMessage", "Email mangler.");
             ctx.render("create-user.html");
             return true;
         }
         if (password == null || password.isBlank()) {
-            ctx.attribute("errorMessage", "Password is required");
+            ctx.attribute("errorMessage", "Adgangskode mangler.");
             ctx.render("create-user.html");
             return true;
         }
@@ -118,10 +117,11 @@ public class UserController {
             ctx.sessionAttribute("user", user);
             ctx.redirect("/Side1");
         } catch (InvalidCredentialsException e) {
-            ctx.attribute("errorMessage", "Adgangskoderne stemmer ikke overens");
+            ctx.attribute("errorMessage", "Adgangskoderne stemmer ikke overens.");
             ctx.render("create-user.html");
         } catch (DatabaseException | UserNotFoundException e) {
-            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
+            System.err.println("[UserController.createUser] " + e.getMessage());
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
             ctx.render("create-user.html");
         }
     }
@@ -144,21 +144,93 @@ public class UserController {
 
     }
 
+    /**
+     * Populates the Javalin context with the model attributes required by the carport order forms.
+     * Fetches roof materials filtered by {@code roofType} from the database and adds dimension
+     * ranges for carport width/length and workshop width/length.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     * @param roofType       the roof type used to filter which tiles are shown in the form
+     */
+    private static void setFormAttributes(Context ctx, ConnectionPool connectionPool, RoofType roofType) {
+        FormService formService = new FormService();
+        try {
+            ctx.attribute("tiles", formService.getRoofByRoofType(roofType, connectionPool));
+        } catch (DatabaseException e) {
+            System.err.println("[UserController.getRaisedRoof] " + e.getMessage());
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
+        }
+        ctx.attribute("widths", formService.getRange(240, 600, 30));
+        ctx.attribute("lengths", formService.getRange(240, 780, 30));
+        ctx.attribute("workshopWidths", formService.getRange(150, 690, 30));
+        ctx.attribute("workshopLengths", formService.getRange(210, 720, 30));
+    }
+
+    /**
+     * Handles GET /carport/raised-roof. Loads form attributes for raised-roof carporten
+     * and renders the raised-roof order page.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     */
+    private static void getRaisedRoof(Context ctx, ConnectionPool connectionPool) {
+        setFormAttributes(ctx, connectionPool, RoofType.RAISED);
+        ctx.render("raised-roof.html");
+    }
+
+    /**
+     * Handles GET /carport/flat-roof. Loads form attributes for flat-roof carporten
+     * and renders the flat-roof order page.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     */
     private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
-        List<Integer> dimensions = new ArrayList<>();
-        Integer i = 240;
+        setFormAttributes(ctx, connectionPool, RoofType.FLAT);
+        ctx.render("flat-roof.html");
+    }
 
-        dimensions.add(i);
+    private static Order buildOrderWithForm(Context ctx) {
+        RoofType roofType = null;
+        String roof = ctx.formParam("roofType");
+        try {
+            if (null == roof) {
+                System.err.println("[UserController.buildOrderWithForm]" + "Roof value is null");
+                ctx.attribute("errorMessage", "Ugyldig forespørgsel");
+            } else {
+                roofType = RoofType.valueOf(roof.toUpperCase());
+            }
+        } catch (Exception e) {
+            System.err.println("[UserController.buildOrderWithForm]" + e.getMessage());
+            ctx.attribute("errorMessage", "Ugyldig forespørgsel");
+        }
+        int roofMaterial = Integer.parseInt(ctx.formParam("roofMaterial"));
+        String roofPitchParam = ctx.formParam("roofPitch");
+        int roofPitch = roofPitchParam != null ? Integer.parseInt(roofPitchParam) : 0;
 
-        while (i < 780) {
-            i = i + 30;
-            dimensions.add(i);
+        Specifications specifications = new Specifications.Builder()
+                .roofType(roofType)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(roofMaterial).build())
+                .widthCm(Integer.parseInt(ctx.formParam("widthCm")))
+                .lengthCm(Integer.parseInt(ctx.formParam("lengthCm")))
+                .roofPitch(roofPitch)
+                .build();
+
+
+        Workshop workshop = null;
+
+        Boolean hasWorkshop = ctx.formParam("workshop") == "WITH";
+        if (hasWorkshop) {
+            workshop = new Workshop.Builder()
+                    .widthCm(Integer.parseInt(ctx.formParam("workshop-width")))
+                    .lengthCm(Integer.parseInt(ctx.formParam("workshop-length")))
+                    .build();
         }
 
-        List<Integer> widths = dimensions.stream().filter(o -> o <= 600).toList();
 
-        ctx.attribute("widths", widths);
-        ctx.attribute("lengths", dimensions);
-        ctx.render("flat-roof.html");
+
+
     }
 }

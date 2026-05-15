@@ -46,8 +46,8 @@ public class RoofMaterialMapper {
                 // Convert the roof type string from the database to the RoofType enum
                 RoofType roof = null;
                 try {
-                    roof = RoofType.valueOf(roofType);
-                } catch (IllegalArgumentException e) {
+                    roof = RoofType.valueOf(roofType != null ? roofType.toUpperCase() : null);
+                } catch (IllegalArgumentException | NullPointerException e) {
                     System.err.println("Unknown roof type in database : " + roofType);
                     throw new DatabaseException("An error occurred while fetching the roof material");
                 }

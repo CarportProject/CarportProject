@@ -166,17 +166,19 @@
                 <div class="form-card">
                     <p class="form-card-title">Carport med fladt tag</p>
 
-                    <form th:action="@{/carport/fladt-tag}" method="post">
+                    <form th:action="@{/carport/send-form}" method="post">
 
+                        <!-- Carports tagtype -->
+                        <input type="hidden" name="roofType" value="FLAT">
                         <!-- Carport mål -->
                         <div class="form-row-3">
                             <div>
                                 <label for="roofMaterial">Tagtype *</label>
                                 <select id="roofMaterial" name="roofMaterial" required>
-                                    <option value="">Vælg tagtype</option>
-                                    <option value="1">Plastmo Ecolite blå</option>
-                                    <option value="2">Plastmo Ecolite klar</option>
-                                    <option value="3">Trapezplade antracit</option>
+                                    <option value="" selected disabled>Vælg tagtype</option>
+                                    <option th:each="tile : ${tiles}"
+                                            th:value="${tile.id}"
+                                            th:text="${tile.displayName}"></option>
                                 </select>
                             </div>
                             <div>
@@ -213,16 +215,16 @@
                                     <option value="WITH">Med redskabsrum</option>
                                 </select>
                             </div>
-                            <div class="workshop-dimensions">
+                            <div class="workshop-dimensions" style="display: none;" >
                                 <label for="workshop-width">Redskabsrum bredde *</label>
                                 <select id="workshop-width" name="workshop-width">
-                                    <option th:each="width : ${widths}" th:value="${width}" th:text="${width}"></option>
+                                    <option th:each="workshopWidth : ${workshopWidths}" th:value="${workshopWidth}"
+                                            th:text="${workshopWidth} + ' cm'"></option>
                                 </select>
-                            </div>
-                            <div class="workshop-dimensions">
                                 <label for="workshop-length">Redskabsrum længde *</label>
                                 <select id="workshop-length" name="workshop-length">
-                                    <option th:each="length : ${lengths}" th:value="${length}" th:text="${length}"></option>
+                                    <option th:each="workshopLength : ${workshopLengths}" th:value="${workshopLength}"
+                                            th:text="${workshopLength} + ' cm'"></option>
                                 </select>
                             </div>
                         </div>
