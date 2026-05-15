@@ -218,8 +218,19 @@ public class UserController {
                 .roofPitch(roofPitch)
                 .build();
 
-        Workshop workshop = new Workshop.Builder()
 
-                .build();
+        Workshop workshop = null;
+
+        Boolean hasWorkshop = ctx.formParam("workshop") == "WITH";
+        if (hasWorkshop) {
+            workshop = new Workshop.Builder()
+                    .widthCm(Integer.parseInt(ctx.formParam("workshop-width")))
+                    .lengthCm(Integer.parseInt(ctx.formParam("workshop-length")))
+                    .build();
+        }
+
+
+
+
     }
 }
