@@ -211,11 +211,15 @@ public class UserController {
 
         Specifications specifications = new Specifications.Builder()
                 .roofType(roofType)
-                .roofMaterial(new RoofMaterial.Builder().id(roofMaterial).build())
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(roofMaterial).build())
                 .widthCm(Integer.parseInt(ctx.formParam("widthCm")))
                 .lengthCm(Integer.parseInt(ctx.formParam("lengthCm")))
                 .roofPitch(roofPitch)
                 .build();
 
+        Workshop workshop = new Workshop.Builder()
+
+                .build();
     }
 }
