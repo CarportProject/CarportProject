@@ -339,6 +339,27 @@ body {
     }
 }
 
+/* ===== BESKEDER ===== */
+.flash-message {
+    padding: 12px 16px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.flash-error {
+    color: #7f1d1d;
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+}
+
+.flash-success {
+    color: #14532d;
+    background-color: #f0fdf4;
+    border: 1px solid #86efac;
+}
+
 /* ===== MAIN CONTENT ===== */
 .main-content {
     min-height: 50vh;
