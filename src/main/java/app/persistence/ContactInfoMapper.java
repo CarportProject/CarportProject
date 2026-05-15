@@ -3,10 +3,7 @@ package app.persistence;
 import app.entities.ContactInfo;
 import app.exceptions.DatabaseException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * Repository class responsible for all database operations related to customers.
@@ -17,11 +14,12 @@ public class ContactInfoMapper {
     /**
      * Inserts a new contactInfo into the {@code contact_info} table.
      *
-     * @param contactInfo       the contactInfo to insert
+     * @param contactInfo    the contactInfo to insert
      * @param connectionPool the database connection pool
+     * @return
      * @throws DatabaseException if a SQL error occurs during the insert
      */
-    public void insertContactInfo(ContactInfo contactInfo, ConnectionPool connectionPool) throws DatabaseException {
+    public int insertContactInfo(ContactInfo contactInfo, ConnectionPool connectionPool) throws DatabaseException {
 
         String email = contactInfo.getEmail();
         String address = contactInfo.getAddress();
@@ -35,16 +33,22 @@ public class ContactInfoMapper {
                 "VALUES (?, ?, ?, ?, ?, ?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)
+                PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
-            ps.setString(1, email);
-            ps.setString(2, address);
-            ps.setString(3, firstname);
-            ps.setString(4, lastname);
-            ps.setInt(5, postalCode);
-            ps.setString(6, city);
-            ps.setString(7, phoneNumber);
-            ps.executeUpdate();
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, address);
+            preparedStatement.setString(3, firstname);
+            preparedStatement.setString(4, lastname);
+            preparedStatement.setInt(5, postalCode);
+            preparedStatement.setString(6, city);
+            preparedStatement.setString(7, phoneNumber);
+            preparedStatement.executeUpdate();
+
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+            if(resultSet.next()){
+                return resultSet.getInt(1);
+            }
+            throw new DatabaseException("Could not fetch generated id");
         } catch (SQLException e) {
             System.err.println("[ContactInfoMapper.insertCustomer] " + e.getMessage());
             throw new DatabaseException("An error occurred while creating the contactInfo");

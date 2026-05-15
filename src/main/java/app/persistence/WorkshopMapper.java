@@ -21,7 +21,7 @@ public class WorkshopMapper {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if a SQL error occurs during the insert
      */
-    public void insertWorkshop(Workshop workshop, ConnectionPool connectionPool) throws DatabaseException {
+    public int insertWorkshop(Workshop workshop, ConnectionPool connectionPool) throws DatabaseException {
         int widthCm = workshop.getWidthCm();
         int lengthCm = workshop.getLengthCm();
 
@@ -33,6 +33,13 @@ public class WorkshopMapper {
             ps.setInt(1, widthCm);
             ps.setInt(2, lengthCm);
             ps.executeUpdate();
+            ResultSet resultSet = ps.getGeneratedKeys();
+
+            if(resultSet.next()){
+                return resultSet.getInt(1);
+            }
+            throw new DatabaseException("Could not fetch id for workshop");
+
         } catch (SQLException e) {
             System.err.println("[WorkshopMapper.insertWorkshop] " + e.getMessage());
             throw new DatabaseException("An error occurred while creating the workshop");

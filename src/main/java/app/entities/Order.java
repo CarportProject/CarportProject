@@ -23,45 +23,83 @@ import java.util.List;
  */
 public class Order {
 
-    /** Unique identifier for the order in the database. */
+    /**
+     * Unique identifier for the order in the database.
+     */
     private int id;
 
-    /** The contactInfo who placed this order. */
+    /**
+     * The contactInfo who placed this order.
+     */
     private ContactInfo contactInfo;
 
-    /** List of materials required to fulfil this order. */
+    /**
+     * List of materials required to fulfil this order.
+     */
     private List<Material> materialList;
 
-    /** The carport dimensions and roof configuration chosen by the contactInfo. */
+    /**
+     * The carport dimensions and roof configuration chosen by the contactInfo.
+     */
     private Specifications specifications;
 
-    /** Optional workshop (shed) attached to the carport, if requested. */
+    /**
+     * Optional workshop (shed) attached to the carport, if requested.
+     */
     private Workshop workshop;
 
-    /** Free-text remarks or special instructions for this order. */
+    /**
+     * Free-text remarks or special instructions for this order.
+     */
     private OrderDetails orderDetails;
 
-    /** Private constructor — use {@link Builder} to create instances. */
+    /**
+     * Private constructor — use {@link Builder} to create instances.
+     */
     private Order() {
     }
 
-    /** @return the order's database ID */
-    public int getId() { return id; }
+    /**
+     * @return the order's database ID
+     */
+    public int getId() {
+        return id;
+    }
 
-    /** @return the contactInfo who placed this order */
-    public ContactInfo getCustomer() { return contactInfo; }
+    /**
+     * @return the contactInfo who placed this order
+     */
+    public ContactInfo getCustomer() {
+        return contactInfo;
+    }
 
-    /** @return the list of materials required for this order */
-    public List<Material> getMaterialList() { return materialList; }
+    /**
+     * @return the list of materials required for this order
+     */
+    public List<Material> getMaterialList() {
+        return materialList;
+    }
 
-    /** @return the carport specifications for this order */
-    public Specifications getSpecifications() { return specifications; }
+    /**
+     * @return the carport specifications for this order
+     */
+    public Specifications getSpecifications() {
+        return specifications;
+    }
 
-    /** @return the attached workshop, or {@code null} if none */
-    public Workshop getWorkshop() { return workshop; }
+    /**
+     * @return the attached workshop, or {@code null} if none
+     */
+    public Workshop getWorkshop() {
+        return workshop;
+    }
 
-    /** @return any free-text remarks for this order */
-    public String getOrderDetails() { return orderDetails; }
+    /**
+     * @return any free-text remarks for this order
+     */
+    public OrderDetails getOrderDetails() {
+        return orderDetails;
+    }
 
     /**
      * Builder for constructing {@link Order} instances.

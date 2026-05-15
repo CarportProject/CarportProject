@@ -5,6 +5,8 @@ import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
+import app.persistence.OrderDetails;
+import app.persistence.OrderMapper;
 import app.service.FormService;
 import app.service.UserService;
 import io.javalin.Javalin;
@@ -34,7 +36,7 @@ public class UserController {
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
-        app.post("/send-form", )
+        app.post("/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
 
 
     }
@@ -191,19 +193,23 @@ public class UserController {
         ctx.render("flat-roof.html");
     }
 
-    private static Order buildOrderWithForm(Context ctx) {
+    private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
+        String referer = ctx.header("Referer");
+        String trueReferer = referer != null ? referer : "/";
         RoofType roofType = null;
         String roof = ctx.formParam("roofType");
         try {
             if (null == roof) {
                 System.err.println("[UserController.buildOrderWithForm]" + "Roof value is null");
                 ctx.attribute("errorMessage", "Ugyldig forespørgsel");
+                ctx.redirect(trueReferer);
             } else {
                 roofType = RoofType.valueOf(roof.toUpperCase());
             }
         } catch (Exception e) {
             System.err.println("[UserController.buildOrderWithForm]" + e.getMessage());
             ctx.attribute("errorMessage", "Ugyldig forespørgsel");
+            ctx.redirect(trueReferer);
         }
         int roofMaterial = Integer.parseInt(ctx.formParam("roofMaterial"));
         String roofPitchParam = ctx.formParam("roofPitch");
@@ -229,8 +235,38 @@ public class UserController {
                     .build();
         }
 
+        String remarks = ctx.formParam("remarks");
 
 
+        OrderDetails orderDetails = new OrderDetails(remarks, Status.PENDING);
 
+        ContactInfo contactInfo = new ContactInfo.Builder()
+                .firstName(ctx.formParam("firstName"))
+                .lastName(ctx.formParam("lastName"))
+                .address(ctx.formParam("address"))
+                .postalCode(Integer.parseInt(ctx.formParam("postalCode")))
+                .email(ctx.formParam("email"))
+                .phoneNumber(ctx.formParam("phoneNumber"))
+                .build();
+
+        Order order = new Order.Builder()
+                .contactInfo(contactInfo)
+                .orderDetails(orderDetails)
+                .specifications(specifications)
+                .workshop(workshop)
+                .build();
+
+
+        OrderMapper orderMapper = new OrderMapper();
+        try {
+            orderMapper.insertOrder(order, connectionPool);
+        } catch (DatabaseException e) {
+            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
+            ctx.redirect(trueReferer);
+
+        }
+        ctx.attribute("successMessage", "Din ordre er nu bestilt.");
+        ctx.redirect(trueReferer);
     }
+
 }

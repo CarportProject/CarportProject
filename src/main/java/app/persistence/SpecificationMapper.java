@@ -1,6 +1,6 @@
 package app.persistence;
 
-import app.entities.RoofStyle;
+import app.entities.RoofMaterial;
 import app.entities.RoofType;
 import app.entities.Specifications;
 import app.exceptions.DatabaseException;
@@ -23,7 +23,7 @@ public class SpecificationMapper {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if a SQL error occurs during the insert
      */
-    public void insertSpecifications(Specifications specs, ConnectionPool connectionPool) throws DatabaseException {
+    public int insertSpecifications(Specifications specs, ConnectionPool connectionPool) throws DatabaseException {
         String roofType = specs.getRoofType().name();
         int roofMaterialId = specs.getRoofMaterial().getId();
         int widthCm = specs.getWidthCm();
@@ -42,6 +42,14 @@ public class SpecificationMapper {
             ps.setInt(4, lengthCm);
             ps.setInt(5, roofPitchDegree);
             ps.executeUpdate();
+
+            ResultSet resultSet = ps.getGeneratedKeys();
+
+            if(resultSet.next()){
+                return resultSet.getInt(1);
+            }
+            throw new DatabaseException("Could not get generated id");
+
         } catch (SQLException e) {
             System.err.println("[SpecificationMapper.insertSpecifications] " + e.getMessage());
             throw new DatabaseException("An error occurred while creating the specifications");
@@ -65,14 +73,14 @@ public class SpecificationMapper {
 
                 RoofType roofType = RoofType.valueOf(resultSet.getString("roof_type"));
 
-                int roofStyleId = resultSet.getInt("roof_style");
+                int roofMaterialId = resultSet.getInt("roof_material");
 
-                RoofStyle roofStyle = new RoofStyleMapper().findRoofStyleById(roofStyleId, connectionPool);
+                RoofMaterial roofMaterial = new RoofMaterialMapper().findRoofMaterialById(roofMaterialId, connectionPool);
 
                 return new Specifications.Builder()
                     .id(id)
                     .roofType(roofType)
-                    .roofStyle(roofStyle)
+                    .roofMaterial(roofMaterial)
                     .widthCm(resultSet.getInt("width_cm"))
                     .lengthCm(resultSet.getInt("length_cm"))
                     .roofPitch(resultSet.getInt("roof_pitch_degree"))

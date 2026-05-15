@@ -8,7 +8,7 @@ package app.entities;
  * </p>
  *
  * <pre>{@code
- * RoofMaterial roofStyle = new RoofMaterial.Builder()
+ * RoofMaterial roofMaterial = new RoofMaterial.Builder()
  *     .id(1)
  *     .name("Classic tile")
  *     .color("Anthracite")
