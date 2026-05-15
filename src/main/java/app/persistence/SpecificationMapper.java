@@ -1,10 +1,13 @@
 package app.persistence;
 
+import app.entities.RoofStyle;
+import app.entities.RoofType;
 import app.entities.Specifications;
 import app.exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -42,6 +45,46 @@ public class SpecificationMapper {
         } catch (SQLException e) {
             System.err.println("[SpecificationMapper.insertSpecifications] " + e.getMessage());
             throw new DatabaseException("An error occurred while creating the specifications");
+        }
+    }
+
+    public Specifications findSpecificationsById(int id, ConnectionPool connectionPool) throws DatabaseException {
+
+        String sql = "SELECT * FROM specifications WHERE id=?";
+
+        try (
+                Connection connection = connectionPool.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+
+                RoofType roofType = RoofType.valueOf(resultSet.getString("roof_type"));
+
+                int roofStyleId = resultSet.getInt("roof_style");
+
+                RoofStyle roofStyle = new RoofStyleMapper().findRoofStyleById(roofStyleId, connectionPool);
+
+                return new Specifications.Builder()
+                    .id(id)
+                    .roofType(roofType)
+                    .roofStyle(roofStyle)
+                    .widthCm(resultSet.getInt("width_cm"))
+                    .lengthCm(resultSet.getInt("length_cm"))
+                    .roofPitch(resultSet.getInt("roof_pitch_degree"))
+                    .build();
+            } else {
+                System.err.println("[SpecificationsMapper.findById] ");
+                throw new DatabaseException("Specifications not found");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("[SpecificationsMapper.findById] " + e.getMessage());
+            throw new DatabaseException("An error occurred while fetching specifications");
         }
     }
 }

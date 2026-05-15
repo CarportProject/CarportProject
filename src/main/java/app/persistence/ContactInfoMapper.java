@@ -5,6 +5,7 @@ import app.exceptions.DatabaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -50,8 +51,43 @@ public class ContactInfoMapper {
         }
     }
 
-    ContactInfo getCustomerById(int id) {
-        // TODO: implement customer lookup by ID
-        return null;
+
+    public ContactInfo findContactInfoById(int id, ConnectionPool connectionPool) throws DatabaseException {
+
+        String sql = "SELECT * FROM contact_info WHERE id=?";
+
+        try (
+                Connection connection = connectionPool.getConnection();
+                PreparedStatement preparedStatement =
+                        connection.prepareStatement(sql)
+        ) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+
+                return new ContactInfo.Builder()
+                        .id(id)
+                        .email(resultSet.getString("email"))
+                        .address(resultSet.getString("address"))
+                        .firstName(resultSet.getString("firstname"))
+                        .lastName(resultSet.getString("lastname"))
+                        .postalCode(resultSet.getInt("postal_code"))
+                        .city(resultSet.getString("city"))
+                        .phoneNumber(resultSet.getString("phone_number"))
+                        .build();
+            } else {
+                System.err.println("[ContactInfoMapper.findById] ");
+                throw new DatabaseException("No record found with id " + id);
+            }
+
+        } catch (SQLException e) {
+
+            System.err.println("[ContactInfoMapper.findById] " + e.getMessage());
+
+            throw new DatabaseException("An error occurred while fetching contact info " + e.getMessage());
+        }
     }
 }
