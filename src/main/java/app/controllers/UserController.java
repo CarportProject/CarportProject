@@ -36,7 +36,7 @@ public class UserController {
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
-        app.post("/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
+        app.post("carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
 
 
     }
@@ -178,6 +178,8 @@ public class UserController {
      */
     private static void getRaisedRoof(Context ctx, ConnectionPool connectionPool) {
         setFormAttributes(ctx, connectionPool, RoofType.RAISED);
+        ctx.attribute("successMessage", ctx.queryParam("success"));
+        ctx.attribute("errorMessage", ctx.queryParam("error"));
         ctx.render("raised-roof.html");
     }
 
@@ -190,6 +192,8 @@ public class UserController {
      */
     private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
         setFormAttributes(ctx, connectionPool, RoofType.FLAT);
+        ctx.attribute("successMessage", ctx.queryParam("success"));
+        ctx.attribute("errorMessage", ctx.queryParam("error"));
         ctx.render("flat-roof.html");
     }
 
@@ -202,6 +206,7 @@ public class UserController {
      * @param ctx            the Javalin request/response context
      * @param connectionPool the database connection pool
      */
+    //TODO Sanitize user input
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
         String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
 
@@ -214,17 +219,15 @@ public class UserController {
                     .build();
 
             new OrderMapper().insertOrder(order, connectionPool);
-            ctx.attribute("successMessage", "Din ordre er nu bestilt.");
         } catch (DatabaseException e) {
-            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
-            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
+            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());;
+            ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");
         } catch (Exception e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
-            ctx.attribute("errorMessage", "Ugyldig forespørgsel.");
+            ctx.redirect(trueReferer + "?error=Ugyldig+forespørgsel.");
         }
         //TODO send email til kunde
-        ctx.attribute("successMessage", "Din ordre er blevet oprettet.");
-        ctx.redirect(trueReferer);
+        ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
     }
 
     /**
@@ -258,7 +261,10 @@ public class UserController {
      */
     private static Workshop buildWorkshop(Context ctx) {
         if (!"WITH".equals(ctx.formParam("workshop"))) {
-            return null;
+            return new Workshop.Builder()
+                    // id 0 in workshop denominates
+                    .id(0)
+                    .build();
         }
         return new Workshop.Builder()
                 .widthCm(Integer.parseInt(ctx.formParam("workshop-width")))

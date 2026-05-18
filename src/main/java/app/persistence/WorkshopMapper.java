@@ -3,10 +3,7 @@ package app.persistence;
 import app.entities.Workshop;
 import app.exceptions.DatabaseException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * Repository class responsible for all database operations related to workshops.
@@ -28,7 +25,7 @@ public class WorkshopMapper {
         String sql = "INSERT INTO workshop (width_cm, length_cm) VALUES (?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             ps.setInt(1, widthCm);
             ps.setInt(2, lengthCm);

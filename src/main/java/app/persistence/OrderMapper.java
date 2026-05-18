@@ -14,22 +14,22 @@ public class OrderMapper {
     WorkshopMapper workshopMapper = new WorkshopMapper();
 
     public void insertOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
-
-        String sql = "INSERT INTO public.order (contact_info, specifications, workshop, remarks, status) " +
-                "VALUES (?, ?, ? ,? ,?)";
+        boolean hasWorkshop = order.getWorkshop().getId() != 0;
+        String sql = "INSERT INTO orders (contact_info, specifications, workshop, remarks, status) " +
+                "VALUES (?, ?, ? ,? ,?::order_status)";
         try (
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
 
             int contactId = contactInfoMapper.insertContactInfo(order.getCustomer(), connectionPool);
-            int specId = specificationMapper.insertSpecifications(order.getSpecifications(), connectionPool);
-            int workshopId = workshopMapper.insertWorkshop(order.getWorkshop(), connectionPool);
-
-
             preparedStatement.setInt(1, contactId);
+            int specId = specificationMapper.insertSpecifications(order.getSpecifications(), connectionPool);
             preparedStatement.setInt(2, specId);
-            preparedStatement.setInt(3, workshopId);
+            if (hasWorkshop) {
+                int workshopId = workshopMapper.insertWorkshop(order.getWorkshop(), connectionPool);
+                preparedStatement.setInt(3, workshopId);
+            } else { preparedStatement.setNull(3, Types.INTEGER);}
             preparedStatement.setString(4, order.getOrderDetails().remark());
             preparedStatement.setString(5, String.valueOf(order.getOrderDetails().status()));
             preparedStatement.executeUpdate();
