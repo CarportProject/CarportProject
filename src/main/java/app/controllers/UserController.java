@@ -36,7 +36,7 @@ public class UserController {
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
-        app.post("/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
+        app.post("carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
 
 
     }
@@ -178,6 +178,8 @@ public class UserController {
      */
     private static void getRaisedRoof(Context ctx, ConnectionPool connectionPool) {
         setFormAttributes(ctx, connectionPool, RoofType.RAISED);
+        ctx.attribute("successMessage", ctx.queryParam("success"));
+        ctx.attribute("errorMessage", ctx.queryParam("error"));
         ctx.render("raised-roof.html");
     }
 
@@ -190,83 +192,102 @@ public class UserController {
      */
     private static void getFlatRoof(Context ctx, ConnectionPool connectionPool) {
         setFormAttributes(ctx, connectionPool, RoofType.FLAT);
+        ctx.attribute("successMessage", ctx.queryParam("success"));
+        ctx.attribute("errorMessage", ctx.queryParam("error"));
         ctx.render("flat-roof.html");
     }
 
+    /**
+     * Handles POST /send-form. Reads all carport order fields from the submitted form,
+     * constructs an {@link Order} and persists it via {@link OrderMapper}.
+     * On success, sets a success message and redirects back to the referring page.
+     * On any error, logs it, sets an error message, and redirects back.
+     *
+     * @param ctx            the Javalin request/response context
+     * @param connectionPool the database connection pool
+     */
+    //TODO Sanitize user input
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
-        String referer = ctx.header("Referer");
-        String trueReferer = referer != null ? referer : "/";
-        RoofType roofType = null;
-        String roof = ctx.formParam("roofType");
+        String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
+
         try {
-            if (null == roof) {
-                System.err.println("[UserController.buildOrderWithForm]" + "Roof value is null");
-                ctx.attribute("errorMessage", "Ugyldig forespørgsel");
-                ctx.redirect(trueReferer);
-            } else {
-                roofType = RoofType.valueOf(roof.toUpperCase());
-            }
+            Order order = new Order.Builder()
+                    .contactInfo(buildContactInfo(ctx))
+                    .specifications(buildSpecifications(ctx))
+                    .workshop(buildWorkshop(ctx))
+                    .orderDetails(new OrderDetails(ctx.formParam("remarks"), Status.PENDING))
+                    .build();
+
+            new OrderMapper().insertOrder(order, connectionPool);
+        } catch (DatabaseException e) {
+            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());;
+            ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");
         } catch (Exception e) {
-            System.err.println("[UserController.buildOrderWithForm]" + e.getMessage());
-            ctx.attribute("errorMessage", "Ugyldig forespørgsel");
-            ctx.redirect(trueReferer);
+            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
+            ctx.redirect(trueReferer + "?error=Ugyldig+forespørgsel.");
         }
-        int roofMaterial = Integer.parseInt(ctx.formParam("roofMaterial"));
+        //TODO send email til kunde
+        ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
+    }
+
+    /**
+     * Builds a {@link Specifications} object from the submitted form parameters.
+     * {@code roofPitch} defaults to {@code 0} when not present (flat-roof orders).
+     *
+     * @param ctx the Javalin request/response context containing the form data
+     * @return a fully populated {@link Specifications} instance
+     */
+    private static Specifications buildSpecifications(Context ctx) {
+        RoofType roofType = RoofType.valueOf(ctx.formParam("roofType").toUpperCase());
+        int roofMaterialId = Integer.parseInt(ctx.formParam("roofMaterial"));
         String roofPitchParam = ctx.formParam("roofPitch");
         int roofPitch = roofPitchParam != null ? Integer.parseInt(roofPitchParam) : 0;
 
-        Specifications specifications = new Specifications.Builder()
+        return new Specifications.Builder()
                 .roofType(roofType)
-                .roofMaterial(new RoofMaterial.Builder()
-                        .id(roofMaterial).build())
+                .roofMaterial(new RoofMaterial.Builder().id(roofMaterialId).build())
                 .widthCm(Integer.parseInt(ctx.formParam("widthCm")))
                 .lengthCm(Integer.parseInt(ctx.formParam("lengthCm")))
                 .roofPitch(roofPitch)
                 .build();
+    }
 
-
-        Workshop workshop = null;
-
-        Boolean hasWorkshop = ctx.formParam("workshop") == "WITH";
-        if (hasWorkshop) {
-            workshop = new Workshop.Builder()
-                    .widthCm(Integer.parseInt(ctx.formParam("workshop-width")))
-                    .lengthCm(Integer.parseInt(ctx.formParam("workshop-length")))
+    /**
+     * Builds a {@link Workshop} from the submitted form parameters, or returns {@code null}
+     * if the user selected "WITHOUT" workshop.
+     *
+     * @param ctx the Javalin request/response context containing the form data
+     * @return a {@link Workshop} instance, or {@code null} if no workshop was requested
+     */
+    private static Workshop buildWorkshop(Context ctx) {
+        if (!"WITH".equals(ctx.formParam("workshop"))) {
+            return new Workshop.Builder()
+                    // id 0 in workshop denominates
+                    .id(0)
                     .build();
         }
+        return new Workshop.Builder()
+                .widthCm(Integer.parseInt(ctx.formParam("workshop-width")))
+                .lengthCm(Integer.parseInt(ctx.formParam("workshop-length")))
+                .build();
+    }
 
-        String remarks = ctx.formParam("remarks");
-
-
-        OrderDetails orderDetails = new OrderDetails(remarks, Status.PENDING);
-
-        ContactInfo contactInfo = new ContactInfo.Builder()
+    /**
+     * Builds a {@link ContactInfo} object from the submitted form parameters.
+     *
+     * @param ctx the Javalin request/response context containing the form data
+     * @return a fully populated {@link ContactInfo} instance
+     */
+    private static ContactInfo buildContactInfo(Context ctx) {
+        return new ContactInfo.Builder()
                 .firstName(ctx.formParam("firstName"))
                 .lastName(ctx.formParam("lastName"))
                 .address(ctx.formParam("address"))
                 .postalCode(Integer.parseInt(ctx.formParam("postalCode")))
+                .city(ctx.formParam("city"))
                 .email(ctx.formParam("email"))
                 .phoneNumber(ctx.formParam("phoneNumber"))
                 .build();
-
-        Order order = new Order.Builder()
-                .contactInfo(contactInfo)
-                .orderDetails(orderDetails)
-                .specifications(specifications)
-                .workshop(workshop)
-                .build();
-
-
-        OrderMapper orderMapper = new OrderMapper();
-        try {
-            orderMapper.insertOrder(order, connectionPool);
-        } catch (DatabaseException e) {
-            ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere");
-            ctx.redirect(trueReferer);
-
-        }
-        ctx.attribute("successMessage", "Din ordre er nu bestilt.");
-        ctx.redirect(trueReferer);
     }
 
 }

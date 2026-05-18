@@ -5,10 +5,7 @@ import app.entities.RoofType;
 import app.entities.Specifications;
 import app.exceptions.DatabaseException;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 /**
  * Repository class responsible for all database operations related to carport specifications.
@@ -31,10 +28,10 @@ public class SpecificationMapper {
         int roofPitchDegree = specs.getRoofPitch();
 
         String sql = "INSERT INTO public.specifications (roof_type, roof_material, width_cm, length_cm, roof_pitch_degree) " +
-                "VALUES (?, ?, ?, ?, ?)";
+                "VALUES (?::roof_type, ?, ?, ?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
-                PreparedStatement ps = connection.prepareStatement(sql)
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
             ps.setString(1, roofType);
             ps.setInt(2, roofMaterialId);
@@ -48,7 +45,8 @@ public class SpecificationMapper {
             if(resultSet.next()){
                 return resultSet.getInt(1);
             }
-            throw new DatabaseException("Could not get generated id");
+            System.err.println("[SpecificationMapper.insertSpecifications]");
+            throw new DatabaseException("Could fetch generated id for specifications");
 
         } catch (SQLException e) {
             System.err.println("[SpecificationMapper.insertSpecifications] " + e.getMessage());

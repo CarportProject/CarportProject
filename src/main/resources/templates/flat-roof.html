@@ -143,6 +143,9 @@
                 <span aria-current="page">Quick-Byg carport med fladt tag</span>
             </nav>
 
+            <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="flash-message flash-success" th:text="${successMessage}"></div>
+
             <div class="order-page">
 
                 <!-- Venstre: beskrivelse -->
