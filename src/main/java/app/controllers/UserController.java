@@ -38,7 +38,6 @@ public class UserController {
         app.post("/logout", UserController::logout);
         app.post("carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
 
-
     }
 
     /**

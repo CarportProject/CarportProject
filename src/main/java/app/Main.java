@@ -30,5 +30,6 @@ public class Main {
 
         app.get("/", ctx -> ctx.redirect("/Side1"));
         UserController.addRouts(app, connectionPool);
+        UserController.addRouts(app, connectionPool);
     }
 }
