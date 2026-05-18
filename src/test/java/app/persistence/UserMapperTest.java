@@ -1,6 +1,7 @@
+package app.persistence;
+
 import app.entities.User;
 import app.exceptions.UserNotFoundException;
-import app.persistence.UserMapper;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
