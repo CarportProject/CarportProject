@@ -8,9 +8,11 @@ import app.persistence.ConnectionPool;
 import app.persistence.OrderDetails;
 import app.persistence.OrderMapper;
 import app.service.FormService;
+import app.service.OrderService;
 import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+
 
 
 /**
@@ -28,7 +30,6 @@ public class UserController {
      * @param connectionPool the database connection pool passed to handlers
      */
     public static void addRouts(Javalin app, ConnectionPool connectionPool) {
-        app.get("/Side1", ctx -> ctx.render("fog-carport.html"));
         app.get("/login-page", ctx -> ctx.render("login.html"));
         app.get("/create-user", ctx -> ctx.render("create-user.html"));
         app.get("/carport/raised-roof", ctx -> getRaisedRoof(ctx, connectionPool));
@@ -43,7 +44,7 @@ public class UserController {
     /**
      * Handles POST /login. Reads email and password from the form,
      * delegates authentication to {@link UserService}, and on success
-     * stores the user in the session and redirects to /Side1.
+     * stores the user in the session and redirects to /.
      * On failure, re-renders the login page with an error message.
      *
      * @param ctx            the Javalin request/response context
@@ -53,13 +54,13 @@ public class UserController {
         String email = ctx.formParam("email");
         String password = ctx.formParam("password");
 
-        if (validateLogin(ctx, email, password)) return;
+        if (validateLoginInputs(ctx, email, password)) return;
 
         try {
             User user = USER_SERVICE.login(email, password, connectionPool);
             // Store the authenticated user in the session for subsequent requests
             ctx.sessionAttribute("user", user);
-            ctx.redirect("/Side1");
+            ctx.redirect("/");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
             ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert.");
@@ -80,15 +81,16 @@ public class UserController {
      * @param password the password parameter from the form, may be {@code null}
      * @return {@code true} if validation failed, {@code false} if both fields are valid
      */
-    private static boolean validateLogin(Context ctx, String email, String password) {
+    private static boolean validateLoginInputs(Context ctx, String email, String password) {
+        String referer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
         if (email == null || email.isBlank()) {
             ctx.attribute("errorMessage", "Email mangler.");
-            ctx.render("create-user.html");
+            ctx.redirect(referer);
             return true;
         }
         if (password == null || password.isBlank()) {
             ctx.attribute("errorMessage", "Adgangskode mangler.");
-            ctx.render("create-user.html");
+            ctx.redirect(referer);
             return true;
         }
         return false;
@@ -97,7 +99,7 @@ public class UserController {
     /**
      * Handles POST /create-user. Reads registration details from the form,
      * delegates creation to {@link UserService}, then automatically logs the
-     * new user in and redirects to /Side1.
+     * new user in and redirects to /1.
      * On failure, re-renders the registration page with an appropriate error message.
      *
      * @param ctx            the Javalin request/response context
@@ -108,7 +110,7 @@ public class UserController {
         String password = ctx.formParam("password");
         String confirmPassword = ctx.formParam("confirmPassword");
 
-        if (validateLogin(ctx, email, password)) return;
+        if (validateLoginInputs(ctx, email, password)) return;
 
         try {
             USER_SERVICE.createUser(email, password, confirmPassword, connectionPool);
@@ -116,7 +118,7 @@ public class UserController {
             // Automatically log the user in after successful registration
             User user = USER_SERVICE.login(email, password, connectionPool);
             ctx.sessionAttribute("user", user);
-            ctx.redirect("/Side1");
+            ctx.redirect("/");
         } catch (InvalidCredentialsException e) {
             ctx.attribute("errorMessage", "Adgangskoderne stemmer ikke overens.");
             ctx.render("create-user.html");
@@ -214,18 +216,17 @@ public class UserController {
                     .contactInfo(buildContactInfo(ctx))
                     .specifications(buildSpecifications(ctx))
                     .workshop(buildWorkshop(ctx))
-                    .orderDetails(new OrderDetails(ctx.formParam("remarks"), Status.PENDING))
+                    .orderDetails(new OrderDetails(ctx.formParam("remarks"), OrderStatus.PENDING))
                     .build();
 
-            new OrderMapper().insertOrder(order, connectionPool);
+            OrderService.createOrder(order, connectionPool);
         } catch (DatabaseException e) {
-            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());;
+            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");
         } catch (Exception e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Ugyldig+forespørgsel.");
         }
-        //TODO send email til kunde
         ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
     }
 

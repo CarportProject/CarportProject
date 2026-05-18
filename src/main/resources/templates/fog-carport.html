@@ -70,6 +70,7 @@
             <!-- Desktop navigation -->
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"> <a th:href="@{/orders}">Se alle ordre</a></li>
                     <li><a href="#">Byg selv-produkter</a></li>
                     <li><a href="#" class="nav-active">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>

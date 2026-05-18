@@ -13,7 +13,7 @@ public enum Role {
     ADMIN,
 
     /** Can view and process orders on behalf of customers. */
-    SALES,
+    EMPLOYEE,
 
     /** Can place and view their own orders. */
     CUSTOMER

@@ -4,7 +4,6 @@ import app.entities.Order;
 import app.entities.OrderStatus;
 import app.exceptions.DatabaseException;
 import app.observer.CustomerEmailObserver;
-import app.observer.OrderEvent;
 import app.observer.OrderObserver;
 import app.observer.SalesEmailObserver;
 import app.persistence.ConnectionPool;
@@ -28,12 +27,12 @@ public class OrderService {
     /**
      * Notifies all registered observers of an order event.
      *
-     * @param order      the order the event relates to
-     * @param orderEvent the type of event that occurred
+     * @param order       the order the event relates to
+     * @param orderStatus the type of event that occurred
      */
-    private void notifyObservers(Order order, OrderEvent orderEvent) {
+    private static void notifyObservers(Order order, OrderStatus orderStatus) {
         for (OrderObserver observer : orderObserverList) {
-            observer.update(order, orderEvent);
+            observer.update(order, orderStatus);
         }
     }
 
@@ -45,9 +44,9 @@ public class OrderService {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if a database error occurs during the insert
      */
-    public void createOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
+    public static void createOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
         ORDER_MAPPER.insertOrder(order, connectionPool);
-        notifyObservers(order, OrderEvent.ORDER_CREATED);
+        notifyObservers(order, OrderStatus.PENDING);
     }
 
     /**
@@ -57,7 +56,18 @@ public class OrderService {
      * @param order          the order to cancel
      * @param connectionPool the database connection pool
      */
-    public void cancelOrder(Order order, ConnectionPool connectionPool) {
-        notifyObservers(order, OrderEvent.ORDER_CANCELLED);
+    public static void cancelOrder(Order order, ConnectionPool connectionPool) {
+        OrderMapper.changeOrderStatus(connectionPool, OrderStatus.CANCELLED, order);
+        notifyObservers(order, OrderStatus.CANCELLED);
+    }
+
+    public static void rejectOrder(Order order, ConnectionPool connectionPool) {
+        OrderMapper.changeOrderStatus(connectionPool, OrderStatus.REJECTED, order);
+        notifyObservers(order, OrderStatus.REJECTED);
+    }
+
+    public static void acceptOrder(Order order, ConnectionPool connectionPool) {
+        OrderMapper.changeOrderStatus(connectionPool, OrderStatus.OFFER_SENT, order);
+        notifyObservers(order, OrderStatus.OFFER_SENT);
     }
 }

@@ -2,6 +2,7 @@ package app;
 
 import app.config.SessionConfig;
 import app.config.ThymeleafConfig;
+import app.controllers.SalesController;
 import app.controllers.UserController;
 import app.persistence.ConnectionPool;
 import io.javalin.Javalin;
@@ -27,9 +28,11 @@ public class Main {
         }).start(7070);
 
         // Routing
-
-        app.get("/", ctx -> ctx.redirect("/Side1"));
+        app.before(ctx -> {
+            ctx.attribute("user", ctx.sessionAttribute("user"));
+        });
+        app.get("/", ctx -> ctx.render("fog-carport.html"));
         UserController.addRouts(app, connectionPool);
-        UserController.addRouts(app, connectionPool);
+        SalesController.addRoutes(app, connectionPool);
     }
 }
