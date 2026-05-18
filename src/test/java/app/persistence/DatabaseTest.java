@@ -1,4 +1,5 @@
-import app.persistence.ConnectionPool;
+package app.persistence;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 

@@ -1,6 +1,7 @@
+package app.persistence;
+
 import app.entities.User;
 import app.exceptions.InvalidCredentialsException;
-import app.persistence.UserMapper;
 import app.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
