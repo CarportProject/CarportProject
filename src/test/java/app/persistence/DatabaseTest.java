@@ -59,11 +59,17 @@ public abstract class DatabaseTest {
     void cleanDatabase() throws SQLException {
         // Add more tables as needed
         String sql = "DELETE FROM test.users;";
+        String sqlUsers = "DELETE FROM test.users;";
+        String sqlWorkshop = "DELETE FROM test.workshop;";
+
+
         try (
                 Connection connection = connectionPool.getConnection();
                 Statement statement = connection.createStatement()
         ) {
             statement.execute(sql);
+            statement.execute(sqlUsers);
+            statement.execute(sqlWorkshop);
         }
     }
 }
