@@ -49,8 +49,7 @@ public class WorkshopMapper {
 
         try (
                 Connection connection = connectionPool.getConnection();
-                PreparedStatement preparedStatement =
-                        connection.prepareStatement(sql)
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
         ) {
 
             preparedStatement.setInt(1, id);
