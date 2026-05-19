@@ -85,7 +85,7 @@ public class RoofMaterialMapper {
             if (resultSet.next()) {
 
                 return new RoofMaterial.Builder()
-                        .id(id)
+                        .id(resultSet.getInt("id"))
                         .name(resultSet.getString("name"))
                         .color(resultSet.getString("color"))
                         .price(resultSet.getInt("price_per_m2"))

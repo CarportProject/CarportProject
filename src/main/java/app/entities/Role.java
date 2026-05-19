@@ -1,5 +1,9 @@
 package app.entities;
 
+import org.postgresql.util.PGobject;
+
+import java.sql.SQLException;
+
 /**
  * Defines the access roles available in the carport system.
  * <p>
@@ -16,5 +20,12 @@ public enum Role {
     EMPLOYEE,
 
     /** Can place and view their own orders. */
-    CUSTOMER
+    CUSTOMER;
+
+    public PGobject getDatabaseEnum() throws SQLException {
+        PGobject pgObject = new PGobject();
+        pgObject.setType("user_role");
+        pgObject.setValue(this.name());
+        return pgObject;
+    }
 }
