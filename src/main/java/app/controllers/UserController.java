@@ -34,6 +34,7 @@ public class UserController {
         app.get("/create-user", ctx -> ctx.render("create-user.html"));
         app.get("/carport/raised-roof", ctx -> getRaisedRoof(ctx, connectionPool));
         app.get("/carport/flat-roof", ctx -> getFlatRoof(ctx, connectionPool));
+        app.get("error-page", ctx -> ctx.render("error.html"));
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);

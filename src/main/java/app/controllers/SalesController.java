@@ -2,6 +2,8 @@ package app.controllers;
 
 import app.entities.ContactInfo;
 import app.entities.Order;
+import app.entities.Role;
+import app.entities.User;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
 import app.persistence.OrderMapper;
@@ -21,14 +23,19 @@ public class SalesController {
      * @param connectionPool the database connection pool passed to handlers
      */
     public static void addRoutes(Javalin app, ConnectionPool connectionPool) {
-        app.get("/orders", ctx -> getAllOrders(ctx, connectionPool));
+        app.get("/orders", ctx -> renderOrderPage(ctx, connectionPool));
         app.get("/admin/orders", ctx -> statusFilter(ctx, connectionPool));
         app.post("/admin/reject-order", ctx -> rejectOrder(ctx, connectionPool));
         app.post("/admin/accept-order", ctx -> acceptOrder(ctx, connectionPool));
     }
 
-    public static void getAllOrders(Context ctx, ConnectionPool connectionPool) {
+    public static void renderOrderPage(Context ctx, ConnectionPool connectionPool) {
         OrderMapper orderMapper = new OrderMapper();
+        User user = ctx.attribute("user");
+        if (null == user || !user.getRole().equals(Role.EMPLOYEE)) {
+            ctx.redirect("/error-page");
+            return;
+        }
 
         ctx.attribute("successMessage", ctx.formParam("success"));
         ctx.attribute("errorMessage", ctx.formParam("error"));
@@ -40,7 +47,7 @@ public class SalesController {
             System.err.println("[SalesController.getAllOrders] " + e.getMessage());
             ctx.attribute("errorMessage", "Noget gik galt mens ordrene blev hentet, prøv igen senere.");
         }
-        setFormAttributes(ctx, connectionPool);
+
         ctx.attribute("orders", orderList);
         ctx.render("/orders.html");
 
@@ -75,7 +82,7 @@ public class SalesController {
             ctx.redirect("/orders?success=Ordren+blev+afvist");
         } catch (Exception e) {
             System.err.println("[SalesController.rejectOrder] " + e.getMessage());
-            ctx.redirect("/orders?error=Noget+gik+galt, kontakt administrator");
+            ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
         }
     }
 
