@@ -28,8 +28,8 @@ class WorkshopMapperTest extends DatabaseTest {
 
         // CHECK 2: Is the data saved correctly?
         Workshop saved = workshopMapper.findWorkshopById(id, connectionPool);
-        assertEquals(200, saved.getWidthCm(), "Width should be 200");
-        assertEquals(300, saved.getLengthCm(), "Length should be 300");
+        assertEquals(workshop.getWidthCm(), saved.getWidthCm(), "Width should be 200");
+        assertEquals(workshop.getLengthCm(), saved.getLengthCm(), "Length should be 300");
     }
 
     @Test
@@ -48,8 +48,8 @@ class WorkshopMapperTest extends DatabaseTest {
 
         // CHECK: All data matches
         assertEquals(id, found.getId(), "ID should match");
-        assertEquals(150, found.getWidthCm(), "Width should be 150");
-        assertEquals(250, found.getLengthCm(), "Length should be 250");
+        assertEquals(workshop.getWidthCm(), found.getWidthCm(), "Width should be 150");
+        assertEquals(workshop.getLengthCm(), found.getLengthCm(), "Length should be 250");
 
         // PART 2: Test finding a workshop that does NOT EXIST
 

@@ -73,7 +73,7 @@ public class ContactInfoMapper {
             if (resultSet.next()) {
 
                 return new ContactInfo.Builder()
-                        .id(id)
+                        .id(resultSet.getInt("id"))
                         .email(resultSet.getString("email"))
                         .address(resultSet.getString("address"))
                         .firstName(resultSet.getString("firstname"))
