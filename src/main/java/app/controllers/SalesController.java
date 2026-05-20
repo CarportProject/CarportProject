@@ -1,11 +1,9 @@
 package app.controllers;
 
-import app.entities.ContactInfo;
-import app.entities.Order;
-import app.entities.Role;
-import app.entities.User;
+import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
+import app.persistence.MaterialsMapper;
 import app.persistence.OrderMapper;
 import app.service.OrderService;
 import io.javalin.Javalin;
@@ -14,7 +12,6 @@ import io.javalin.http.Context;
 import java.util.List;
 
 public class SalesController {
-    OrderMapper orderMapper = new OrderMapper();
 
     /**
      * Registers all sales-related routes on the Javalin application.
@@ -42,7 +39,7 @@ public class SalesController {
 
         List<Order> orderList = null;
         try {
-            orderList = orderMapper.getAllOrders(connectionPool);
+            orderList = orderMapper.getAllOrders(connectionPool).reversed();
         } catch (DatabaseException e) {
             System.err.println("[SalesController.getAllOrders] " + e.getMessage());
             ctx.attribute("errorMessage", "Noget gik galt mens ordrene blev hentet, prøv igen senere.");
@@ -87,6 +84,7 @@ public class SalesController {
     }
 
     private static void acceptOrder(Context ctx, ConnectionPool connectionPool) {
+        changeOrderPrice(ctx, connectionPool);
         try {
             Order order = new Order.Builder()
                     .id(Integer.parseInt(ctx.formParam("orderId")))
@@ -94,8 +92,29 @@ public class SalesController {
             OrderService.acceptOrder(order, connectionPool);
             ctx.redirect("/orders?success=Ordren+blev+godkendt");
         } catch (Exception e) {
+
             System.err.println("[SalesController.acceptOrder] " + e.getMessage());
-            ctx.redirect("/orders?error=Noget+gik+galt, kontakt administrator");
+            ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
+        }
+    }
+
+    private static void changeOrderPrice(Context ctx, ConnectionPool connectionPool) {
+        String stringUpdatedValue = ctx.attribute("total-price-input");
+        int updatedValue;
+        if (stringUpdatedValue != null) {
+            updatedValue = Integer.parseInt(stringUpdatedValue);
+
+            MaterialsMapper materialsMapper = new MaterialsMapper();
+            Material material = new Material.Builder()
+                    .price(updatedValue)
+                    .build();
+
+            try {
+                materialsMapper.updateMaterialInfo(material, connectionPool);
+
+            } catch (DatabaseException e) {
+                ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
+            }
         }
     }
 }

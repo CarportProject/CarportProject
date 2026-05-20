@@ -313,8 +313,8 @@
                         </div>
 
                         <div class="discount-row">
-                            <button class="btn-ret" id="applyDiscount" type="button">Ret</button>
-
+                            <button class="btn-ret" id="applyDiscount" type="button" onclick="updatePrice()">Ret</button>
+                            <input type="hidden">
                             <div class="discount-input-group">
                                 <input type="number" id="discountValue" min="0" placeholder="0">
                                 <div class="switch-group">
@@ -330,6 +330,7 @@
                             <div class="discount-summary">
                                 <div class="discount-line" id="discount-display">Rabat – 0 kr.</div>
                                 <div class="total-line" id="total-display">Total – 0 kr.</div>
+                                <input value="0" name="total-display" type="hidden" id="total-display-input">
                             </div>
                         </div>
 
@@ -354,6 +355,7 @@
     const discountVal = document.getElementById('discountValue');
     const discountDisplay = document.getElementById('discount-display');
     const totalDisplay = document.getElementById('total-display');
+    const totalDisplayInput = document.getElementById('total-display-input');
 
     let basePrice = 0;
 
@@ -434,6 +436,7 @@
         const total = basePrice - rabatKr;
         discountDisplay.textContent = 'Rabat – –' + fmtKr(rabatKr);
         totalDisplay.textContent = 'Total – ' + fmtKr(total);
+        totalDisplayInput.value = total;
     });
 </script>
 </body>
