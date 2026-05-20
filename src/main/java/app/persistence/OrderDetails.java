@@ -1,6 +1,6 @@
 package app.persistence;
 
-import app.entities.Status;
+import app.entities.OrderStatus;
 
-public record OrderDetails(String remark, Status status) {
+public record OrderDetails(String remark, OrderStatus status) {
 }

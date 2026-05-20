@@ -21,19 +21,19 @@ public class SpecificationMapper {
      * @throws DatabaseException if a SQL error occurs during the insert
      */
     public int insertSpecifications(Specifications specs, ConnectionPool connectionPool) throws DatabaseException {
-        String roofType = specs.getRoofType().name();
+        RoofType roofType = specs.getRoofType();
         int roofMaterialId = specs.getRoofMaterial().getId();
         int widthCm = specs.getWidthCm();
         int lengthCm = specs.getLengthCm();
         int roofPitchDegree = specs.getRoofPitch();
 
         String sql = "INSERT INTO public.specifications (roof_type, roof_material, width_cm, length_cm, roof_pitch_degree) " +
-                "VALUES (?::roof_type, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
-            ps.setString(1, roofType);
+            ps.setObject(1, roofType.getDatabaseEnum());
             ps.setInt(2, roofMaterialId);
             ps.setInt(3, widthCm);
             ps.setInt(4, lengthCm);

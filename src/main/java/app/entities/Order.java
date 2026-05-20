@@ -69,7 +69,7 @@ public class Order {
     /**
      * @return the contactInfo who placed this order
      */
-    public ContactInfo getCustomer() {
+    public ContactInfo getContactInfo() {
         return contactInfo;
     }
 

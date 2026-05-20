@@ -1,5 +1,9 @@
 package app.entities;
 
+import org.postgresql.util.PGobject;
+
+import java.sql.SQLException;
+
 /**
  * Defines the structural roof types available for a carport.
  * <p>
@@ -9,9 +13,20 @@ package app.entities;
  */
 public enum RoofType {
 
-    /** A level roof with no pitch — simpler construction, lower cost. */
+    /**
+     * A level roof with no pitch — simpler construction, lower cost.
+     */
     FLAT,
 
-    /** A pitched roof — requires additional framing and a {@link Specifications#roofPitch} value. */
-    RAISED
+    /**
+     * A pitched roof — requires additional framing and a {@link Specifications#roofPitch} value.
+     */
+    RAISED;
+
+    public PGobject getDatabaseEnum() throws SQLException {
+        PGobject pGobject = new PGobject();
+        pGobject.setType("roof_type");
+        pGobject.setValue(this.name());
+        return pGobject;
+    }
 }

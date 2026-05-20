@@ -64,12 +64,11 @@ public class WorkshopMapper {
                         .lengthCm(resultSet.getInt("length_cm"))
                         .build();
             } else {
-                System.err.println("[WorkshopMapper.findById] ");
-                throw new DatabaseException("Workshop not found");
+                return null;
             }
 
         } catch (SQLException e) {
-            System.err.println("[WorkshopMapper.findById] " + e.getMessage());
+            System.err.println("[WorkshopMapper.findWorkshopById] " + e.getMessage());
             throw new DatabaseException("An error occurred while fetching workshop");
         }
     }
