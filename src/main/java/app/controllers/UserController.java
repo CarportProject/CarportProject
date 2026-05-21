@@ -52,7 +52,6 @@ public class UserController {
      * @param connectionPool the database connection pool
      */
     private static void login(Context ctx, ConnectionPool connectionPool) {
-        String referer = ctx.header("Referer");
         String email = ctx.formParam("email");
         String password = ctx.formParam("password");
 
@@ -62,7 +61,7 @@ public class UserController {
             User user = USER_SERVICE.login(email, password, connectionPool);
             // Store the authenticated user in the session for subsequent requests
             ctx.sessionAttribute("user", user);
-            ctx.redirect(referer != null ? referer : "/");
+            ctx.redirect("/");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
             ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert.");
@@ -209,18 +208,16 @@ public class UserController {
      * @param ctx            the Javalin request/response context
      * @param connectionPool the database connection pool
      */
-    //TODO Sanitize user input
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
         String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
-
-        String roofTypeString = ctx.formParam("roofType");
-        RoofType roofType = RoofType.valueOf(roofTypeString);
         FormService formService = new FormService();
 
-
-        MaterialService materialService = formService.getCorrectMaterialService(roofType);
-
         try {
+            formService.validateOrderForm(ctx);
+
+            RoofType roofType = RoofType.valueOf(ctx.formParam("roofType"));
+            MaterialService materialService = formService.getCorrectMaterialService(roofType);
+
             Order order = new Order.Builder()
                     .contactInfo(buildContactInfo(ctx))
                     .specifications(buildSpecifications(ctx))

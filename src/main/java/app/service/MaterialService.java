@@ -1,6 +1,7 @@
 package app.service;
 
 import app.entities.Material;
+import app.entities.MaterialListEntry;
 import app.entities.MaterialType;
 import app.entities.Specifications;
 import app.exceptions.DatabaseException;
@@ -60,11 +61,11 @@ public abstract class MaterialService {
      * @param materialList the list of materials for an order
      * @return the total cost in øre
      */
-    public double getMaterialListCost(List<Material> materialList) {
+    public double getMaterialListCost(List<MaterialListEntry> materialList) {
         double cost = 0;
 
-        for (Material material : materialList) {
-            cost += material.getPrice();
+        for (MaterialListEntry materialListEntry : materialList) {
+            cost += materialListEntry.material().getPrice() * materialListEntry.amount();
         }
 
         return cost;

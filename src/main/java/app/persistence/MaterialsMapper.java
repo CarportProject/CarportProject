@@ -1,6 +1,7 @@
 package app.persistence;
 
 import app.entities.Material;
+import app.entities.MaterialListEntry;
 import app.exceptions.DatabaseException;
 
 import java.sql.Connection;
@@ -17,13 +18,14 @@ public class MaterialsMapper {
      *
      * @param orderId        the ID of the order whose materials should be fetched
      * @param connectionPool the database connection pool
-     * @return a list of {@link Material} objects belonging to the order; empty if none found
+     * @return a list of {@link MaterialListEntry} objects belonging to the order; empty if none found
      * @throws DatabaseException if a SQL error occurs during the query
      */
-    public List<Material> findMaterialListById(int orderId, ConnectionPool connectionPool)
+    public List<MaterialListEntry> findMaterialListById(int orderId, ConnectionPool connectionPool)
             throws DatabaseException {
 
-        List<Material> materialList = new ArrayList<>();
+        List<MaterialListEntry> materialList = new ArrayList<>();
+
         String sql = "SELECT * FROM material_list WHERE order_id = ?";
 
         try (
@@ -34,16 +36,11 @@ public class MaterialsMapper {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                Material material = new Material.Builder()
-                        .id(resultSet.getInt("id"))
-                        .name(resultSet.getString("name"))
-                        .description(resultSet.getString("description"))
-                        .price(resultSet.getInt("price_per_m"))
-                        .widthMm(resultSet.getInt("width_mm"))
-                        .heightMm(resultSet.getInt("height_mm"))
-                        .build();
+                int materialId = resultSet.getInt("material_id");
+                int amount = resultSet.getInt("amount");
+                MaterialListEntry materialListEntry = new MaterialListEntry(getMaterialById(materialId, connectionPool), amount);
 
-                materialList.add(material);
+                materialList.add(materialListEntry);
             }
 
             return materialList;
