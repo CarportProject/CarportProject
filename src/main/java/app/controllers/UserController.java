@@ -8,11 +8,11 @@ import app.persistence.ConnectionPool;
 import app.persistence.OrderDetails;
 import app.persistence.OrderMapper;
 import app.service.FormService;
+import app.service.MaterialService;
 import app.service.OrderService;
 import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-
 
 
 /**
@@ -52,6 +52,7 @@ public class UserController {
      * @param connectionPool the database connection pool
      */
     private static void login(Context ctx, ConnectionPool connectionPool) {
+        String referer = ctx.header("Referer");
         String email = ctx.formParam("email");
         String password = ctx.formParam("password");
 
@@ -61,7 +62,7 @@ public class UserController {
             User user = USER_SERVICE.login(email, password, connectionPool);
             // Store the authenticated user in the session for subsequent requests
             ctx.sessionAttribute("user", user);
-            ctx.redirect("/");
+            ctx.redirect(referer != null ? referer : "/");
         } catch (UserNotFoundException | InvalidCredentialsException e) {
             // Show a generic message so we don't reveal whether the email exists
             ctx.attribute("errorMessage", "Brugernavn eller adgangskode forkert.");
@@ -212,6 +213,13 @@ public class UserController {
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
         String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
 
+        String roofTypeString = ctx.formParam("roofType");
+        RoofType roofType = RoofType.valueOf(roofTypeString);
+        FormService formService = new FormService();
+
+
+        MaterialService materialService = formService.getCorrectMaterialService(roofType);
+
         try {
             Order order = new Order.Builder()
                     .contactInfo(buildContactInfo(ctx))
@@ -221,8 +229,7 @@ public class UserController {
                     .build();
 
 
-
-            OrderService.createOrder(order, connectionPool);
+            OrderService.createOrder(order, materialService, connectionPool);
         } catch (DatabaseException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");

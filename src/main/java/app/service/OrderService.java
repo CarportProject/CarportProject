@@ -7,6 +7,8 @@ import app.observer.CustomerEmailObserver;
 import app.observer.OrderObserver;
 import app.observer.SalesEmailObserver;
 import app.persistence.ConnectionPool;
+import app.persistence.MaterialsMapper;
+import app.persistence.OrderDetails;
 import app.persistence.OrderMapper;
 
 import java.util.ArrayList;
@@ -44,8 +46,19 @@ public class OrderService {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if a database error occurs during the insert
      */
-    public static void createOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
-        ORDER_MAPPER.insertOrder(order, connectionPool);
+    public static void createOrder(Order order, MaterialService materialService, ConnectionPool connectionPool) throws DatabaseException {
+
+        MaterialsMapper materialsMapper = new MaterialsMapper();
+
+        int orderId = ORDER_MAPPER.insertOrder(order, connectionPool);
+        materialService.finalizeOrder(orderId, order.getSpecifications(), connectionPool);
+
+        Double orderPrice = materialService.getMaterialListCost(materialsMapper.findMaterialListById(orderId, connectionPool));
+
+        OrderDetails orderDetails = new OrderDetails(null, null, orderPrice);
+
+        ORDER_MAPPER.changeOrderDetails(orderId, orderDetails, connectionPool);
+
         notifyObservers(order, OrderStatus.PENDING);
     }
 

@@ -19,6 +19,21 @@ public class FormService {
         return numbers;
     }
 
+    public MaterialService getCorrectMaterialService(RoofType roofType){
+        MaterialService materialService = null;
+        switch(roofType){
+            case FLAT -> {
+                materialService = new StandardFlatRoofCalculator();
+            }
+            case RAISED -> {
+                //TODO create path
+                System.err.println("[FormService.getCorrectMaterialService] This path has not been created yet");
+                throw new UnsupportedOperationException("This path has not been created");
+            }
+        }
+        return materialService;
+    }
+
     public List<RoofMaterial> getRoofByRoofType(RoofType roofType, ConnectionPool connectionPool) throws DatabaseException {
         RoofMaterialMapper roofMaterialMapper = new RoofMaterialMapper();
         List<RoofMaterial> roofMaterials = roofMaterialMapper.getAllRoofMaterial(connectionPool);

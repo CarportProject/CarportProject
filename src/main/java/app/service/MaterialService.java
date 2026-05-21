@@ -14,9 +14,19 @@ public abstract class MaterialService {
     MaterialsMapper materialsMapper = new MaterialsMapper();
 
 
-    public void useDifferentName(int orderId, ConnectionPool connectionPool) throws DatabaseException {
-         materialsMapper.findMaterialListById(orderId, connectionPool);
+    public void finalizeOrder(int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
+        List<MaterialType> materialTypes = getMaterialTypes();
+        insertAllMaterials(materialTypes, orderId, specifications, connectionPool);
     }
+
+    protected void insertAllMaterials(List<MaterialType> materialTypes, int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
+
+        for (MaterialType materialType : materialTypes) {
+            insertMaterialLine(materialType, orderId, specifications, connectionPool);
+        }
+    }
+
+    protected abstract List<MaterialType> getMaterialTypes();
 
     /**
      * Calculates the quantity for a single material type and inserts it into the
@@ -38,6 +48,7 @@ public abstract class MaterialService {
             case NARROW_BOARD_FRONT -> calculateNarrowBoardFront(specifications);
             case NARROW_BOARD_SIDE -> calculateNarrowBoardSide(specifications);
             case REGULAR -> calculateRegular(specifications);
+            default -> throw new UnsupportedOperationException("Unknown type" + materialType);
         };
 
         materialsMapper.insertMaterialList(orderId, materialType.getId(), amount, materialType.getDescription(), connectionPool);
