@@ -220,6 +220,8 @@ public class UserController {
                     .orderDetails(new OrderDetails(ctx.formParam("remarks"), OrderStatus.PENDING))
                     .build();
 
+
+
             OrderService.createOrder(order, connectionPool);
         } catch (DatabaseException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
