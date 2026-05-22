@@ -13,13 +13,13 @@ public class OrderMapper {
     SpecificationMapper specificationMapper = new SpecificationMapper();
     WorkshopMapper workshopMapper = new WorkshopMapper();
 
-    public void insertOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
+    public int insertOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
         boolean hasWorkshop = order.getWorkshop().getId() != 0;
         String sql = "INSERT INTO orders (contact_info, specifications, workshop, remarks, status) " +
-                "VALUES (?, ?, ? ,? ,?::order_status)";
+                "VALUES (?, ?, ? ,? ,?)";
         try (
                 Connection connection = connectionPool.getConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+                PreparedStatement preparedStatement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
         ) {
 
             int contactId = contactInfoMapper.insertContactInfo(order.getContactInfo(), connectionPool);
@@ -33,8 +33,15 @@ public class OrderMapper {
                 preparedStatement.setNull(3, Types.INTEGER);
             }
             preparedStatement.setString(4, order.getOrderDetails().remark());
-            preparedStatement.setString(5, String.valueOf(order.getOrderDetails().status()));
+            preparedStatement.setObject(5, order.getOrderDetails().status().getDatabaseEnum());
             preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.getGeneratedKeys();
+
+            if (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+            System.err.println("[OrderMapper.insertOrder]");
+            throw new DatabaseException("Could not get generated keys");
 
         } catch (DatabaseException e) {
             System.err.println("[OrderMapper.insertOrder] " + e.getMessage());
@@ -99,9 +106,10 @@ public class OrderMapper {
                 int workshop = resultSet.getInt(4);
                 String remarks = resultSet.getString(5);
                 String orderStatusString = resultSet.getString(6);
+                Double price = resultSet.getDouble(7);
 
                 OrderStatus orderStatus = OrderStatus.valueOf(orderStatusString);
-                OrderDetails orderDetails = new OrderDetails(remarks, orderStatus);
+                OrderDetails orderDetails = new OrderDetails(remarks, orderStatus, price);
                 orderList.add(new Order.Builder()
                         .id(id)
                         .contactInfo(contactInfoMapper.findContactInfoById(contactInfo, connectionPool))
@@ -128,6 +136,40 @@ public class OrderMapper {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void changeOrderDetails(int orderId, OrderDetails orderDetails, ConnectionPool connectionPool) throws DatabaseException {
+        StringBuilder sql = new StringBuilder("UPDATE orders SET ");
+        List<Object> params = new ArrayList<>();
+        if (orderDetails.remark() != null) {
+            sql.append("remark = ?, ");
+            params.add(orderDetails.remark());
+        }
+        if (orderDetails.price() != null) {
+            sql.append("price = ?, ");
+            params.add(orderDetails.price());
+        }
+        if (params.isEmpty()) {
+            throw new DatabaseException("No fields to update for order with id " + orderId);
+        }
+        sql.setLength(sql.length() - 2);
+        sql.append(" WHERE id = ?");
+        params.add(orderId);
+        try (
+                Connection connection = connectionPool.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql.toString())
+        ) {
+
+
+            for (int i = 0; i < params.size(); i++) {
+                preparedStatement.setObject(i + 1, params.get(i));
+            }
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("[OrderMapper.changeOrderDetails]");
+            throw new DatabaseException("Something went wrong");
         }
     }
 

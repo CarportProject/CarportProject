@@ -8,11 +8,11 @@ import app.persistence.ConnectionPool;
 import app.persistence.OrderDetails;
 import app.persistence.OrderMapper;
 import app.service.FormService;
+import app.service.MaterialService;
 import app.service.OrderService;
 import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-
 
 
 /**
@@ -208,11 +208,17 @@ public class UserController {
      * @param ctx            the Javalin request/response context
      * @param connectionPool the database connection pool
      */
-    //TODO Sanitize user input
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
         String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
 
+        FormService formService = new FormService();
+
         try {
+            formService.validateOrderForm(ctx);
+
+            RoofType roofType = RoofType.valueOf(ctx.formParam("roofType"));
+            MaterialService materialService = formService.getCorrectMaterialService(roofType);
+
             Order order = new Order.Builder()
                     .contactInfo(buildContactInfo(ctx))
                     .specifications(buildSpecifications(ctx))
@@ -220,7 +226,8 @@ public class UserController {
                     .orderDetails(new OrderDetails(ctx.formParam("remarks"), OrderStatus.PENDING))
                     .build();
 
-            OrderService.createOrder(order, connectionPool);
+
+            OrderService.createOrder(order, materialService, connectionPool);
         } catch (DatabaseException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");

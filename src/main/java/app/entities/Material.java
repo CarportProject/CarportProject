@@ -12,7 +12,7 @@ package app.entities;
  *     .id(1)
  *     .name("Wooden beam")
  *     .description("4x4 pressure-treated pine, 3 metres")
- *     .price(299)
+ *     .price(299.00)
  *     .build();
  * }</pre>
  */
@@ -29,11 +29,11 @@ public class Material {
     private String description;
 
     /** Unit price of the material in øre (whole number, no decimals). */
-    private int price;
+    private double price;
 
-    private int width;
+    private int widthMm;
 
-    private int height;
+    private int heightMm;
 
     /** Private constructor — use {@link Builder} to create instances. */
     private Material() {
@@ -49,11 +49,11 @@ public class Material {
     public String getDescription() { return description; }
 
     /** @return the unit price of the material in øre */
-    public int getPrice() { return price; }
+    public double getPrice() { return price; }
 
-    public int getWidth() { return width; }
+    public int getWidth() { return widthMm; }
 
-    public int getHeight() { return height; }
+    public int getHeight() { return heightMm; }
 
     /**
      * Builder for constructing {@link Material} instances.
@@ -66,9 +66,9 @@ public class Material {
         private int id;
         private String name;
         private String description;
-        private int price;
-        private int width;
-        private int height;
+        private double price;
+        private int widthMm;
+        private int heightMm;
 
         /**
          * Sets the material's database ID.
@@ -109,18 +109,18 @@ public class Material {
          * @param price the price in øre
          * @return this builder
          */
-        public Builder price(int price) {
+        public Builder price(double price) {
             this.price = price;
             return this;
         }
 
-        public Builder width(int width) {
-            this.price = width;
+        public Builder widthMm(int widthMm) {
+            this.widthMm = widthMm;
             return this;
         }
 
-        public Builder height(int height) {
-            this.price = height;
+        public Builder heightMm(int heightMm) {
+            this.heightMm = heightMm;
             return this;
         }
 
@@ -135,8 +135,8 @@ public class Material {
             material.name = this.name;
             material.description = this.description;
             material.price = this.price;
-            material.width = this.width;
-            material.height = this.height;
+            material.widthMm = this.widthMm;
+            material.heightMm = this.heightMm;
             return material;
         }
     }
