@@ -106,9 +106,10 @@ public class OrderMapper {
                 int workshop = resultSet.getInt(4);
                 String remarks = resultSet.getString(5);
                 String orderStatusString = resultSet.getString(6);
+                Double price = resultSet.getDouble(7);
 
                 OrderStatus orderStatus = OrderStatus.valueOf(orderStatusString);
-                OrderDetails orderDetails = new OrderDetails(remarks, orderStatus);
+                OrderDetails orderDetails = new OrderDetails(remarks, orderStatus, price);
                 orderList.add(new Order.Builder()
                         .id(id)
                         .contactInfo(contactInfoMapper.findContactInfoById(contactInfo, connectionPool))
@@ -167,7 +168,8 @@ public class OrderMapper {
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.err.println("[OrderMapper.changeOrderDetails]");
+            throw new DatabaseException("Something went wrong");
         }
     }
 

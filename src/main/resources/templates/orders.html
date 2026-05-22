@@ -162,14 +162,17 @@
                                 th:data-phone="${order.contactInfo.phoneNumber}"
                                 th:data-address="${order.contactInfo.address + ', ' + order.contactInfo.postalCode + ' ' + order.contactInfo.city}"
                                 th:data-remark="${order.orderDetails.remark}"
-                                th:data-status="${order.orderDetails.status.name()}">
+                                th:data-status="${order.orderDetails.status.name()}"
+                                th:data-price="${order.orderDetails.price}">
                                 <td th:text="${order.id}">#</td>
                                 <td th:text="${order.contactInfo.firstName + ' ' + order.contactInfo.lastName}">Navn
                                 </td>
                                 <td th:text="${order.contactInfo.address + ', ' + order.contactInfo.postalCode + ' ' + order.contactInfo.city}">
                                     Adresse
                                 </td>
-                                <td class="price">0 kr.</td>
+                                <td class="price" th:text="${order.orderDetails.price}"
+                                    th:value="${order.orderDetails.price}">0 kr.
+                                </td>
                                 <td>
                                     <span class="badge"
                                           th:classappend="${'badge-' + order.orderDetails.status.name().toLowerCase()}"
@@ -267,15 +270,23 @@
             <div class="modal-panel panel-left">
                 <div class="panel-header">Stykliste</div>
                 <div class="panel-body">
-                    <div class="stykliste-empty" id="styklisteEmpty">Ingen stykliste tilgængelig</div>
+                    <div class="stykliste-empty" id="styklisteEmpty"
+                         th:if="${materialList == null or materialList.isEmpty}">Ingen stykliste tilgængelig
+                    </div>
                     <table class="stykliste-table" id="styklisteTable" style="display:none;">
                         <thead>
                         <tr>
                             <th>Materiale</th>
-                            <th>Pris/m</th>
+                            <th>Antal</th>
+                            <th>Beskrivelse</th>
                         </tr>
                         </thead>
-                        <tbody id="styklisteBody"></tbody>
+                        <tbody id="styklisteBody">
+                        <tr th:each="material : ${materialList}">
+                            <td th:text="${material.material.name}"></td>
+                            <td th:text="${material.amount}"></td>
+                        </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -313,7 +324,8 @@
                         </div>
 
                         <div class="discount-row">
-                            <button class="btn-ret" id="applyDiscount" type="button" onclick="updatePrice()">Ret</button>
+                            <button class="btn-ret" id="applyDiscount" type="button">Ret
+                            </button>
                             <input type="hidden">
                             <div class="discount-input-group">
                                 <input type="number" id="discountValue" min="0" placeholder="0">
@@ -330,12 +342,13 @@
                             <div class="discount-summary">
                                 <div class="discount-line" id="discount-display">Rabat – 0 kr.</div>
                                 <div class="total-line" id="total-display">Total – 0 kr.</div>
-                                <input value="0" name="total-display" type="hidden" id="total-display-input">
+                                <input value="0" name="price" type="hidden" id="total-price-input">
                             </div>
                         </div>
 
                         <div class="modal-actions">
-                            <button class="btn-afvis" id="modalAfvis" th:formaction="@{/admin/reject-order}">Afvis</button>
+                            <button class="btn-afvis" id="modalAfvis" th:formaction="@{/admin/reject-order}">Afvis
+                            </button>
                             <button class="btn-accepter" id="modalAccepter">Accepter</button>
                         </div>
                     </div>
@@ -355,7 +368,7 @@
     const discountVal = document.getElementById('discountValue');
     const discountDisplay = document.getElementById('discount-display');
     const totalDisplay = document.getElementById('total-display');
-    const totalDisplayInput = document.getElementById('total-display-input');
+    const totalPriceInput = document.getElementById('total-price-input');
 
     let basePrice = 0;
 
@@ -378,6 +391,34 @@
         labelKr.classList.remove('active');
         discountDisplay.textContent = 'Rabat – 0 kr.';
         totalDisplay.textContent = 'Total – ' + fmtKr(basePrice);
+
+        fetch('/admin/material-list/' + row.dataset.id)
+            .then(response => response.json())
+            .then(
+                materials => {
+                    const tbody = document.getElementById('styklisteBody');
+                    const empty = document.getElementById('styklisteEmpty');
+                    const table = document.getElementById('styklisteTable');
+                    tbody.innerHTML = '';
+
+                    if (materials.length === 0) {
+                        empty.style.display = 'block';
+                        table.style.display = 'none';
+                    } else {
+                        empty.style.display = 'none';
+                        table.style.display = 'table';
+                        materials.forEach(m => {
+                            tbody.innerHTML += `<tr>
+                        <td>${m.material.name}</td>
+                        <td>${m.amount} stk.</td>
+                        <td>${m.description}</td>
+                    </tr>`;
+                        });
+                    }
+                })
+            .catch(() => {
+            document.getElementById('styklisteEmpty').textContent = 'Kunne ikke hente stykliste';
+        });
 
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
@@ -421,6 +462,7 @@
 
     // Anvend rabat
     applyBtn.addEventListener('click', () => {
+
         const val = parseFloat(discountVal.value) || 0;
         let rabatKr = 0;
 
@@ -436,7 +478,13 @@
         const total = basePrice - rabatKr;
         discountDisplay.textContent = 'Rabat – –' + fmtKr(rabatKr);
         totalDisplay.textContent = 'Total – ' + fmtKr(total);
-        totalDisplayInput.value = total;
+        totalPriceInput.value = total;
+        console.log('applyBtn clicked');
+        console.log('discountVal:', discountVal.value);
+        // ...
+        console.log('total:', total);
+        totalPriceInput.value = total;
+        console.log('totalPriceInput.value:', totalPriceInput.value);
     });
 </script>
 </body>

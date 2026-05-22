@@ -2,14 +2,13 @@ package app.controllers;
 
 import app.entities.*;
 import app.exceptions.DatabaseException;
-import app.persistence.ConnectionPool;
-import app.persistence.MaterialsMapper;
-import app.persistence.OrderMapper;
+import app.persistence.*;
 import app.service.OrderService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
 import java.util.List;
+import java.util.Map;
 
 public class SalesController {
 
@@ -22,6 +21,7 @@ public class SalesController {
     public static void addRoutes(Javalin app, ConnectionPool connectionPool) {
         app.get("/orders", ctx -> renderOrderPage(ctx, connectionPool));
         app.get("/admin/orders", ctx -> statusFilter(ctx, connectionPool));
+        app.get("/admin/material-list/{orderId}", ctx -> getMaterialList(ctx, connectionPool));
         app.post("/admin/reject-order", ctx -> rejectOrder(ctx, connectionPool));
         app.post("/admin/accept-order", ctx -> acceptOrder(ctx, connectionPool));
     }
@@ -40,6 +40,7 @@ public class SalesController {
         List<Order> orderList = null;
         try {
             orderList = orderMapper.getAllOrders(connectionPool).reversed();
+
         } catch (DatabaseException e) {
             System.err.println("[SalesController.getAllOrders] " + e.getMessage());
             ctx.attribute("errorMessage", "Noget gik galt mens ordrene blev hentet, prøv igen senere.");
@@ -84,11 +85,17 @@ public class SalesController {
     }
 
     private static void acceptOrder(Context ctx, ConnectionPool connectionPool) {
+        SpecificationMapper specificationMapper = new SpecificationMapper();
         changeOrderPrice(ctx, connectionPool);
+
         try {
+            int orderId = Integer.parseInt(ctx.formParam("orderId"));
+            Specifications specifications = specificationMapper.findSpecificationsById(orderId, connectionPool);
             Order order = new Order.Builder()
-                    .id(Integer.parseInt(ctx.formParam("orderId")))
+                    .id(orderId)
+                    .specifications(specifications)
                     .build();
+
             OrderService.acceptOrder(order, connectionPool);
             ctx.redirect("/orders?success=Ordren+blev+godkendt");
         } catch (Exception e) {
@@ -99,22 +106,35 @@ public class SalesController {
     }
 
     private static void changeOrderPrice(Context ctx, ConnectionPool connectionPool) {
-        String stringUpdatedValue = ctx.attribute("total-price-input");
-        int updatedValue;
-        if (stringUpdatedValue != null) {
-            updatedValue = Integer.parseInt(stringUpdatedValue);
+        String stringUpdatedValue = ctx.formParam("price");
+        double updatedValue;
 
-            MaterialsMapper materialsMapper = new MaterialsMapper();
-            Material material = new Material.Builder()
-                    .price(updatedValue)
-                    .build();
+        if (stringUpdatedValue != null && !stringUpdatedValue.isEmpty()) {
+            updatedValue = Double.parseDouble(stringUpdatedValue);
+
+            OrderMapper orderMapper = new OrderMapper();
 
             try {
-                materialsMapper.updateMaterialInfo(material, connectionPool);
+                int orderId = Integer.parseInt(ctx.formParam("orderId"));
+                orderMapper.changeOrderDetails(orderId, new OrderDetails(updatedValue), connectionPool);
 
-            } catch (DatabaseException e) {
+            } catch (Exception e) {
+                System.err.println("[SalesController.changeOrderPrice]" + e.getMessage());
                 ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
             }
+        }
+    }
+
+    public static void getMaterialList(Context ctx, ConnectionPool connectionPool) {
+
+
+        MaterialsMapper materialsMapper = new MaterialsMapper();
+        int orderId = Integer.parseInt(ctx.pathParam("orderId"));
+        try {
+            List<MaterialListEntry> materialListEntries = materialsMapper.findMaterialListById(orderId, connectionPool);
+            ctx.json(materialListEntries);
+        } catch (DatabaseException e) {
+            ctx.status(500).json(Map.of("error", "Noget gik galt"));
         }
     }
 }

@@ -38,7 +38,9 @@ public class MaterialsMapper {
             while (resultSet.next()) {
                 int materialId = resultSet.getInt("material_id");
                 int amount = resultSet.getInt("amount");
-                MaterialListEntry materialListEntry = new MaterialListEntry(getMaterialById(materialId, connectionPool), amount);
+                int sameOrderId = resultSet.getInt("order_id");
+                String description = resultSet.getString("description");
+                MaterialListEntry materialListEntry = new MaterialListEntry(getMaterialById(materialId, connectionPool), amount, sameOrderId, description);
 
                 materialList.add(materialListEntry);
             }

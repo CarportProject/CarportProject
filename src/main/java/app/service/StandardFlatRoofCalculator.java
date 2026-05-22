@@ -74,7 +74,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int calculateRafter(Specifications specifications) {
-        return (int) Math.round((double) specifications.getLengthCm() / 60);
+        return (int) Math.ceil((double) specifications.getLengthCm() / 60);
     }
 
     /**

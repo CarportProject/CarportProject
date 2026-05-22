@@ -210,6 +210,7 @@ public class UserController {
      */
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
         String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
+
         FormService formService = new FormService();
 
         try {

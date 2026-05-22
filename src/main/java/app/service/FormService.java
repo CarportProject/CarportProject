@@ -35,6 +35,7 @@ public class FormService {
         return materialService;
     }
 
+    //TODO se på hvordan denne metode virker
     public void validateOrderForm(Context ctx) {
         requireValidRoofType(ctx.formParam("roofType"));
         requireInt(ctx.formParam("roofMaterial"), "Tagmateriale");
