@@ -2,6 +2,8 @@ package app;
 
 import app.config.SessionConfig;
 import app.config.ThymeleafConfig;
+import app.controllers.SalesController;
+import app.controllers.SvgController;
 import app.controllers.UserController;
 import app.persistence.ConnectionPool;
 import io.javalin.Javalin;
@@ -28,8 +30,9 @@ public class Main {
 
         // Routing
 
-        app.get("/", ctx -> ctx.redirect("/Side1"));
+        app.get("/", ctx -> ctx.redirect("/svg"));
         UserController.addRouts(app, connectionPool);
-        UserController.addRouts(app, connectionPool);
+        SalesController.addRoutes(app, connectionPool);
+        SvgController.addRoutes(app);
     }
 }
