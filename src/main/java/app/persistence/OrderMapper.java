@@ -7,13 +7,14 @@ import app.exceptions.DatabaseException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class OrderMapper {
-    ContactInfoMapper contactInfoMapper = new ContactInfoMapper();
-    SpecificationMapper specificationMapper = new SpecificationMapper();
-    WorkshopMapper workshopMapper = new WorkshopMapper();
+    static ContactInfoMapper contactInfoMapper = new ContactInfoMapper();
+    static SpecificationMapper specificationMapper = new SpecificationMapper();
+    static WorkshopMapper workshopMapper = new WorkshopMapper();
 
-    public int insertOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
+    public static int insertOrder(Order order, ConnectionPool connectionPool) throws DatabaseException {
         boolean hasWorkshop = order.getWorkshop().getId() != 0;
         String sql = "INSERT INTO orders (contact_info, specifications, workshop, remarks, status) " +
                 "VALUES (?, ?, ? ,? ,?)";
@@ -53,7 +54,7 @@ public class OrderMapper {
 
     }
 
-    private OrderDetails getOrderDetailsById(int id, ConnectionPool connectionPool) throws DatabaseException {
+    public static Order getOrderById(int id, ConnectionPool connectionPool) throws DatabaseException {
         String sql = "SELECT * FROM orders WHERE id=?";
         try (
                 Connection connection = connectionPool.getConnection();
@@ -63,13 +64,29 @@ public class OrderMapper {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                String remark = resultSet.getString("remarks");
 
+                int contactInfoId = resultSet.getInt("contact_info");
+                int specificationsId = resultSet.getInt("specifications");
+                int workshopId = resultSet.getInt("workshop");
+
+                String remark = resultSet.getString("remarks");
                 String stringStatus = resultSet.getString("status");
+
+                double price = resultSet.getDouble("price");
+
+                String uuidString = resultSet.getString("uuid");
 
                 OrderStatus status = OrderStatus.valueOf(stringStatus);
 
-                return new OrderDetails(remark, status);
+                UUID uuid = UUID.fromString(uuidString);
+
+                return new Order.Builder()
+                        .id(id)
+                        .contactInfo(contactInfoMapper.findContactInfoById(contactInfoId, connectionPool))
+                        .specifications(specificationMapper.findSpecificationsById(specificationsId, connectionPool))
+                        .workshop(workshopMapper.findWorkshopById(workshopId, connectionPool))
+                        .orderDetails(new OrderDetails(remark, status, price, uuid))
+                        .build();
             } else throw new DatabaseException("Order not found");
         } catch (SQLException e) {
             System.err.println("[OrderMapper.getOrderDetailsById] " + e.getMessage());
@@ -77,21 +94,11 @@ public class OrderMapper {
         }
     }
 
-    public Order getOrderById(Order order, ConnectionPool connectionPool) throws DatabaseException {
-
-        return new Order.Builder()
-                .contactInfo(contactInfoMapper.findContactInfoById(order.getContactInfo().getId(), connectionPool))
-                .specifications(specificationMapper.findSpecificationsById(order.getSpecifications().getId(), connectionPool))
-                .workshop(workshopMapper.findWorkshopById(order.getWorkshop().getId(), connectionPool))
-                .orderDetails(getOrderDetailsById(order.getId(), connectionPool))
-                .build();
-    }
-
-    public List<Order> getAllOrders(ConnectionPool connectionPool) throws DatabaseException {
+    public static List<Order> getAllOrders(ConnectionPool connectionPool) throws DatabaseException {
         List<Order> orderList = new ArrayList<>();
 
 
-        String sql = "SELECT * FROM orders";
+        String sql = "SELECT * FROM orders ORDER BY id DESC";
 
         try (
                 Connection connection = connectionPool.getConnection();
@@ -109,7 +116,7 @@ public class OrderMapper {
                 Double price = resultSet.getDouble(7);
 
                 OrderStatus orderStatus = OrderStatus.valueOf(orderStatusString);
-                OrderDetails orderDetails = new OrderDetails(remarks, orderStatus, price);
+                OrderDetails orderDetails = new OrderDetails(remarks, orderStatus, price, null);
                 orderList.add(new Order.Builder()
                         .id(id)
                         .contactInfo(contactInfoMapper.findContactInfoById(contactInfo, connectionPool))
@@ -134,12 +141,13 @@ public class OrderMapper {
             preparedStatement.setObject(1, status.getDatabaseEnum());
             preparedStatement.setInt(2, order.getId());
             preparedStatement.executeUpdate();
+            System.err.println("Updating order id: " + order.getId() + " to status: " + status);
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void changeOrderDetails(int orderId, OrderDetails orderDetails, ConnectionPool connectionPool) throws DatabaseException {
+    public static void changeOrderDetails(int orderId, OrderDetails orderDetails, ConnectionPool connectionPool) throws DatabaseException {
         StringBuilder sql = new StringBuilder("UPDATE orders SET ");
         List<Object> params = new ArrayList<>();
         if (orderDetails.remark() != null) {
@@ -149,6 +157,10 @@ public class OrderMapper {
         if (orderDetails.price() != null) {
             sql.append("price = ?, ");
             params.add(orderDetails.price());
+        }
+        if (orderDetails.uuid() != null) {
+            sql.append("uuid = ?, ");
+            params.add(orderDetails.uuid().toString());
         }
         if (params.isEmpty()) {
             throw new DatabaseException("No fields to update for order with id " + orderId);
@@ -173,4 +185,41 @@ public class OrderMapper {
         }
     }
 
+    public static Order getOrderByUuid(UUID uuid, ConnectionPool connectionPool) {
+        String sql = "SELECT * FROM orders WHERE uuid = ?";
+        String uuidString = uuid.toString();
+        try (
+                Connection connection = connectionPool.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)
+        ) {
+            preparedStatement.setString(1, uuidString);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+
+                int id = resultSet.getInt("id");
+                int contactInfoId = resultSet.getInt("contact_info");
+                int specificationId = resultSet.getInt("specifications");
+                int workshopId = resultSet.getInt("workshop");
+
+                String remark = resultSet.getString("remark");
+                String status = resultSet.getString("status");
+
+                double price = resultSet.getDouble("price");
+
+                OrderStatus orderStatus = OrderStatus.valueOf(status);
+
+                return new Order.Builder()
+                        .id(id)
+                        .contactInfo(contactInfoMapper.findContactInfoById(contactInfoId, connectionPool))
+                        .specifications(specificationMapper.findSpecificationsById(specificationId, connectionPool))
+                        .workshop(workshopMapper.findWorkshopById(workshopId, connectionPool))
+                        .orderDetails(new OrderDetails(remark, orderStatus, price, uuid))
+                        .build();
+            }
+        } catch (SQLException | DatabaseException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
 }

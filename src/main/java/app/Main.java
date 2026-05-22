@@ -5,6 +5,7 @@ import app.config.ThymeleafConfig;
 import app.controllers.SalesController;
 import app.controllers.UserController;
 import app.persistence.ConnectionPool;
+import app.util.AuthFilter;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinThymeleaf;
 
@@ -28,9 +29,7 @@ public class Main {
         }).start(7070);
 
         // Routing
-        app.before(ctx -> {
-            ctx.attribute("user", ctx.sessionAttribute("user"));
-        });
+        AuthFilter.registerFilters(app);
         app.get("/", ctx -> ctx.render("fog-carport.html"));
         UserController.addRouts(app, connectionPool);
         SalesController.addRoutes(app, connectionPool);

@@ -70,12 +70,12 @@
             <!-- Desktop navigation -->
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
-                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"> <a th:href="@{/orders}">Se alle ordre</a></li>
-                    <li><a href="#">Byg selv-produkter</a></li>
-                    <li><a href="#" class="nav-active">Carporte</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle ordre</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a></li>
+                    <li><a href="#" class="nav-active">Byg selv-produkter</a></li>
+                    <li><a th:href="@{/}">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>
                     <li><a href="#">Tilbud</a></li>
-                    <li><a href="#">Inspiration</a></li>
                 </ul>
             </nav>
 
@@ -156,6 +156,9 @@
                 <span aria-hidden="true">/</span>
                 <span aria-current="page">Quick-Byg carporte</span>
             </nav>
+
+            <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="flash-message flash-success" th:text="${successMessage}"></div>
 
             <!-- Intro sektion med tekst og spec-bokse -->
             <section class="intro-section">

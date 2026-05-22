@@ -66,6 +66,10 @@ public class Order {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
     /**
      * @return the contactInfo who placed this order
      */

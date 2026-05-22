@@ -60,11 +60,12 @@
 
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle ordre</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}" >Materialer</a></li>
                     <li><a href="#">Byg selv-produkter</a></li>
-                    <li><a href="#">Carporte</a></li>
+                    <li><a th:href="@{/}">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>
                     <li><a href="#">Tilbud</a></li>
-                    <li><a href="#">Inspiration</a></li>
                 </ul>
             </nav>
 

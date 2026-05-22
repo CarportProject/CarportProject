@@ -67,13 +67,12 @@
 
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
-                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/orders}">Se alle
-                        ordre</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/orders}" class="nav-active">Se alle ordre</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a></li>
                     <li><a href="#">Byg selv-produkter</a></li>
-                    <li><a href="#" class="nav-active">Carporte</a></li>
+                    <li><a th:href="@{/}">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>
                     <li><a href="#">Tilbud</a></li>
-                    <li><a href="#">Inspiration</a></li>
                 </ul>
             </nav>
 
@@ -116,12 +115,15 @@
                 <span aria-current="page">Ordrer</span>
             </nav>
 
+            <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
+            <div th:if="${successMessage}" class="flash-message flash-success" th:text="${successMessage}"></div>
+
             <section class="orders-section">
                 <h1>Kundeordrer</h1>
                 <p class="subtitle">Oversigt over alle indkomne carport-ordrer</p>
 
                 <div class="orders-table-wrapper" th:if="${orders != null and !orders.isEmpty()}">
-                    <form method="get" th:action="@{/admin/orders}">
+                    <form method="get" th:action="@{/admin/order-filter}">
                         <table class="orders-table">
                             <thead>
                             <tr>
@@ -132,22 +134,24 @@
                                 <th>
                                     <div class="th-status">
                                         <span>Status</span>
-                                        <select name="statusFilter" class="status-select" onchange="this.form.submit()">
-                                            <option value="">Alle</option>
-                                            <option value="PENDING" th:selected="${statusFilter == 'PENDING'}">
-                                                Afventer
-                                            </option>
-                                            <option value="OFFER_SENT" th:selected="${statusFilter == 'OFFER_SENT'}">
-                                                Tilbud sendt
-                                            </option>
-                                            <option value="PAID" th:selected="${statusFilter == 'PAID'}">Betalt</option>
-                                            <option value="REJECTED" th:selected="${statusFilter == 'REJECTED'}">
-                                                Afvist
-                                            </option>
-                                            <option value="CANCELLED" th:selected="${statusFilter == 'CANCELLED'}">
-                                                Annulleret
-                                            </option>
-                                        </select>
+                                        <label>
+                                            <select name="statusFilter" class="status-select" onchange="this.form.submit()">
+                                                <option value="">Alle</option>
+                                                <option selected value="PENDING" th:selected="${statusFilter == 'PENDING'}">
+                                                    Afventer
+                                                </option>
+                                                <option value="OFFER_SENT" th:selected="${statusFilter == 'OFFER_SENT'}">
+                                                    Tilbud sendt
+                                                </option>
+                                                <option value="PAID" th:selected="${statusFilter == 'PAID'}">Betalt</option>
+                                                <option value="REJECTED" th:selected="${statusFilter == 'REJECTED'}">
+                                                    Afvist
+                                                </option>
+                                                <option value="CANCELLED" th:selected="${statusFilter == 'CANCELLED'}">
+                                                    Annulleret
+                                                </option>
+                                            </select>
+                                        </label>
                                     </div>
                                 </th>
                             </tr>
@@ -385,6 +389,7 @@
         document.getElementById('modal-comment').value = row.dataset.remark || '';
 
         basePrice = parseInt(row.dataset.price) || 0;
+        totalPriceInput.value = basePrice;
         discountVal.value = '';
         toggle.checked = false;
         labelPct.classList.add('active');
