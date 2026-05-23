@@ -305,6 +305,7 @@ body {
     display: flex;
     margin-left: auto;
     align-items: center;
+    gap: 35px;
 }
 
 .icon-btn {
@@ -1224,4 +1225,9 @@ a {
 
 .overlay.active {
     display: block;
+}
+
+.disabled-link {
+    pointer-events: none;
+    opacity: 0.5;
 }

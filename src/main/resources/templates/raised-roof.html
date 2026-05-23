@@ -68,7 +68,7 @@
             <!-- Desktop navigation -->
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
-                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/orders}">Se alle ordre</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle ordre</a></li>
                     <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}" >Materialer</a></li>
                     <li><a href="#">Byg selv-produkter</a></li>
                     <li><a th:href="@{/}" class="nav-active">Carporte</a></li>
@@ -112,7 +112,7 @@
                         <polyline points="16 17 21 12 16 7"/>
                         <line x1="21" y1="12" x2="9" y2="12"/>
                     </svg>
-                    <span class="icon-label">Log ud</span>
+                    <span class="icon-label">Logout</span>
                 </a>
             </div>
 
@@ -165,7 +165,7 @@
                     <form th:action="@{/carport/send-form}" method="post">
 
                         <!-- Carports tagtype -->
-                        <input type="hidden" name="roofType" value="FLAT">
+                        <input type="hidden" name="roofType" value="RAISED">
                         <!-- Carport mål -->
                         <div class="form-row-4">
                             <div>
@@ -276,7 +276,7 @@
                             <a href="#" class="consent-link">Læs mere om persondatapolitik her</a>
                         </div>
 
-                        <button type="submit" class="btn-primary">
+                        <button type="submit" class="btn-primary disabled-link" disabled>
                             Send forespørgsel
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"
                                  style="margin-left: 6px;" aria-hidden="true">

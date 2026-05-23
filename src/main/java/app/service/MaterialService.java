@@ -15,7 +15,8 @@ public abstract class MaterialService {
 
     MaterialsMapper materialsMapper = new MaterialsMapper();
 
-    public static MaterialService forRoofType(RoofType roofType) {
+    public static MaterialService forRoofType(RoofType roofType) throws UnsupportedOperationException{
+        System.out.println(roofType);
         return switch (roofType) {
             case FLAT -> new StandardFlatRoofCalculator();
             case RAISED -> throw new UnsupportedOperationException("Beregning for rejst tag er ikke implementeret endnu");

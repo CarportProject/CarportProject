@@ -228,14 +228,18 @@ public class UserController {
 
 
             OrderService.createOrder(order, materialService, connectionPool);
+            ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
         } catch (DatabaseException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");
-        } catch (Exception e) {
+        } catch (UnsupportedOperationException e){
+            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
+            ctx.redirect(trueReferer+ "?error=Rejst+tag+er+ikke+understøttet+endnu");
+        }
+        catch (Exception e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Ugyldig+forespørgsel.");
         }
-        ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
     }
 
     /**
