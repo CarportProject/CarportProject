@@ -10,9 +10,9 @@ import io.javalin.http.Context;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FormService {
-    public List<Integer> getRange(int min, int max, int interval) {
+public class OrderFormService {
 
+    public List<Integer> getRange(int min, int max, int interval) {
         List<Integer> numbers = new ArrayList<>();
         for (int i = min; i <= max; i += interval) {
             numbers.add(i);
@@ -20,22 +20,6 @@ public class FormService {
         return numbers;
     }
 
-    public MaterialService getCorrectMaterialService(RoofType roofType){
-        MaterialService materialService = null;
-        switch(roofType){
-            case FLAT -> {
-                materialService = new StandardFlatRoofCalculator();
-            }
-            case RAISED -> {
-                //TODO create path
-                System.err.println("[FormService.getCorrectMaterialService] This path has not been created yet");
-                throw new UnsupportedOperationException("This path has not been created");
-            }
-        }
-        return materialService;
-    }
-
-    //TODO se på hvordan denne metode virker
     public void validateOrderForm(Context ctx) {
         requireValidRoofType(ctx.formParam("roofType"));
         requireInt(ctx.formParam("roofMaterial"), "Tagmateriale");
@@ -54,6 +38,13 @@ public class FormService {
         requireNotBlank(ctx.formParam("city"), "By");
         requireNotBlank(ctx.formParam("email"), "Email");
         requireNotBlank(ctx.formParam("phoneNumber"), "Telefonnummer");
+    }
+
+    public List<RoofMaterial> getRoofByRoofType(RoofType roofType, ConnectionPool connectionPool) throws DatabaseException {
+        RoofMaterialMapper roofMaterialMapper = new RoofMaterialMapper();
+        List<RoofMaterial> roofMaterials = roofMaterialMapper.getAllRoofMaterial(connectionPool);
+        return roofMaterials.stream()
+                .filter(c -> c.getRoofType() == roofType).toList();
     }
 
     private void requireNotBlank(String value, String fieldName) {
@@ -79,12 +70,4 @@ public class FormService {
             throw new IllegalArgumentException("Ugyldig tagtype: " + value);
         }
     }
-
-    public List<RoofMaterial> getRoofByRoofType(RoofType roofType, ConnectionPool connectionPool) throws DatabaseException {
-        RoofMaterialMapper roofMaterialMapper = new RoofMaterialMapper();
-        List<RoofMaterial> roofMaterials = roofMaterialMapper.getAllRoofMaterial(connectionPool);
-        return roofMaterials.stream()
-                .filter(c -> c.getRoofType() == roofType).toList();
-    }
 }
-

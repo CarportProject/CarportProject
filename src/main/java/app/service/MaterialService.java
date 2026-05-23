@@ -3,6 +3,7 @@ package app.service;
 import app.entities.Material;
 import app.entities.MaterialListEntry;
 import app.entities.MaterialType;
+import app.entities.RoofType;
 import app.entities.Specifications;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
@@ -13,6 +14,13 @@ import java.util.List;
 public abstract class MaterialService {
 
     MaterialsMapper materialsMapper = new MaterialsMapper();
+
+    public static MaterialService forRoofType(RoofType roofType) {
+        return switch (roofType) {
+            case FLAT -> new StandardFlatRoofCalculator();
+            case RAISED -> throw new UnsupportedOperationException("Beregning for rejst tag er ikke implementeret endnu");
+        };
+    }
 
 
     public void finalizeOrder(int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
@@ -60,7 +68,7 @@ public abstract class MaterialService {
      * Calculates the total cost of a material list by summing each material's unit price.
      *
      * @param materialList the list of materials for an order
-     * @return the total cost in øre
+     * @return the total cost in kroner
      */
     public double getMaterialListCost(List<MaterialListEntry> materialList) {
         double cost = 0;
