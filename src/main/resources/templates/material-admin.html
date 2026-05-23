@@ -1,13 +1,24 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="da" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="description"
-          content="Med et specialudviklet computerprogram kan vi lynhurtigt beregne prisen og udskrive en skitsetegning på en carport indenfor vores standardprogram.">
-    <meta name="theme-color" content="#1a35c0">
-    <title>QuickByg fra Fog - få et tilbud på en carport i specialmål</title>
+    <title>Materialer – QuickByg fra Fog</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/css/fog-style.css">
+    <link rel="stylesheet" href="/css/orders.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <style>
+        .material-row { cursor: pointer; }
+        .material-row:hover { background-color: #f5f5f5; }
+        .edit-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+        .edit-form-group label { font-weight: 600; font-size: 0.875rem; color: #101820; }
+        .edit-form-group input,
+        .edit-form-group textarea { padding: 8px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.95rem; font-family: inherit; }
+        .edit-form-group textarea { resize: vertical; min-height: 80px; }
+        .modal-panel { width: 100%; }
+        .panel-body { padding: 20px; }
+    </style>
 </head>
 <body>
 <div id="page-wrapper">
@@ -15,8 +26,6 @@
     <!-- ===== HEADER ===== -->
     <header class="site-header">
         <div class="header-inner">
-
-            <!-- USP bar -->
             <section class="usp-bar">
                 <ul aria-label="Unique Selling Points">
                     <li>
@@ -62,24 +71,21 @@
                 </ul>
             </section>
 
-            <!-- Logo -->
-            <a href="/" class="header-logo" aria-label="Erhvervsakademi København - gå til forside">
+            <a th:href="@{/}" class="header-logo" aria-label="Erhvervsakademi København – gå til forside">
                 <img src="/images/ek.jpg" alt="EK logo">
             </a>
 
-            <!-- Desktop navigation -->
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
                     <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle ordre</a></li>
-                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a></li>
-                    <li><a href="#" class="nav-active">Byg selv-produkter</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}" class="nav-active">Materialer</a></li>
+                    <li><a href="#">Byg selv-produkter</a></li>
                     <li><a th:href="@{/}">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>
                     <li><a href="#">Tilbud</a></li>
                 </ul>
             </nav>
 
-            <!-- Search -->
             <div class="header-search">
                 <form class="search-box" role="search" action="/search">
                     <button type="submit" class="search-btn" aria-label="Søg">
@@ -95,7 +101,6 @@
                 </form>
             </div>
 
-            <!-- Icon nav -->
             <div class="header-iconnav">
                 <a th:href="@{/login-page}" class="icon-btn" aria-label="Min konto">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#101820"
@@ -106,106 +111,62 @@
                     </svg>
                     <span class="icon-label" th:text="${user != null ? user.email : 'Konto'}">Konto</span>
                 </a>
-                <button class="icon-btn" aria-label="Favoritter">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#101820"
-                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"
-                         aria-hidden="true">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                    </svg>
-                    <span class="icon-label">Favoritter</span>
-                </button>
-                <button class="icon-btn" aria-label="Indkøbskurv">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#101820"
-                         stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="24" height="24"
-                         aria-hidden="true">
-                        <circle cx="9" cy="21" r="1"/>
-                        <circle cx="20" cy="21" r="1"/>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                    </svg>
-                    <span class="icon-label">Kurv</span>
-                </button>
             </div>
-
         </div>
     </header>
 
     <!-- ===== MAIN ===== -->
     <main class="main-content">
-
-        <!-- Hero billede -->
-        <div class="hero">
-            <img
-                    src="https://cms.johannesfog.dk/cdn-cgi/image/format=auto,width=1440/media/zcznkc5a/carport.jpg"
-                    alt="Quick-Byg carport fra Fog"
-                    width="1440"
-                    height="600"
-                    fetchpriority="high"
-            >
-        </div>
-
-        <!-- Brødtekst-sektion -->
         <div class="container content-padding">
 
-            <!-- Breadcrumb -->
             <nav class="breadcrumb" aria-label="Brødkrumme">
-                <a href="/">Forside</a>
+                <a th:href="@{/}">Forside</a>
                 <span aria-hidden="true">/</span>
-                <a href="/byg-selv-produkter">Byg selv-produkter</a>
+                <a th:href="@{/admin/orders}">Ordrer</a>
                 <span aria-hidden="true">/</span>
-                <a href="/byg-selv-produkter/carporte">Carporte</a>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">Quick-Byg carporte</span>
+                <span aria-current="page">Materialer</span>
             </nav>
 
-            <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
             <div th:if="${successMessage}" class="flash-message flash-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
 
-            <!-- Intro sektion med tekst og spec-bokse -->
-            <section class="intro-section">
-                <div class="intro-text">
-                    <h1>Lad os tegne din carport drøm - bestil et Quick-Byg tilbud</h1>
-                    <div class="body-text">
-                        <p>
-                            Med et specialudviklet computerprogram kan vi lynhurtigt beregne prisen og udskrive en
-                            skitsetegning på en carport indenfor vores standardprogram.
-                            Tilbud og skitsetegning fremsendes på mail hurtigst muligt.
-                            Ved bestilling medfølger standardbyggevejledning.
-                        </p>
-                        <p>
-                            Vælg nedenfor, om du ønsker tilbud på carport med fladt tag eller carport med høj rejsning.
-                        </p>
-                    </div>
+            <section class="orders-section">
+                <h1>Materialer</h1>
+                <p class="subtitle">Klik på et materiale for at redigere navn, beskrivelse og pris</p>
+
+                <div class="orders-table-wrapper" th:if="${materials != null and !materials.isEmpty()}">
+                    <table class="orders-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Navn</th>
+                            <th>Beskrivelse</th>
+                            <th>Pris (kr/m)</th>
+                            <th>Bredde (mm)</th>
+                            <th>Højde (mm)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="material-row"
+                            th:each="material : ${materials}"
+                            th:data-id="${material.id}"
+                            th:data-name="${material.name}"
+                            th:data-description="${material.description}"
+                            th:data-price="${material.price}">
+                            <td th:text="${material.id}">1</td>
+                            <td th:text="${material.name}">Navn</td>
+                            <td th:text="${material.description}">Beskrivelse</td>
+                            <td th:text="${material.price}">0</td>
+                            <td th:text="${material.width}">0</td>
+                            <td th:text="${material.height}">0</td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <!-- Vælg tagtype -->
-                <div class="tagtype-chooser">
-                    <a th:href="@{/carport/flat-roof}" class="tagtype-card">
-                        <div class="tagtype-card-icon">
-                            <img alt="Flatroof" loading="lazy" width="90" height="90" decoding="async"
-                                 srcset="https://cms.johannesfog.dk/media/4vjjv2pp/flatroof.svg?ud=QPYQywGQ2gg 1x, https://cms.johannesfog.dk/media/4vjjv2pp/flatroof.svg?ud=QPYQywGQ2gg 2x"
-                                 src="https://cms.johannesfog.dk/media/4vjjv2pp/flatroof.svg?ud=QPYQywGQ2gg"
-                                 style="object-fit: contain;">
-                        </div>
-                        <span class="tagtype-card-label">Carport med fladt tag</span>
-                        <div class="tagtype-card-link">Bestil tilbud på Quick-Byg carport med fladt tag
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"><path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path></svg>
-                        </div>
-                    </a>
-
-                    <a th:href="@{/carport/raised-roof}" class="tagtype-card">
-                        <div class="tagtype-card-icon">
-                            <img alt="Highroof" loading="lazy" width="90" height="90" decoding="async"
-                                 srcset="https://cms.johannesfog.dk/media/hmifcnrf/highroof.svg?ud=8BErvQGQ2gg 1x, https://cms.johannesfog.dk/media/hmifcnrf/highroof.svg?ud=8BErvQGQ2gg 2x"
-                                 src="https://cms.johannesfog.dk/media/hmifcnrf/highroof.svg?ud=8BErvQGQ2gg"
-                                 style="object-fit: contain;">
-                        </div>
-                        <span class="tagtype-card-label">Carport med høj rejsning</span>
-                        <div class="tagtype-card-link">Bestil tilbud på Quick-Byg carport med høj rejsning
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"><path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path></svg>
-                        </div>
-                    </a>
+                <div class="no-orders" th:if="${materials == null or materials.isEmpty()}">
+                    <p>Ingen materialer fundet.</p>
                 </div>
-
             </section>
 
         </div>
@@ -215,7 +176,6 @@
     <footer class="site-footer">
         <div class="footer-inner">
             <div class="footer-grid">
-
                 <div class="footer-links">
                     <div class="footer-links-columns">
                         <div class="footer-col">
@@ -256,7 +216,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="footer-info">
                     <div>
                         <a href="/" class="footer-logo" aria-label="Erhvervsakademi København logo">
@@ -264,12 +223,10 @@
                         </a>
                         <p style="margin-top: 15px;">Erhvervsakademi København<br>Firskovvej 18, 2800 Lyngby</p>
                         <p>Tlf.: <a href="tel:+4530324833">30 32 48 33</a></p>
-                        <p>E-mail: <a href="mailto:mikkelfuglsig@gmail.com">Mikkelfuglsig@gmail.com</a></p>
+                        <p>E-mail: <a href="mailto:mikkelfuglsig@gmail.com">mikkelfuglsig@gmail.com</a></p>
                     </div>
                 </div>
-
             </div>
-
             <div class="footer-bottom">
                 <span>© 2025 Københavns Erhvervsakademi</span>
                 <div style="display:flex; gap:15px; flex-wrap:wrap;">
@@ -281,5 +238,70 @@
     </footer>
 
 </div>
+
+<!-- ===== REDIGER MATERIALE MODAL ===== -->
+<div class="modal-overlay" id="materialModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+        <button class="modal-close-btn" id="modalClose" aria-label="Luk">&times;</button>
+
+        <div class="modal-panels">
+            <div class="modal-panel">
+                <div class="panel-header" id="modalTitle">Rediger materiale</div>
+                <form method="post" th:action="@{/admin/materials/update}">
+                    <div class="panel-body">
+                        <input type="hidden" name="id" id="modal-id">
+
+                        <div class="edit-form-group">
+                            <label for="modal-name">Navn</label>
+                            <input type="text" id="modal-name" name="name" required maxlength="255">
+                        </div>
+
+                        <div class="edit-form-group">
+                            <label for="modal-description">Beskrivelse</label>
+                            <textarea id="modal-description" name="description" maxlength="500"></textarea>
+                        </div>
+
+                        <div class="edit-form-group">
+                            <label for="modal-price">Pris (kr. pr. m)</label>
+                            <input type="number" id="modal-price" name="price" step="1" min="1" required>
+                        </div>
+
+                        <div class="modal-actions">
+                            <button type="button" class="btn-afvis" id="modalCancel">Annuller</button>
+                            <button type="submit" class="btn-accepter">Gem ændringer</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('materialModal');
+    const closeBtn = document.getElementById('modalClose');
+    const cancelBtn = document.getElementById('modalCancel');
+
+    document.querySelectorAll('.material-row').forEach(row => {
+        row.addEventListener('click', () => {
+            document.getElementById('modal-id').value = row.dataset.id;
+            document.getElementById('modal-name').value = row.dataset.name || '';
+            document.getElementById('modal-description').value = row.dataset.description || '';
+            document.getElementById('modal-price').value = row.dataset.price || '';
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    function closeModal() {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
 </body>
 </html>

@@ -89,7 +89,7 @@
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
                         <circle cx="12" cy="7" r="4"/>
                     </svg>
-                    <span class="icon-label">Konto</span>
+                    <span class="icon-label" th:text="${user != null ? user.email : 'Konto'}">Konto</span>
                 </a>
             </div>
         </div>
@@ -145,7 +145,7 @@
                 <div class="error-actions">
                     <a th:href="@{/}" class="btn-primary">Gå til forsiden</a>
                     <a th:href="@{/login-page}" class="btn-secondary"
-                       th:if="${errorCode == 403}">Log ind</a>
+                       th:if="${errorCode == 403 and user == null}">Log ind</a>
                 </div>
 
             </section>

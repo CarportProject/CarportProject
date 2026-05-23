@@ -67,7 +67,7 @@ public class OrderService {
     }
 
 
-    public static void changeOrderStatus(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException {
+    public static void changeOrderStatus(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException, DatabaseException {
         OrderMapper.changeOrderStatus(connectionPool, orderStatus, order);
         notifyObservers(order, orderStatus);
     }

@@ -132,7 +132,7 @@ public class OrderMapper {
         return orderList;
     }
 
-    public static void changeOrderStatus(ConnectionPool connectionPool, OrderStatus status, Order order) {
+    public static void changeOrderStatus(ConnectionPool connectionPool, OrderStatus status, Order order) throws DatabaseException {
         String sql = "UPDATE orders SET status = ? WHERE id = ?";
         try (
                 Connection connection = connectionPool.getConnection();
@@ -143,7 +143,8 @@ public class OrderMapper {
             preparedStatement.executeUpdate();
             System.err.println("Updating order id: " + order.getId() + " to status: " + status);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.err.println("[OrderMapper.changeOrderStatus] " + e.getMessage());
+            throw new DatabaseException("Could not update orderstatus");
         }
     }
 
@@ -185,7 +186,7 @@ public class OrderMapper {
         }
     }
 
-    public static Order getOrderByUuid(UUID uuid, ConnectionPool connectionPool) {
+    public static Order getOrderByUuid(UUID uuid, ConnectionPool connectionPool) throws DatabaseException {
         String sql = "SELECT * FROM orders WHERE uuid = ?";
         String uuidString = uuid.toString();
         try (
@@ -201,7 +202,7 @@ public class OrderMapper {
                 int specificationId = resultSet.getInt("specifications");
                 int workshopId = resultSet.getInt("workshop");
 
-                String remark = resultSet.getString("remark");
+                String remark = resultSet.getString("remarks");
                 String status = resultSet.getString("status");
 
                 double price = resultSet.getDouble("price");
@@ -217,7 +218,8 @@ public class OrderMapper {
                         .build();
             }
         } catch (SQLException | DatabaseException e) {
-            throw new RuntimeException(e);
+            System.err.println("[OrderMapper] " + e.getMessage());
+            throw new DatabaseException("Something went wrong");
         }
 
         return null;
