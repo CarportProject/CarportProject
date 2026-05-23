@@ -1,6 +1,7 @@
 package app.persistence;
 
 import app.entities.Order;
+import app.entities.OrderDetails;
 import app.entities.OrderStatus;
 import app.exceptions.DatabaseException;
 

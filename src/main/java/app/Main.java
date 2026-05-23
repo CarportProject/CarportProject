@@ -2,6 +2,7 @@ package app;
 
 import app.config.SessionConfig;
 import app.config.ThymeleafConfig;
+import app.controllers.PaymentController;
 import app.controllers.SalesController;
 import app.controllers.UserController;
 import app.persistence.ConnectionPool;
@@ -33,5 +34,6 @@ public class Main {
         app.get("/", ctx -> ctx.render("fog-carport.html"));
         UserController.addRouts(app, connectionPool);
         SalesController.addRoutes(app, connectionPool);
+        PaymentController.addRoutes(app, connectionPool);
     }
 }

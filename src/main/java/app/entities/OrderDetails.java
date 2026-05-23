@@ -1,6 +1,4 @@
-package app.persistence;
-
-import app.entities.OrderStatus;
+package app.entities;
 
 import java.util.UUID;
 

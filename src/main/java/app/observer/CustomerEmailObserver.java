@@ -4,7 +4,7 @@ import app.entities.Order;
 import app.entities.OrderStatus;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
-import app.persistence.OrderDetails;
+import app.entities.OrderDetails;
 import app.persistence.OrderMapper;
 import app.util.GmailEmailSender;
 import jakarta.mail.MessagingException;

@@ -1,7 +1,5 @@
 package app.entities;
 
-import app.persistence.OrderDetails;
-
 import java.util.List;
 
 /**

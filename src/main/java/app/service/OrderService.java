@@ -8,7 +8,7 @@ import app.observer.OrderObserver;
 import app.observer.SalesEmailObserver;
 import app.persistence.ConnectionPool;
 import app.persistence.MaterialsMapper;
-import app.persistence.OrderDetails;
+import app.entities.OrderDetails;
 import app.persistence.OrderMapper;
 import jakarta.mail.MessagingException;
 

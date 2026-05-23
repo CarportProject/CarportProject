@@ -5,17 +5,13 @@ import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
-import app.persistence.OrderDetails;
-import app.persistence.OrderMapper;
+import app.entities.OrderDetails;
 import app.service.FormService;
 import app.service.MaterialService;
 import app.service.OrderService;
 import app.service.UserService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
-import jakarta.mail.MessagingException;
-
-import java.util.UUID;
 
 
 /**
@@ -25,6 +21,7 @@ import java.util.UUID;
 public class UserController {
 
     private static final UserService USER_SERVICE = new UserService();
+
 
     /**
      * Registers all user-related routes on the Javalin application.
@@ -38,14 +35,11 @@ public class UserController {
         app.get("/carport/raised-roof", ctx -> getRaisedRoof(ctx, connectionPool));
         app.get("/carport/flat-roof", ctx -> getFlatRoof(ctx, connectionPool));
         app.get("/error-page", ctx -> ctx.render("error.html"));
-        app.get("/payment", ctx -> renderPaymentPage(ctx, connectionPool));
 
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/logout", UserController::logout);
         app.post("/carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
-        app.post("/payment/pay", ctx -> payOrder(ctx, connectionPool));
-        app.post("/payment/cancel", ctx -> declineOrder(ctx, connectionPool));
 
     }
 
@@ -303,84 +297,6 @@ public class UserController {
                 .email(ctx.formParam("email"))
                 .phoneNumber(ctx.formParam("phoneNumber"))
                 .build();
-    }
-
-    private static void renderPaymentPage(Context ctx, ConnectionPool connectionPool) {
-
-        String token = ctx.queryParam("token");
-        if (token == null || token.isEmpty()) {
-            renderError(ctx, 404, "Ugyldig forespørgsel", "Det angivne betalingslink er ugyldigt eller udløbet.");
-            return;
-        }
-        try {
-            UUID uuid = UUID.fromString(token);
-
-            Order order = OrderMapper.getOrderByUuid(uuid, connectionPool);
-
-            if(order.getOrderDetails().status() != OrderStatus.OFFER_SENT){
-                renderError(ctx, 404, "Ugyldig forespørgsel", "Det angivne betalingslink er ugyldigt eller udløbet.");
-                return;
-            }
-            ctx.attribute("order", order);
-
-            ctx.render("/payment.html");
-        } catch (IllegalArgumentException e) {
-            renderError(ctx, 400, "Ugyldig forespørgsel", "Det angivne token er ugyldigt.");
-        } catch (DatabaseException e) {
-            renderError(ctx, 404, "Ikke fundet", "Ordren blev ikke fundet.");
-        } catch (Exception e){
-            renderError(ctx, 500, "Ugyldig forespørgsel", "Noget gik galt, prøv igen senere");
-        }
-
-    }
-
-    public static void renderError(Context ctx, int status, String title, String message) {
-
-        ctx.status(status);
-        ctx.attribute("errorCode", status);
-        ctx.attribute("errorTitle", title);
-        ctx.attribute("errorMessage", message);
-        ctx.render("error.html");
-    }
-
-    public static void payOrder(Context ctx, ConnectionPool connectionPool) {
-
-
-        try {
-            String token = ctx.formParam("token");
-            if (token == null || token.isEmpty()) {
-                renderError(ctx, 404, "Ugyldig forespørgsel", "Det angivne betalingslink er ugyldigt eller udløbet.");
-                return;
-            }
-            UUID uuid = UUID.fromString(token);
-            Order order = OrderMapper.getOrderByUuid(uuid, connectionPool);
-
-            OrderService.changeOrderStatus(order, OrderStatus.PAID, connectionPool);
-            ctx.redirect("/?success=Din+betaling+er+gennemført.+Vi+sender+dig+en+bekræftelse+på+mail.");
-        } catch (Exception e) {
-            renderError(ctx, 500, "Betalingen mislykkedes",
-                    "Noget gik galt under behandlingen af din betaling. Prøv igen senere eller kontakt os.");
-        }
-
-    }
-
-    public static void declineOrder(Context ctx, ConnectionPool connectionPool) {
-
-        try {
-            String token = ctx.formParam("token");
-            if (token == null || token.isEmpty()) {
-                renderError(ctx, 404, "Ugyldig forespørgsel", "Det angivne betalingslink er ugyldigt eller udløbet.");
-                return;
-            }
-            UUID uuid = UUID.fromString(token);
-            Order order = OrderMapper.getOrderByUuid(uuid, connectionPool);
-
-            OrderService.changeOrderStatus(order, OrderStatus.PAID, connectionPool);
-            ctx.redirect("/?success=Du+har+afvist+tilbuddet.+Kontakt+os+hvis+du+fortryder.");
-        } catch (Exception e) {
-            renderError(ctx, 500, "Afvisningen mislykkedes", "Noget gik galt. Prøv igen senere eller kontakt os.");
-        }
-
     }
 
 }
