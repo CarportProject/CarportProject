@@ -2,8 +2,14 @@ package app.observer;
 
 import app.entities.Order;
 import app.entities.OrderStatus;
+import app.exceptions.DatabaseException;
+import app.persistence.ConnectionPool;
+import app.entities.OrderDetails;
+import app.persistence.OrderMapper;
 import app.util.GmailEmailSender;
 import jakarta.mail.MessagingException;
+
+import java.util.UUID;
 
 public class CustomerEmailObserver implements OrderObserver {
     GmailEmailSender gmailEmailSender = new GmailEmailSender();
@@ -13,28 +19,109 @@ public class CustomerEmailObserver implements OrderObserver {
         String email = order.getContactInfo().getEmail();
         String subject = "";
         String body = "";
+        String customerName = order.getContactInfo().getFirstName() + " " + order.getContactInfo().getLastName();
+        String baseUrl = System.getenv("BASE_URL") != null ?
+                System.getenv("BASE_URL") : "http://localhost:7070";
+
+        int orderId = order.getId();
+        UUID uuid = UUID.randomUUID();
+        String token = uuid.toString();
         try {
             switch (status) {
                 case PENDING -> {
-                    subject = "Din ordre er modtaget";
-                    //TODO update the body with pdf and relevant info
-                    body = "";
+                    subject = "Din ordre er modtaget – QuickByg Carport";
+                    body = """
+                            Hej %s,
+                            
+                            Tak for din henvendelse! Vi har modtaget din forespørgsel på en carport og vil behandle den hurtigst muligt.
+                            
+                            En af vores sælgere vil gennemgå din forespørgsel og vende tilbage med et tilbud.
+                            
+                            Ordrenummer: %d
+                            
+                            Har du spørgsmål, er du velkommen til at kontakte os.
+                            
+                            Med venlig hilsen
+                            Københavns Erhvervsakademi datamatikerlinjen
+                            """.formatted(customerName, orderId);
                 }
                 case OFFER_SENT -> {
-                    subject = "Din ordre er blevet godkendt";
-                    //TODO update the body with a payment link
-                    body = "";
+                    subject = "Du har modtaget et tilbud – QuickByg Carport";
+                    body = """
+                            Hej %s,
+                            
+                            Vi har gennemgået din forespørgsel og er klar med et tilbud.
+                            
+                            Ordrenummer: %d
+                            
+                            
+                            Klik på linket nedenfor for at se og acceptere dit tilbud:
+                            %s/payment?token=%s
+                            
+                            Med venlig hilsen
+                            Københavns Erhvervsakademi datamatikerlinjen
+                            """.formatted(customerName, orderId, baseUrl, token);
                 }
+
                 case CANCELLED -> {
-                    subject = "Din ordre er blevet annulleret";
-                    //TODO add relevant body to rejection email
-                    body = "";
+                    subject = "Dit tilbud er blevet afvist – QuickByg Carport";
+                    body = """
+                            Hej %s,
+                            
+                            Vi har modtaget din afvisning af tilbuddet på din carport.
+                            
+                            Ordrenummer: %d
+                            
+                            Hvis du fortryder eller ønsker at diskutere et nyt tilbud, er du velkommen til at kontakte os.
+                            
+                            Med venlig hilsen
+                            Københavns Erhvervsakademi datamatikerlinjen
+                            """.formatted(customerName, orderId);
+                }
+                case PAID -> {
+                    subject = "Betalingsbekræftelse – QuickByg Carport";
+                    body = """
+                            Hej %s,
+                            
+                            Tak for din betaling! Vi har modtaget din betaling og din ordre er nu bekræftet.
+                            
+                            Ordrenummer: %d
+                            
+                            Din stykliste og byggevejledning er vedhæftet denne mail som PDF.
+                            
+                            Vi glæder os til at hjælpe dig med din nye carport.
+                            
+                            Med venlig hilsen
+                            Københavns Erhvervsakademi datamatikerlinjen
+                            """.formatted(customerName, orderId);
+
+                    // TODO generer PDF og vedhæft
+                    // byte[] pdf = pdfService.generate(order);
+                    // gmailEmailSender.sendEmailWithAttachment(email, subject, body, pdf);
+                }
+                case REJECTED -> {
+                    subject = "Din forespørgsel er blevet afvist – QuickByg Carport";
+                    body = """
+                            Hej %s,
+                            
+                            Vi har desværre ikke mulighed for at imødekomme din forespørgsel på nuværende tidspunkt.
+                            
+                            Ordrenummer: %d
+                            
+                            Hvis du har spørgsmål eller ønsker at afgive en ny forespørgsel, er du velkommen til at kontakte os.
+                            
+                            Med venlig hilsen
+                            Fog Trælast & Byggecenter
+                            """.formatted(customerName, orderId);
                 }
             }
-
+            OrderMapper orderMapper = new OrderMapper();
+            orderMapper.changeOrderDetails(orderId, new OrderDetails(uuid), ConnectionPool.instance);
             gmailEmailSender.sendPlainTextEmail(email, subject, body);
         } catch (MessagingException e) {
             System.err.println("Could not send to email customer: " + email);
+        } catch (DatabaseException e) {
+            throw new RuntimeException(e);
         }
     }
 }

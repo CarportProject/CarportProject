@@ -98,7 +98,7 @@ public class MaterialsMapper {
      * @throws DatabaseException if a SQL error occurs during the query
      */
     public List<Material> getAllMaterials(ConnectionPool connectionPool) throws DatabaseException {
-        String sql = "SELECT * FROM materials";
+        String sql = "SELECT * FROM materials ORDER BY id";
         List<Material> materialList = new ArrayList<>();
 
         try (

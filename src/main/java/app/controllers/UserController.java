@@ -5,9 +5,8 @@ import app.exceptions.DatabaseException;
 import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
-import app.persistence.OrderDetails;
-import app.persistence.OrderMapper;
-import app.service.FormService;
+import app.entities.OrderDetails;
+import app.service.OrderFormService;
 import app.service.MaterialService;
 import app.service.OrderService;
 import app.service.UserService;
@@ -23,6 +22,7 @@ public class UserController {
 
     private static final UserService USER_SERVICE = new UserService();
 
+
     /**
      * Registers all user-related routes on the Javalin application.
      *
@@ -31,14 +31,15 @@ public class UserController {
      */
     public static void addRouts(Javalin app, ConnectionPool connectionPool) {
         app.get("/login-page", ctx -> ctx.render("login.html"));
+        app.get("/logout", UserController::logout);
         app.get("/create-user", ctx -> ctx.render("create-user.html"));
         app.get("/carport/raised-roof", ctx -> getRaisedRoof(ctx, connectionPool));
         app.get("/carport/flat-roof", ctx -> getFlatRoof(ctx, connectionPool));
-        app.get("error-page", ctx -> ctx.render("error.html"));
+        app.get("/error-page", ctx -> ctx.render("error.html"));
+
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
-        app.post("/logout", UserController::logout);
-        app.post("carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
+        app.post("/carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
 
     }
 
@@ -145,7 +146,6 @@ public class UserController {
         // Redirect back to the referring page, falling back to the front page
         String ref = ctx.header("Referer");
         ctx.redirect(null != ref ? ref : "/");
-
     }
 
     /**
@@ -158,7 +158,7 @@ public class UserController {
      * @param roofType       the roof type used to filter which tiles are shown in the form
      */
     private static void setFormAttributes(Context ctx, ConnectionPool connectionPool, RoofType roofType) {
-        FormService formService = new FormService();
+        OrderFormService formService = new OrderFormService();
         try {
             ctx.attribute("tiles", formService.getRoofByRoofType(roofType, connectionPool));
         } catch (DatabaseException e) {
@@ -211,13 +211,13 @@ public class UserController {
     private static void buildOrderWithForm(Context ctx, ConnectionPool connectionPool) {
         String trueReferer = ctx.header("Referer") != null ? ctx.header("Referer") : "/";
 
-        FormService formService = new FormService();
+        OrderFormService formService = new OrderFormService();
 
         try {
             formService.validateOrderForm(ctx);
 
             RoofType roofType = RoofType.valueOf(ctx.formParam("roofType"));
-            MaterialService materialService = formService.getCorrectMaterialService(roofType);
+            MaterialService materialService = MaterialService.forRoofType(roofType);
 
             Order order = new Order.Builder()
                     .contactInfo(buildContactInfo(ctx))
@@ -228,14 +228,18 @@ public class UserController {
 
 
             OrderService.createOrder(order, materialService, connectionPool);
+            ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
         } catch (DatabaseException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");
-        } catch (Exception e) {
+        } catch (UnsupportedOperationException e){
+            System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
+            ctx.redirect(trueReferer+ "?error=Rejst+tag+er+ikke+understøttet+endnu");
+        }
+        catch (Exception e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Ugyldig+forespørgsel.");
         }
-        ctx.redirect(trueReferer + "?success=Din+ordre+er+blevet+oprettet");
     }
 
     /**
@@ -270,7 +274,7 @@ public class UserController {
     private static Workshop buildWorkshop(Context ctx) {
         if (!"WITH".equals(ctx.formParam("workshop"))) {
             return new Workshop.Builder()
-                    // id 0 in workshop denominates
+                    // id 0 in workshop denominates no workshop
                     .id(0)
                     .build();
         }

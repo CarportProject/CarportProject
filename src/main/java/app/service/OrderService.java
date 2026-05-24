@@ -8,8 +8,9 @@ import app.observer.OrderObserver;
 import app.observer.SalesEmailObserver;
 import app.persistence.ConnectionPool;
 import app.persistence.MaterialsMapper;
-import app.persistence.OrderDetails;
+import app.entities.OrderDetails;
 import app.persistence.OrderMapper;
+import jakarta.mail.MessagingException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class OrderService {
      * @param order       the order the event relates to
      * @param orderStatus the type of event that occurred
      */
-    private static void notifyObservers(Order order, OrderStatus orderStatus) {
+    private static void notifyObservers(Order order, OrderStatus orderStatus) throws MessagingException {
         for (OrderObserver observer : orderObserverList) {
             observer.update(order, orderStatus);
         }
@@ -46,41 +47,28 @@ public class OrderService {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if a database error occurs during the insert
      */
-    public static void createOrder(Order order, MaterialService materialService, ConnectionPool connectionPool) throws DatabaseException {
+    public static void createOrder(Order order, MaterialService materialService, ConnectionPool connectionPool) throws DatabaseException, MessagingException {
 
         MaterialsMapper materialsMapper = new MaterialsMapper();
 
         int orderId = ORDER_MAPPER.insertOrder(order, connectionPool);
+
+        order.setId(orderId);
+
         materialService.finalizeOrder(orderId, order.getSpecifications(), connectionPool);
 
         Double orderPrice = materialService.getMaterialListCost(materialsMapper.findMaterialListById(orderId, connectionPool));
 
-        OrderDetails orderDetails = new OrderDetails(null, null, orderPrice);
+        OrderDetails orderDetails = new OrderDetails(null, null, orderPrice, null);
 
         ORDER_MAPPER.changeOrderDetails(orderId, orderDetails, connectionPool);
 
-        notifyObservers(order, OrderStatus.PENDING);
+        changeOrderStatus(order, OrderStatus.PENDING, connectionPool);
     }
 
-    /**
-     * Cancels an existing order and notifies observers.
-     * The caller is responsible for updating the order's status in the database beforehand.
-     *
-     * @param order          the order to cancel
-     * @param connectionPool the database connection pool
-     */
-    public static void cancelOrder(Order order, ConnectionPool connectionPool) {
-        OrderMapper.changeOrderStatus(connectionPool, OrderStatus.CANCELLED, order);
-        notifyObservers(order, OrderStatus.CANCELLED);
-    }
 
-    public static void rejectOrder(Order order, ConnectionPool connectionPool) {
-        OrderMapper.changeOrderStatus(connectionPool, OrderStatus.REJECTED, order);
-        notifyObservers(order, OrderStatus.REJECTED);
-    }
-
-    public static void acceptOrder(Order order, ConnectionPool connectionPool) {
-        OrderMapper.changeOrderStatus(connectionPool, OrderStatus.OFFER_SENT, order);
-        notifyObservers(order, OrderStatus.OFFER_SENT);
+    public static void changeOrderStatus(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException, DatabaseException {
+        OrderMapper.changeOrderStatus(connectionPool, orderStatus, order);
+        notifyObservers(order, orderStatus);
     }
 }

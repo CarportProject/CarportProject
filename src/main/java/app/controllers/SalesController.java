@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SalesController {
+    private final static MaterialsMapper MATERIALS_MAPPER = new MaterialsMapper();
 
     /**
      * Registers all sales-related routes on the Javalin application.
@@ -19,27 +20,23 @@ public class SalesController {
      * @param connectionPool the database connection pool passed to handlers
      */
     public static void addRoutes(Javalin app, ConnectionPool connectionPool) {
-        app.get("/orders", ctx -> renderOrderPage(ctx, connectionPool));
-        app.get("/admin/orders", ctx -> statusFilter(ctx, connectionPool));
+        app.get("/admin/orders", ctx -> renderOrderPage(ctx, connectionPool));
+        app.get("/admin/order-filter", ctx -> statusFilter(ctx, connectionPool));
         app.get("/admin/material-list/{orderId}", ctx -> getMaterialList(ctx, connectionPool));
+        app.get("/admin/materials", ctx -> getMaterials(ctx, connectionPool));
         app.post("/admin/reject-order", ctx -> rejectOrder(ctx, connectionPool));
         app.post("/admin/accept-order", ctx -> acceptOrder(ctx, connectionPool));
+        app.post("/admin/materials/update", ctx -> updateMaterial(ctx, connectionPool));
     }
 
     public static void renderOrderPage(Context ctx, ConnectionPool connectionPool) {
-        OrderMapper orderMapper = new OrderMapper();
-        User user = ctx.attribute("user");
-        if (null == user || !user.getRole().equals(Role.EMPLOYEE)) {
-            ctx.redirect("/error-page");
-            return;
-        }
+        String statusFilter = ctx.queryParam("statusFilter") != null
+                ? ctx.queryParam("statusFilter") : "PENDING";
 
-        ctx.attribute("successMessage", ctx.formParam("success"));
-        ctx.attribute("errorMessage", ctx.formParam("error"));
-
+        ctx.attribute("statusFilter", statusFilter);
         List<Order> orderList = null;
         try {
-            orderList = orderMapper.getAllOrders(connectionPool).reversed();
+            orderList = OrderMapper.getAllOrders(connectionPool);
 
         } catch (DatabaseException e) {
             System.err.println("[SalesController.getAllOrders] " + e.getMessage());
@@ -51,20 +48,15 @@ public class SalesController {
 
     }
 
-    public static void setFormAttributes(Context ctx, ConnectionPool connectionPool) {
-
-    }
-
     private static void statusFilter(Context ctx, ConnectionPool connectionPool) {
         String statusFilter = ctx.queryParam("statusFilter");
-        OrderMapper orderMapper = new OrderMapper();
         try {
-            ctx.attribute("orders", orderMapper.getAllOrders(connectionPool));
+            ctx.attribute("orders", OrderMapper.getAllOrders(connectionPool));
             ctx.attribute("statusFilter", statusFilter);
             ctx.render("/orders.html");
         } catch (DatabaseException e) {
             System.err.println("[SalesController.statusFilter] " + e.getMessage());
-            ctx.redirect("/orders?error=Noget+gik+galt");
+            ctx.redirect("/admin/orders?error=Noget+gik+galt");
         }
     }
 
@@ -76,32 +68,28 @@ public class SalesController {
                             .email(ctx.formParam("email"))
                             .build())
                     .build();
-            OrderService.rejectOrder(order, connectionPool);
-            ctx.redirect("/orders?success=Ordren+blev+afvist");
+            OrderService.changeOrderStatus(order, OrderStatus.REJECTED, connectionPool);
+            ctx.redirect("/admin/orders?success=Ordren+blev+afvist");
         } catch (Exception e) {
             System.err.println("[SalesController.rejectOrder] " + e.getMessage());
-            ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
+            ctx.redirect("/admin/orders?error=Noget+gik+galt,+kontakt+administrator");
         }
     }
 
     private static void acceptOrder(Context ctx, ConnectionPool connectionPool) {
-        SpecificationMapper specificationMapper = new SpecificationMapper();
         changeOrderPrice(ctx, connectionPool);
 
         try {
             int orderId = Integer.parseInt(ctx.formParam("orderId"));
-            Specifications specifications = specificationMapper.findSpecificationsById(orderId, connectionPool);
-            Order order = new Order.Builder()
-                    .id(orderId)
-                    .specifications(specifications)
-                    .build();
+           Order order = OrderMapper.getOrderById(orderId, connectionPool);
 
-            OrderService.acceptOrder(order, connectionPool);
-            ctx.redirect("/orders?success=Ordren+blev+godkendt");
+
+            OrderService.changeOrderStatus(order, OrderStatus.OFFER_SENT, connectionPool);
+            ctx.redirect("/admin/orders?success=Ordren+blev+godkendt");
         } catch (Exception e) {
 
             System.err.println("[SalesController.acceptOrder] " + e.getMessage());
-            ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
+            ctx.redirect("/admin/orders?error=Noget+gik+galt,+kontakt+administrator");
         }
     }
 
@@ -112,15 +100,14 @@ public class SalesController {
         if (stringUpdatedValue != null && !stringUpdatedValue.isEmpty()) {
             updatedValue = Double.parseDouble(stringUpdatedValue);
 
-            OrderMapper orderMapper = new OrderMapper();
 
             try {
                 int orderId = Integer.parseInt(ctx.formParam("orderId"));
-                orderMapper.changeOrderDetails(orderId, new OrderDetails(updatedValue), connectionPool);
+                OrderMapper.changeOrderDetails(orderId, new OrderDetails(updatedValue), connectionPool);
 
             } catch (Exception e) {
                 System.err.println("[SalesController.changeOrderPrice]" + e.getMessage());
-                ctx.redirect("/orders?error=Noget+gik+galt,+kontakt+administrator");
+                ctx.redirect("/admin/orders?error=Noget+gik+galt,+kontakt+administrator");
             }
         }
     }
@@ -128,15 +115,50 @@ public class SalesController {
     public static void getMaterialList(Context ctx, ConnectionPool connectionPool) {
 
 
-        MaterialsMapper materialsMapper = new MaterialsMapper();
         int orderId = Integer.parseInt(ctx.pathParam("orderId"));
         try {
-            List<MaterialListEntry> materialListEntries = materialsMapper.findMaterialListById(orderId, connectionPool);
+            List<MaterialListEntry> materialListEntries = MATERIALS_MAPPER.findMaterialListById(orderId, connectionPool);
             ctx.json(materialListEntries);
         } catch (DatabaseException e) {
             ctx.status(500).json(Map.of("error", "Noget gik galt"));
         }
     }
+
+    private static void getMaterials(Context ctx, ConnectionPool connectionPool) {
+        List<Material> materials;
+        try {
+            materials = MATERIALS_MAPPER.getAllMaterials(connectionPool);
+            ctx.attribute("materials", materials);
+        } catch (DatabaseException e) {
+            ctx.redirect("/admin/materials?error=Noget+gik+galt,+prøv+igen+senere.");
+        }
+
+        ctx.render("/material-admin.html");
+    }
+
+    private static void updateMaterial(Context ctx, ConnectionPool connectionPool) {
+
+        int materialId = Integer.parseInt(ctx.formParam("id"));
+        String name = ctx.formParam("name");
+        String description = ctx.formParam("description");
+        double price = Double.parseDouble(ctx.formParam("price"));
+
+        Material material = new Material.Builder()
+                .id(materialId)
+                .name(name)
+                .description(description)
+                .price(price)
+                .build();
+
+        try {
+            MATERIALS_MAPPER.updateMaterialInfo(material, connectionPool);
+        } catch (DatabaseException e) {
+            ctx.redirect("/admin/materials?error=Noget+gik+galt,+prøv+igen+senere.");
+        }
+        ctx.redirect("/admin/materials?success=Materialet+er+blevet+opdateret.");
+    }
+
+
 }
 
 
