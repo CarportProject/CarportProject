@@ -9,6 +9,7 @@ import app.entities.Material;
 import app.persistence.MaterialsMapper;
 import app.service.SvgCalculationService;
 import app.service.SvgDrawingService;
+import app.util.ErrorRenderer;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import java.util.List;
@@ -80,7 +81,9 @@ public class SvgController {
 
         } catch (DatabaseException e) {
             System.err.println("[SvgController.showSvgForTestSpecification] " + e.getMessage());
+            ErrorRenderer.renderError(ctx, 500, "SVG error", "Could not create SVG from specification id" + specificationId);
             ctx.status(500).result("Could not create SVG from specification id " + specificationId);
+
         }
     }
 }
