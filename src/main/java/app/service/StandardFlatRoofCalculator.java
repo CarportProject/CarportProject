@@ -69,12 +69,29 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * Rafters are placed every 60 cm along the length of the carport.
      * </p>
      *
-     * @param specifications the carport dimensions and roof configuration
+     * @param carportLengthMm the carport dimensions and roof configuration
      * @return the number of rafters
      */
-    @Override
+    /*@Override
     protected int calculateRafter(Specifications specifications) {
         return (int) Math.ceil((double) specifications.getLengthCm() / 60) +1;
+    }*/
+
+    public int calculateRafterCount(int carportLengthMm, int rafterWidthMm) {
+        int spanBetweenOuterRafters = carportLengthMm - rafterWidthMm;
+        int intervalCount = (int) Math.ceil((double) spanBetweenOuterRafters / 600);
+        if (intervalCount < 1) {
+            intervalCount = 1;
+        }
+        return intervalCount + 1;
+    }
+
+    @Override
+    public int calculateRafter(Specifications specifications) {
+        int carportLengthMm = specifications.getLengthCm() * 10;
+        int rafterWidthMm = 45;
+
+        return calculateRafterCount(carportLengthMm, rafterWidthMm);
     }
 
     /**

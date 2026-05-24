@@ -97,7 +97,7 @@ public abstract class MaterialService {
      * @param specifications the carport dimensions and roof configuration
      * @return the number of rafters
      */
-    protected abstract int calculateRafter(Specifications specifications);
+    public abstract int calculateRafter(Specifications specifications);
 
     /**
      * Calculates the number of side beams (remme) required.

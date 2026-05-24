@@ -3,7 +3,6 @@ package app.observer;
 import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
-import app.persistence.MaterialsMapper;
 import app.persistence.OrderMapper;
 import app.persistence.SpecificationMapper;
 import app.service.PdfService;
@@ -103,9 +102,7 @@ public class CustomerEmailObserver implements OrderObserver {
 
                     try {
                         Specifications specs = order.getSpecifications();
-                        List<Material> materials = new MaterialsMapper().getAllMaterials(ConnectionPool.instance);
-
-                        String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(specs, materials).toString();
+                        String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(specs).toString();
                         byte[] pdf = new PdfService().svgToPdf(svg);
 
                         gmailEmailSender.sendEmailWithPdf(email, subject, body, pdf, "carport.pdf");

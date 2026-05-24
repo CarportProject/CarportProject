@@ -1,3 +1,4 @@
+/*
 package app.controllers;
 
 import app.entities.Specifications;
@@ -86,4 +87,4 @@ public class SvgController {
 
         }
     }
-}
+}*/

@@ -97,7 +97,7 @@ public class MaterialsMapper {
      * @return a list of all {@link Material} objects; empty if none exist
      * @throws DatabaseException if a SQL error occurs during the query
      */
-    public List<Material> getAllMaterials(ConnectionPool connectionPool) throws DatabaseException {
+    public static List<Material> getAllMaterials(ConnectionPool connectionPool) throws DatabaseException {
         String sql = "SELECT * FROM materials ORDER BY id";
         List<Material> materialList = new ArrayList<>();
 
