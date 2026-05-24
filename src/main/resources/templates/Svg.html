@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SVG Test</title>
+</head>
+<body>
+
+<h1>SVG Test</h1>
+
+<p>Specification ID: <span th:text="${specs.id}"></span></p>
+<p>Bredde: <span th:text="${specs.widthCm}"></span> cm</p>
+<p>Længde: <span th:text="${specs.lengthCm}"></span> cm</p>
+
+<div th:utext="${svg}"></div>
+
+</body>
+</html>
