@@ -55,9 +55,9 @@ public class SvgDrawingService {
         drawSideViewUnderStern(sideViewSvg, specifications, materials);
         drawSideViewOverStern(sideViewSvg, specifications, materials);
 
+        drawTopViewPosts(topViewSvg, specifications, materials);
         drawTopViewBeams(topViewSvg, specifications, materials);
         drawTopViewRafters(topViewSvg, specifications, materials);
-        drawTopViewPosts(topViewSvg, specifications, materials);
 
         outerSvg.addSvg(sideViewSvg);
         outerSvg.addSvg(topViewSvg);
