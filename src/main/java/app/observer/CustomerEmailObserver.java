@@ -3,6 +3,7 @@ package app.observer;
 import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
+import app.persistence.MaterialsMapper;
 import app.persistence.OrderMapper;
 import app.persistence.SpecificationMapper;
 import app.service.PdfService;
@@ -17,7 +18,7 @@ public class CustomerEmailObserver implements OrderObserver {
     GmailEmailSender gmailEmailSender = new GmailEmailSender();
 
     @Override
-    public void update(Order order, OrderStatus status) {
+    public void update(Order order, OrderStatus status, ConnectionPool connectionPool) {
         String email = order.getContactInfo().getEmail();
         String subject = "";
         String body = "";
@@ -31,7 +32,7 @@ public class CustomerEmailObserver implements OrderObserver {
 
 
         try {
-            OrderMapper.changeOrderDetails(orderId, new OrderDetails(uuid), ConnectionPool.instance);
+            OrderMapper.changeOrderDetails(orderId, new OrderDetails(uuid), connectionPool);
             switch (status) {
                 case PENDING -> {
                     subject = "Din ordre er modtaget – QuickByg Carport";
@@ -101,11 +102,19 @@ public class CustomerEmailObserver implements OrderObserver {
                             """.formatted(customerName, orderId);
 
                     try {
+                        PdfService pdfService = new PdfService();
+
                         Specifications specs = order.getSpecifications();
                         String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(specs).toString();
-                        byte[] pdf = new PdfService().svgToPdf(svg);
+                        byte[] svgPdf = pdfService.svgToPdf(svg);
 
-                        gmailEmailSender.sendEmailWithPdf(email, subject, body, pdf, "carport.pdf");
+
+                        List<MaterialListEntry> entries = new MaterialsMapper().findMaterialListById(orderId, connectionPool);
+                        String html = pdfService.buildMaterialListHtml(entries);
+                        byte[] tablePdf = pdfService.tableToPdf(html);
+                        byte[] finalPdf = pdfService.mergePdfs(tablePdf, svgPdf);
+
+                        gmailEmailSender.sendEmailWithPdf(email, subject, body, finalPdf, "carport.pdf");
                     } catch (Exception e) {
                         System.err.println("[CustomerEmailObserver.update] Kunne ikke generere PDF: " + e.getMessage());
                         gmailEmailSender.sendPlainTextEmail(email, subject, body);

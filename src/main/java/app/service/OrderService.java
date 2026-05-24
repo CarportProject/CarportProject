@@ -33,9 +33,9 @@ public class OrderService {
      * @param order       the order the event relates to
      * @param orderStatus the type of event that occurred
      */
-    private static void notifyObservers(Order order, OrderStatus orderStatus) throws MessagingException {
+    private static void notifyObservers(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException {
         for (OrderObserver observer : orderObserverList) {
-            observer.update(order, orderStatus);
+            observer.update(order, orderStatus, connectionPool);
         }
     }
 
@@ -51,7 +51,7 @@ public class OrderService {
 
         MaterialsMapper materialsMapper = new MaterialsMapper();
 
-        int orderId = ORDER_MAPPER.insertOrder(order, connectionPool);
+        int orderId = OrderMapper.insertOrder(order, connectionPool);
 
         order.setId(orderId);
 
@@ -61,7 +61,7 @@ public class OrderService {
 
         OrderDetails orderDetails = new OrderDetails(null, null, orderPrice, null);
 
-        ORDER_MAPPER.changeOrderDetails(orderId, orderDetails, connectionPool);
+        OrderMapper.changeOrderDetails(orderId, orderDetails, connectionPool);
 
         changeOrderStatus(order, OrderStatus.PENDING, connectionPool);
     }
@@ -69,6 +69,6 @@ public class OrderService {
 
     public static void changeOrderStatus(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException, DatabaseException {
         OrderMapper.changeOrderStatus(connectionPool, orderStatus, order);
-        notifyObservers(order, orderStatus);
+        notifyObservers(order, orderStatus, connectionPool);
     }
 }

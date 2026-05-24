@@ -16,7 +16,6 @@ package app.entities;
  *     .build();
  * }</pre>
  */
-// TODO: consider subclasses once the full material catalogue is defined
 public class Material {
 
     /** Unique identifier for the material in the database. */

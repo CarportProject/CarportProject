@@ -11,7 +11,7 @@ import java.util.Objects;
 public class SalesEmailObserver implements OrderObserver {
 
     @Override
-    public void update(Order order, OrderStatus status) throws MessagingException {
+    public void update(Order order, OrderStatus status, ConnectionPool connectionPool) throws MessagingException {
         GmailEmailSender gmailEmailSender = new GmailEmailSender();
 
         String baseUrl = System.getenv("BASE_URL") != null

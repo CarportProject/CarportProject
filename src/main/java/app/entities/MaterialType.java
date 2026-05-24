@@ -1,5 +1,7 @@
 package app.entities;
 
+import java.util.Arrays;
+
 public enum MaterialType {
     POST(1, "Stolper nedgraves 90 cm. i jord"),
 
@@ -29,4 +31,5 @@ public enum MaterialType {
     public String getDescription() {
         return description;
     }
+
 }

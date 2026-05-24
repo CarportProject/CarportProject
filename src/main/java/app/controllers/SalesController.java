@@ -37,15 +37,12 @@ public class SalesController {
         List<Order> orderList = null;
         try {
             orderList = OrderMapper.getAllOrders(connectionPool);
-
+            ctx.attribute("orders", orderList);
         } catch (DatabaseException e) {
             System.err.println("[SalesController.getAllOrders] " + e.getMessage());
             ctx.attribute("errorMessage", "Noget gik galt mens ordrene blev hentet, prøv igen senere.");
         }
-
-        ctx.attribute("orders", orderList);
         ctx.render("/orders.html");
-
     }
 
     private static void statusFilter(Context ctx, ConnectionPool connectionPool) {
@@ -81,7 +78,7 @@ public class SalesController {
 
         try {
             int orderId = Integer.parseInt(ctx.formParam("orderId"));
-           Order order = OrderMapper.getOrderById(orderId, connectionPool);
+            Order order = OrderMapper.getOrderById(orderId, connectionPool);
 
 
             OrderService.changeOrderStatus(order, OrderStatus.OFFER_SENT, connectionPool);
