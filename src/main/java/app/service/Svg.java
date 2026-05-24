@@ -1,5 +1,7 @@
 package app.service;
 
+import java.util.Locale;
+
 public class Svg {
 
     private static final String svgTemplate =
@@ -12,13 +14,17 @@ public class Svg {
 
     private static final String svgRectTemplate =
         "<rect x=\"%d\" y=\"%d\"\n" +
-        "height=\"%f\" width=\"%f\"\n" +
+        "width=\"%f\" height=\"%f\"\n" +
         "style=\"%s\"/>";
 
     private static final String svgLineTemplate =
-            "<line x1=\"%d\" y1=\"%d\"\n" +
-            "x2=\"%d\" y2=\"%d\"\n" +
-            "style=\"%s\" />";
+        "<line x1=\"%d\" y1=\"%d\"\n" +
+        "x2=\"%d\" y2=\"%d\"\n" +
+        "style=\"%s\" />";
+
+    private static final String svgPolygonTemplate =
+        "<polygon points=\"%s\"\n" +
+        "style=\"%s\"/>";
 
     private static final String svgTextTemplate =
         "<text font-size=\"%d\"\n" +
@@ -31,26 +37,26 @@ public class Svg {
         "</text>";
 
     private static final String svgArrowheads =
-            "<defs>\n" +
-            "<marker \n" +
-            "id=\"beginArrow\" \n" +
-            "markerWidth=\"12\" \n" +
-            "markerHeight=\"12\" \n" +
-            "refX=\"0\" \n" +
-            "refY=\"6\" \n" +
-            "orient=\"auto\">\n" +
-            "<path d=\"M0,6 L12,0 L12,12 L0,6\" style=\"fill: #000000;\" />\n" +
-            "</marker>\n" +
-            "<marker \n" +
-            "id=\"endArrow\" \n" +
-            "markerWidth=\"12\" \n" +
-            "markerHeight=\"12\" \n" +
-            "refX=\"12\" \n" +
-            "refY=\"6\" \n" +
-            "orient=\"auto\">\n" +
-            "<path d=\"M0,0 L12,6 L0,12 L0,0 \" style=\"fill: #000000;\" />\n" +
-            "</marker>\n" +
-            "</defs>";
+        "<defs>\n" +
+        "<marker \n" +
+        "id=\"beginArrow\" \n" +
+        "markerWidth=\"12\" \n" +
+        "markerHeight=\"12\" \n" +
+        "refX=\"0\" \n" +
+        "refY=\"6\" \n" +
+        "orient=\"auto\">\n" +
+        "<path d=\"M0,6 L12,0 L12,12 L0,6\" style=\"fill: #000000;\" />\n" +
+        "</marker>\n" +
+        "<marker \n" +
+        "id=\"endArrow\" \n" +
+        "markerWidth=\"12\" \n" +
+        "markerHeight=\"12\" \n" +
+        "refX=\"12\" \n" +
+        "refY=\"6\" \n" +
+        "orient=\"auto\">\n" +
+        "<path d=\"M0,0 L12,6 L0,12 L0,0 \" style=\"fill: #000000;\" />\n" +
+        "</marker>\n" +
+        "</defs>";
 
     private StringBuilder svg = new StringBuilder();
 
@@ -63,44 +69,42 @@ public class Svg {
 
     public void addRectangle(int x, int y, double width, double height, String style){
 
-        if (style.equals("default")) {style = "stroke-width:2px; stroke:#000000; fill:#ffffff";}
+        if (style.equals("normal")) {style = "stroke-width:5px; stroke:#000000; fill:#ffffff";}
 
-        svg.append(String.format(svgRectTemplate, x, y, width, height, style));
+        svg.append(String.format(Locale.US, svgRectTemplate, x, y, width, height, style));
 
     }
 
-    public void addLine(int x1, int y1, int x2, int y2,
-                        boolean beginArrow, boolean endArrow, String style) {
+    public void addLine(int x1, int y1, int x2, int y2, boolean beginArrow, boolean endArrow, String style) {
 
         StringBuilder styleBuilder = new StringBuilder();
 
-        if ("default".equals(style)) {
-            styleBuilder.append("stroke:#000000;\n");
-        } else {
-            styleBuilder.append(style);
+        if ("normal".equals(style)) { styleBuilder.append("stroke:#000000;\n");
 
-            if (!style.endsWith(";")) {
-                styleBuilder.append(";");
-            }
+        } else { styleBuilder.append(style);
+
+            if (!style.endsWith(";")) { styleBuilder.append(";"); }
         }
 
-        if (beginArrow) {
-            styleBuilder.append("marker-start:url(#beginArrow);\n");
+        if (beginArrow) { styleBuilder.append("marker-start:url(#beginArrow);\n"); }
+
+        if (endArrow) { styleBuilder.append("marker-end:url(#endArrow);\n"); }
+
+        svg.append(String.format(Locale.US, svgLineTemplate, x1, y1, x2, y2, styleBuilder.toString()));
+    }
+
+    public void addPolygon(String points, String style) {
+
+        if (style.equals("normal")) {
+            style = "stroke-width:2px; stroke:#000000; fill:#ffffff";
         }
 
-        if (endArrow) {
-            styleBuilder.append("marker-end:url(#endArrow);\n");
-        }
-
-        svg.append(String.format(
-                svgLineTemplate,
-                x1, y1, x2, y2, styleBuilder.toString()
-        ));
+        svg.append(String.format(java.util.Locale.US, svgPolygonTemplate, points, style));
     }
 
     public void addText(int fontSize, String anchor, int x, int y, int rotation, String text){
 
-        svg.append(String.format(svgTextTemplate, fontSize, anchor, x, y, rotation, text));
+        svg.append(String.format(Locale.US, svgTextTemplate, fontSize, anchor, x, y, rotation, text));
     }
 
     public void addSvg(Svg innerSvg){
@@ -110,6 +114,6 @@ public class Svg {
 
     @Override
     public String toString() {
-        return svg.append("</svg>").toString();
+        return svg.toString() + "</svg>";
     }
 }
