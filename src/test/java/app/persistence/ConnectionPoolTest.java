@@ -43,13 +43,13 @@ class ConnectionPoolTest extends DatabaseTest {
 
     @Test
     void failGetInstance() {
-
-        //Arrange
-        ConnectionPool firstPool = connectionPool;
-
-        // Act & Assert
-        ConnectionPool secondPool = null;
-        assertNotSame(secondPool, firstPool, "getInstance should return the same instance (Singleton)");
+        // Tester at en pool oprettet med forkerte credentials ikke er den samme instans
+        // (Requires resetInstance first since it's a singleton)
+        // Alternativt: test at getInstance med null-parametre kaster en exception
+        assertThrows(Exception.class, () -> {
+            ConnectionPool.resetInstance();
+            ConnectionPool.getInstance(null, null, null, null, null);
+        });
     }
 
     /**
@@ -69,50 +69,43 @@ class ConnectionPoolTest extends DatabaseTest {
         }
     }
 
-    /**
-     * Verifies that after calling {@link ConnectionPool#close}, no more connections
-     * can be obtained – calling {@link ConnectionPool#getConnection} throws an exception.
-     */
-    @Test
-    void close() throws SQLException {
-
-        // Act - Close the ConnectionPool
-        connectionPool.close();
-
-        // Assert - After close, the pool should not be able to get any new connections
-        assertThrows(SQLException.class, () -> {
-            connectionPool.getConnection();
-        }, "After close() it should not be possible to get a connection");
-    }
-
-    /**
-     * Verifies that {@link ConnectionPool#resetInstance} creates a BRAND NEW pool
-     * instance, and that the new pool works correctly.
-     */
     @Test
     void resetInstance() throws SQLException {
-
-        // Arrange - Save the old pool
         ConnectionPool oldPool = connectionPool;
-
-        // Act - Reset ConnectionPool
         ConnectionPool.resetInstance();
 
-        // Get the new pool
         ConnectionPool newPool = ConnectionPool.getInstance(
-                System.getenv("JDBC_USER"),
-                System.getenv("JDBC_PASSWORD"),
-                System.getenv("JDBC_CONNECTION_STRING"),
-                "test",
-                System.getenv("JDBC_DB")
+                System.getenv("JDBC_USER"), System.getenv("JDBC_PASSWORD"),
+                System.getenv("JDBC_CONNECTION_STRING"), "test", System.getenv("JDBC_DB")
         );
+        connectionPool = newPool; // <-- TILFØJ: synkroniser det statiske felt
 
-        // Assert - They need to not be the same object
-        assertNotSame(oldPool, newPool, "resetInstance should create a NEW pool instance");
-
-        // Ekstra assert - New pool needs to be able to get a connection
+        assertNotSame(oldPool, newPool);
         try (Connection connection = newPool.getConnection()) {
-            assertTrue(connection.isValid(2), "The new pool should work correctly");
+            assertTrue(connection.isValid(2));
         }
     }
+
+    @Test
+    void close() throws SQLException {
+        connectionPool.close();
+        assertThrows(SQLException.class, () -> connectionPool.getConnection());
+
+        // TILFØJ: genopret poolen så efterfølgende tests ikke knækker
+        ConnectionPool.resetInstance();
+        connectionPool = ConnectionPool.getInstance(
+                System.getenv("JDBC_USER"), System.getenv("JDBC_PASSWORD"),
+                System.getenv("JDBC_CONNECTION_STRING"), "test", System.getenv("JDBC_DB")
+        );
+        connectionPool.close();
+        assertThrows(SQLException.class, () -> connectionPool.getConnection());
+
+        // TILFØJ: genopret poolen så efterfølgende tests ikke knækker
+        ConnectionPool.resetInstance();
+        connectionPool = ConnectionPool.getInstance(
+                System.getenv("JDBC_USER"), System.getenv("JDBC_PASSWORD"),
+                System.getenv("JDBC_CONNECTION_STRING"), "test", System.getenv("JDBC_DB")
+        );
+    }
+
 }
