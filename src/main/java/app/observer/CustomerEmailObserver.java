@@ -144,4 +144,26 @@ public class CustomerEmailObserver implements OrderObserver {
             throw new RuntimeException(e);
         }
     }
+    private String[] getPendingMessage(String customerName, int orderId){
+        String subject;
+        String body;
+        {
+            subject = "Din ordre er modtaget – QuickByg Carport";
+            body = """
+                            Hej %s,
+                            
+                            Tak for din henvendelse! Vi har modtaget din forespørgsel på en carport og vil behandle den hurtigst muligt.
+                            
+                            En af vores sælgere vil gennemgå din forespørgsel og vende tilbage med et tilbud.
+                            
+                            Ordrenummer: %d
+                            
+                            Har du spørgsmål, er du velkommen til at kontakte os.
+                            
+                            Med venlig hilsen
+                            Københavns Erhvervsakademi datamatikerlinjen
+                            """.formatted(customerName, orderId);
+        }
+        return  new String[]{subject, body};
+    }
 }
