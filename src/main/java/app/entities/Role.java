@@ -1,5 +1,6 @@
 package app.entities;
 
+import app.persistence.ConnectionPool;
 import org.postgresql.util.PGobject;
 
 import java.sql.SQLException;
@@ -24,7 +25,8 @@ public enum Role {
 
     public PGobject getDatabaseEnum() throws SQLException {
         PGobject pgObject = new PGobject();
-        pgObject.setType("user_role");
+        String schema = ConnectionPool.getSchema();
+        pgObject.setType(schema + ".user_role");
         pgObject.setValue(this.name());
         return pgObject;
     }

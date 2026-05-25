@@ -56,6 +56,7 @@ class OrderMapperTest extends DatabaseTest {
      */
     private Workshop createTestWorkshop() {
         return new Workshop.Builder()
+                .id(10)
                 .widthCm(200)
                 .lengthCm(300)
                 .build();
@@ -86,7 +87,7 @@ class OrderMapperTest extends DatabaseTest {
         ContactInfo contactInfo = createTestContactInfo();
         Workshop workshop = createTestWorkshop();
         Specifications specifications = createTestSpecifications(roofMaterialId);
-        OrderDetails orderDetails = new OrderDetails("Test remark", OrderStatus.PENDING);
+        OrderDetails orderDetails = new OrderDetails("Test remark", OrderStatus.PENDING, 0.0, UUID.randomUUID());
 
         return new Order.Builder()
                 .contactInfo(contactInfo)
