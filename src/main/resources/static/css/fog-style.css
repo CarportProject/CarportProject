@@ -55,7 +55,7 @@ html {
 @font-face {
     font-family: 'Dinpro';
     src: url('https://www.johannesfog.dk/assets/fonts/Dinpro-Bold.woff') format('woff'),
-         url('https://www.johannesfog.dk/assets/fonts/Dinpro-Bold2.woff2') format('woff2');
+    url('https://www.johannesfog.dk/assets/fonts/Dinpro-Bold2.woff2') format('woff2');
     font-weight: bold;
     font-style: normal;
     font-display: swap;
@@ -64,7 +64,7 @@ html {
 @font-face {
     font-family: 'Dinpro';
     src: url('https://www.johannesfog.dk/assets/fonts/Dinpro-Medium.woff') format('woff'),
-         url('https://www.johannesfog.dk/assets/fonts/Dinpro-Medium2.woff2') format('woff2');
+    url('https://www.johannesfog.dk/assets/fonts/Dinpro-Medium2.woff2') format('woff2');
     font-weight: 500;
     font-style: normal;
     font-display: swap;
@@ -73,7 +73,7 @@ html {
 @font-face {
     font-family: 'Dinpro';
     src: url('https://www.johannesfog.dk/assets/fonts/Dinpro-Regular.woff') format('woff'),
-         url('https://www.johannesfog.dk/assets/fonts/Dinpro-Regular2.woff2') format('woff2');
+    url('https://www.johannesfog.dk/assets/fonts/Dinpro-Regular2.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
     font-display: swap;
@@ -347,6 +347,12 @@ body {
     margin-bottom: 20px;
     font-size: 14px;
     font-weight: 500;
+    animation: fadeOut 0.5s ease 3s forwards;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 .flash-error {
