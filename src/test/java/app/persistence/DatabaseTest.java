@@ -58,17 +58,23 @@ public abstract class DatabaseTest {
     @BeforeEach
     void cleanDatabase() throws SQLException {
         // Delete from ALL tables used in tests
+        String sqlMaterialList = "DELETE FROM test.material_list;";
+        String sqlOrders = "DELETE FROM test.orders;";
         String sqlContactInfo = "DELETE FROM test.contact_info;";
         String sqlUsers = "DELETE FROM test.users;";
         String sqlWorkshop = "DELETE FROM test.workshop;";
+        String sqlSpecifications = "DELETE FROM test.specifications;";
 
         try (
                 Connection connection = connectionPool.getConnection();
                 Statement statement = connection.createStatement()
         ) {
+            statement.execute(sqlMaterialList);
+            statement.execute(sqlOrders);
             statement.execute(sqlContactInfo);
             statement.execute(sqlUsers);
             statement.execute(sqlWorkshop);
+            statement.execute(sqlSpecifications);
             System.out.println("=== Deleted from contact_info, users, workshop ===");
         }
     }

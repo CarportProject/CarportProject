@@ -15,6 +15,7 @@ public class ConnectionPool {
 
     public static ConnectionPool instance = null;
     public static HikariDataSource ds = null;
+    public static String schema;
 
     /***
      * Empty and private constructor due to single pattern. Use getInstance methods to
@@ -34,6 +35,7 @@ public class ConnectionPool {
      * @return A ConnectionPool object
      */
     public static ConnectionPool getInstance(String user, String password, String url, String schema, String db) {
+        ConnectionPool.schema = schema;
         if (instance == null) {
             if (System.getenv("DEPLOYED") != null) {
                 ds = createHikariConnectionPool(
@@ -96,5 +98,9 @@ public class ConnectionPool {
         }
         instance = null;
         ds = null;
+    }
+
+    public static String getSchema(){
+        return schema;
     }
 }

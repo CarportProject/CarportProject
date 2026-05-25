@@ -27,7 +27,7 @@ public class SpecificationMapper {
         int lengthCm = specs.getLengthCm();
         int roofPitchDegree = specs.getRoofPitch();
 
-        String sql = "INSERT INTO public.specifications (roof_type, roof_material, width_cm, length_cm, roof_pitch_degree) " +
+        String sql = "INSERT INTO specifications (roof_type, roof_material, width_cm, length_cm, roof_pitch_degree) " +
                 "VALUES (?, ?, ?, ?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
