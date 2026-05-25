@@ -68,11 +68,13 @@ public class UserService {
         USER_MAPPER.insertUser(email, hashedPassword, connectionPool);
 
         //Send welcome mail
-        GmailEmailSender emailSender = new GmailEmailSender();
-        try{
-            emailSender.sendPlainTextEmail(email, "Velkommen til Fog!", "Hej!\n\nDin konto er nu oprettet.\n\nMed venlig hilsen\nFog");
-        } catch (MessagingException e) {
-            System.err.println("Could not send welcome email: " + e.getMessage());
-        }
+        new Thread(() -> {
+            GmailEmailSender emailSender = new GmailEmailSender();
+            try {
+                emailSender.sendPlainTextEmail(email, "Velkommen til Fog!", "Hej!\n\nDin konto er nu oprettet.\n\nMed venlig hilsen\nFog");
+            } catch (MessagingException e) {
+                System.err.println("Could not send welcome email: " + e.getMessage());
+            }
+        }).start();
     }
 }
