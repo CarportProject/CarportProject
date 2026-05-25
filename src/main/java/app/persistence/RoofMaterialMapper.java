@@ -30,6 +30,7 @@ public class RoofMaterialMapper {
         String sql = "SELECT * FROM roof_material";
         List<RoofMaterial> roofMaterials = new ArrayList<>();
         try (
+
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ) {
