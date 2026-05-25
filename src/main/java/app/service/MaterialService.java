@@ -15,8 +15,14 @@ public abstract class MaterialService {
 
     MaterialsMapper materialsMapper = new MaterialsMapper();
 
-    public static MaterialService forRoofType(RoofType roofType) throws UnsupportedOperationException{
-        System.out.println(roofType);
+    /**
+     * Returns the concrete {@link MaterialService} implementation for the given roof type.
+     *
+     * @param roofType the roof type selected for the carport
+     * @return a {@link MaterialService} capable of calculating materials for that roof type
+     * @throws UnsupportedOperationException if no implementation exists for the given roof type
+     */
+    public static MaterialService forRoofType(RoofType roofType) throws UnsupportedOperationException {
         return switch (roofType) {
             case FLAT -> new StandardFlatRoofCalculator();
             case RAISED -> throw new UnsupportedOperationException("Beregning for rejst tag er ikke implementeret endnu");
@@ -24,19 +30,49 @@ public abstract class MaterialService {
     }
 
 
+    /**
+     * Calculates and inserts all required materials for an order into the {@code material_list} table.
+     * <p>
+     * Delegates to {@link #insertAllMaterials} for each material type defined by the concrete subclass.
+     * </p>
+     *
+     * @param orderId        the ID of the order to finalize
+     * @param specifications the carport dimensions and roof configuration
+     * @param connectionPool the database connection pool
+     * @throws DatabaseException if any material quantity calculation or database insert fails
+     */
     public void finalizeOrder(int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
         List<MaterialType> materialTypes = getMaterialTypes();
 
         insertAllMaterials(materialTypes, orderId, specifications, connectionPool);
     }
 
-    protected void insertAllMaterials(List<MaterialType> materialTypes, int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
+    /**
+     * Iterates over the given material types and inserts a material line for each into the order.
+     *
+     * @param materialTypes  the ordered list of material types to insert
+     * @param orderId        the ID of the order
+     * @param specifications the carport dimensions and roof configuration
+     * @param connectionPool the database connection pool
+     * @throws DatabaseException if any insert fails
+     */
+    protected void insertAllMaterials(List<MaterialType> materialTypes, int orderId,
+                                      Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
 
         for (MaterialType materialType : materialTypes) {
             insertMaterialLine(materialType, orderId, specifications, connectionPool);
         }
     }
 
+    /**
+     * Returns the ordered list of material types that the concrete subclass calculates.
+     * <p>
+     * Only the types returned here will have material lines inserted when
+     * {@link #finalizeOrder} is called.
+     * </p>
+     *
+     * @return an ordered list of {@link MaterialType} values relevant to this roof variant
+     */
     protected abstract List<MaterialType> getMaterialTypes();
 
     /**
@@ -49,7 +85,8 @@ public abstract class MaterialService {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if the calculation yields an invalid result or a SQL error occurs
      */
-    public void insertMaterialLine(MaterialType materialType, int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
+    public void insertMaterialLine(MaterialType materialType, int orderId, Specifications specifications,
+                                   ConnectionPool connectionPool) throws DatabaseException {
         int amount = switch (materialType) {
             case POST -> calculatePosts(specifications);
             case RAFTER -> calculateRafter(specifications);

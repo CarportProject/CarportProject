@@ -6,5 +6,5 @@ import app.persistence.ConnectionPool;
 import jakarta.mail.MessagingException;
 
 public interface OrderObserver {
-    void update(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException;
+    void update(Order order, OrderStatus orderStatus, ConnectionPool connectionPool);
 }

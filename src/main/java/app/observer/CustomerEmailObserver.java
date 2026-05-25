@@ -5,7 +5,6 @@ import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
 import app.persistence.MaterialsMapper;
 import app.persistence.OrderMapper;
-import app.persistence.SpecificationMapper;
 import app.service.PdfService;
 import app.service.SvgDrawingService;
 import app.util.GmailEmailSender;
@@ -35,135 +34,161 @@ public class CustomerEmailObserver implements OrderObserver {
             OrderMapper.changeOrderDetails(orderId, new OrderDetails(uuid), connectionPool);
             switch (status) {
                 case PENDING -> {
-                    subject = "Din ordre er modtaget – QuickByg Carport";
-                    body = """
-                            Hej %s,
-                            
-                            Tak for din henvendelse! Vi har modtaget din forespørgsel på en carport og vil behandle den hurtigst muligt.
-                            
-                            En af vores sælgere vil gennemgå din forespørgsel og vende tilbage med et tilbud.
-                            
-                            Ordrenummer: %d
-                            
-                            Har du spørgsmål, er du velkommen til at kontakte os.
-                            
-                            Med venlig hilsen
-                            Københavns Erhvervsakademi datamatikerlinjen
-                            """.formatted(customerName, orderId);
+                    String[] strings = handlePendingStatus(customerName, orderId);
+                    subject = strings[0];
+                    body = strings[1];
                 }
                 case OFFER_SENT -> {
-                    subject = "Du har modtaget et tilbud – QuickByg Carport";
-                    body = """
-                            Hej %s,
-                            
-                            Vi har gennemgået din forespørgsel og er klar med et tilbud.
-                            
-                            Ordrenummer: %d
-                            
-                            
-                            Klik på linket nedenfor for at se og acceptere dit tilbud:
-                            %s/payment?token=%s
-                            
-                            Med venlig hilsen
-                            Københavns Erhvervsakademi datamatikerlinjen
-                            """.formatted(customerName, orderId, baseUrl, token);
+                    String[] strings = handleOfferSentStatus(customerName, orderId, baseUrl, token);
+                    subject = strings[0];
+                    body = strings[1];
                 }
-
                 case CANCELLED -> {
-                    subject = "Dit tilbud er blevet afvist – QuickByg Carport";
-                    body = """
-                            Hej %s,
-                            
-                            Vi har modtaget din afvisning af tilbuddet på din carport.
-                            
-                            Ordrenummer: %d
-                            
-                            Hvis du fortryder eller ønsker at diskutere et nyt tilbud, er du velkommen til at kontakte os.
-                            
-                            Med venlig hilsen
-                            Københavns Erhvervsakademi datamatikerlinjen
-                            """.formatted(customerName, orderId);
+                    String[] strings = handleCancelledStatus(customerName, orderId);
+                    subject = strings[0];
+                    body = strings[1];
                 }
                 case PAID -> {
-                    subject = "Betalingsbekræftelse – QuickByg Carport";
-                    body = """
-                            Hej %s,
-                            
-                            Tak for din betaling! Vi har modtaget din betaling og din ordre er nu bekræftet.
-                            
-                            Ordrenummer: %d
-                            
-                            Din stykliste og byggevejledning er vedhæftet denne mail som PDF.
-                            
-                            Vi glæder os til at hjælpe dig med din nye carport.
-                            
-                            Med venlig hilsen
-                            Københavns Erhvervsakademi datamatikerlinjen
-                            """.formatted(customerName, orderId);
-
-                    try {
-                        PdfService pdfService = new PdfService();
-
-                        Specifications specs = order.getSpecifications();
-                        String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(specs).toString();
-                        byte[] svgPdf = pdfService.svgToPdf(svg);
-
-
-                        List<MaterialListEntry> entries = new MaterialsMapper().findMaterialListById(orderId, connectionPool);
-                        String html = pdfService.buildMaterialListHtml(entries);
-                        byte[] tablePdf = pdfService.tableToPdf(html);
-                        byte[] finalPdf = pdfService.mergePdfs(tablePdf, svgPdf);
-
-                        gmailEmailSender.sendEmailWithPdf(email, subject, body, finalPdf, "carport.pdf");
-                    } catch (Exception e) {
-                        System.err.println("[CustomerEmailObserver.update] Kunne ikke generere PDF: " + e.getMessage());
-                        gmailEmailSender.sendPlainTextEmail(email, subject, body);
-                    }
+                    handlePaidStatus(order, customerName, orderId, connectionPool);
                     return;
                 }
                 case REJECTED -> {
-                    subject = "Din forespørgsel er blevet afvist – QuickByg Carport";
-                    body = """
-                            Hej %s,
-                            
-                            Vi har desværre ikke mulighed for at imødekomme din forespørgsel på nuværende tidspunkt.
-                            
-                            Ordrenummer: %d
-                            
-                            Hvis du har spørgsmål eller ønsker at afgive en ny forespørgsel, er du velkommen til at kontakte os.
-                            
-                            Med venlig hilsen
-                            Fog Trælast & Byggecenter
-                            """.formatted(customerName, orderId);
+                    String[] strings = handleRejectedStatus(customerName, orderId);
+                    subject = strings[0];
+                    body = strings[1];
                 }
             }
-            gmailEmailSender.sendPlainTextEmail(email, subject, body);
-        } catch (MessagingException e) {
-            System.err.println("Could not send to email customer: " + email);
+            String finalSubject = subject;
+            String finalBody = body;
+            String finalEmail = email;
+            new Thread(() -> {
+                try {
+                    gmailEmailSender.sendPlainTextEmail(finalEmail, finalSubject, finalBody);
+                } catch (MessagingException e) {
+                    System.err.println("Could not send to email customer: " + finalEmail);
+                }
+            }).start();
         } catch (DatabaseException e) {
             throw new RuntimeException(e);
         }
     }
-    private String[] getPendingMessage(String customerName, int orderId){
-        String subject;
-        String body;
-        {
-            subject = "Din ordre er modtaget – QuickByg Carport";
-            body = """
-                            Hej %s,
-                            
-                            Tak for din henvendelse! Vi har modtaget din forespørgsel på en carport og vil behandle den hurtigst muligt.
-                            
-                            En af vores sælgere vil gennemgå din forespørgsel og vende tilbage med et tilbud.
-                            
-                            Ordrenummer: %d
-                            
-                            Har du spørgsmål, er du velkommen til at kontakte os.
-                            
-                            Med venlig hilsen
-                            Københavns Erhvervsakademi datamatikerlinjen
-                            """.formatted(customerName, orderId);
-        }
-        return  new String[]{subject, body};
+
+    private String[] handlePendingStatus(String customerName, int orderId) {
+
+        String subject = "Din ordre er modtaget – QuickByg Carport";
+        String body = """
+                Hej %s,
+                
+                Tak for din henvendelse! Vi har modtaget din forespørgsel på en carport og vil behandle den hurtigst muligt.
+                
+                En af vores sælgere vil gennemgå din forespørgsel og vende tilbage med et tilbud.
+                
+                Ordrenummer: %d
+                
+                Har du spørgsmål, er du velkommen til at kontakte os.
+                
+                Med venlig hilsen
+                Københavns Erhvervsakademi datamatikerlinjen
+                """.formatted(customerName, orderId);
+        return new String[]{subject, body};
+    }
+
+    private String[] handleOfferSentStatus(String customerName, int orderId, String baseUrl, String token) {
+
+        String subject = "Du har modtaget et tilbud – QuickByg Carport";
+        String body = """
+                Hej %s,
+                
+                Vi har gennemgået din forespørgsel og er klar med et tilbud.
+                
+                Ordrenummer: %d
+                
+                
+                Klik på linket nedenfor for at se og acceptere dit tilbud:
+                %s/payment?token=%s
+                
+                Med venlig hilsen
+                Københavns Erhvervsakademi datamatikerlinjen
+                """.formatted(customerName, orderId, baseUrl, token);
+
+        return new String[]{subject, body};
+    }
+
+
+    private String[] handleCancelledStatus(String customerName, int orderId) {
+
+        String subject = "Dit tilbud er blevet afvist – QuickByg Carport";
+        String body = """
+                Hej %s,
+                
+                Vi har modtaget din afvisning af tilbuddet på din carport.
+                
+                Ordrenummer: %d
+                
+                Hvis du fortryder eller ønsker at diskutere et nyt tilbud, er du velkommen til at kontakte os.
+                
+                Med venlig hilsen
+                Københavns Erhvervsakademi datamatikerlinjen
+                """.formatted(customerName, orderId);
+        return new String[]{subject, body};
+    }
+
+    private void handlePaidStatus(Order order, String customerName, int orderId, ConnectionPool connectionPool) {
+
+        String subject = "Betalingsbekræftelse – QuickByg Carport";
+        String body = """
+                Hej %s,
+                
+                Tak for din betaling! Vi har modtaget din betaling og din ordre er nu bekræftet.
+                
+                Ordrenummer: %d
+                
+                Din stykliste og byggevejledning er vedhæftet denne mail som PDF.
+                
+                Vi glæder os til at hjælpe dig med din nye carport.
+                
+                Med venlig hilsen
+                Københavns Erhvervsakademi datamatikerlinjen
+                """.formatted(customerName, orderId);
+
+        new Thread(() -> {
+            try {
+                PdfService pdfService = new PdfService();
+                String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(order.getSpecifications()).toString();
+                byte[] svgPdf = pdfService.svgToPdf(svg);
+
+                List<MaterialListEntry> entries = new MaterialsMapper().findMaterialListById(orderId, connectionPool);
+                byte[] tablePdf = pdfService.tableToPdf(pdfService.buildMaterialListHtml(entries));
+                byte[] finalPdf = pdfService.mergePdfs(tablePdf, svgPdf);
+
+                gmailEmailSender.sendEmailWithPdf(order.getContactInfo().getEmail(), subject, body, finalPdf, "carport.pdf");
+            } catch (Exception e) {
+                System.err.println("[CustomerEmailObserver] Kunne ikke generere PDF: " + e.getMessage());
+                try {
+                    gmailEmailSender.sendPlainTextEmail(order.getContactInfo().getEmail(), subject, body);
+                } catch (MessagingException ex) {
+                    System.err.println("[CustomerEmailObserver] Kunne ikke sende fallback mail: " + ex.getMessage());
+                }
+            }
+        }).start();
+    }
+
+
+    private String[] handleRejectedStatus(String customerName, int orderId) {
+
+        String subject = "Din forespørgsel er blevet afvist – QuickByg Carport";
+        String body = """
+                Hej %s,
+                
+                Vi har desværre ikke mulighed for at imødekomme din forespørgsel på nuværende tidspunkt.
+                
+                Ordrenummer: %d
+                
+                Hvis du har spørgsmål eller ønsker at afgive en ny forespørgsel, er du velkommen til at kontakte os.
+                
+                Med venlig hilsen
+                Fog Trælast & Byggecenter
+                """.formatted(customerName, orderId);
+        return new String[]{subject, body};
     }
 }
