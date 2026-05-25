@@ -93,4 +93,5 @@ public class SpecificationMapper {
             throw new DatabaseException("An error occurred while fetching specifications");
         }
     }
+
 }

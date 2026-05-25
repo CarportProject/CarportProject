@@ -1,21 +1,24 @@
 package app.observer;
 
-import app.entities.Order;
-import app.entities.OrderStatus;
+import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
-import app.entities.OrderDetails;
+import app.persistence.MaterialsMapper;
 import app.persistence.OrderMapper;
+import app.persistence.SpecificationMapper;
+import app.service.PdfService;
+import app.service.SvgDrawingService;
 import app.util.GmailEmailSender;
 import jakarta.mail.MessagingException;
 
+import java.util.List;
 import java.util.UUID;
 
 public class CustomerEmailObserver implements OrderObserver {
     GmailEmailSender gmailEmailSender = new GmailEmailSender();
 
     @Override
-    public void update(Order order, OrderStatus status) {
+    public void update(Order order, OrderStatus status, ConnectionPool connectionPool) {
         String email = order.getContactInfo().getEmail();
         String subject = "";
         String body = "";
@@ -26,7 +29,10 @@ public class CustomerEmailObserver implements OrderObserver {
         int orderId = order.getId();
         UUID uuid = UUID.randomUUID();
         String token = uuid.toString();
+
+
         try {
+            OrderMapper.changeOrderDetails(orderId, new OrderDetails(uuid), connectionPool);
             switch (status) {
                 case PENDING -> {
                     subject = "Din ordre er modtaget – QuickByg Carport";
@@ -95,9 +101,25 @@ public class CustomerEmailObserver implements OrderObserver {
                             Københavns Erhvervsakademi datamatikerlinjen
                             """.formatted(customerName, orderId);
 
-                    // TODO generer PDF og vedhæft
-                    // byte[] pdf = pdfService.generate(order);
-                    // gmailEmailSender.sendEmailWithAttachment(email, subject, body, pdf);
+                    try {
+                        PdfService pdfService = new PdfService();
+
+                        Specifications specs = order.getSpecifications();
+                        String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(specs).toString();
+                        byte[] svgPdf = pdfService.svgToPdf(svg);
+
+
+                        List<MaterialListEntry> entries = new MaterialsMapper().findMaterialListById(orderId, connectionPool);
+                        String html = pdfService.buildMaterialListHtml(entries);
+                        byte[] tablePdf = pdfService.tableToPdf(html);
+                        byte[] finalPdf = pdfService.mergePdfs(tablePdf, svgPdf);
+
+                        gmailEmailSender.sendEmailWithPdf(email, subject, body, finalPdf, "carport.pdf");
+                    } catch (Exception e) {
+                        System.err.println("[CustomerEmailObserver.update] Kunne ikke generere PDF: " + e.getMessage());
+                        gmailEmailSender.sendPlainTextEmail(email, subject, body);
+                    }
+                    return;
                 }
                 case REJECTED -> {
                     subject = "Din forespørgsel er blevet afvist – QuickByg Carport";
@@ -115,8 +137,6 @@ public class CustomerEmailObserver implements OrderObserver {
                             """.formatted(customerName, orderId);
                 }
             }
-            OrderMapper orderMapper = new OrderMapper();
-            orderMapper.changeOrderDetails(orderId, new OrderDetails(uuid), ConnectionPool.instance);
             gmailEmailSender.sendPlainTextEmail(email, subject, body);
         } catch (MessagingException e) {
             System.err.println("Could not send to email customer: " + email);

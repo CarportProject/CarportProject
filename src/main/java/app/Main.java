@@ -5,7 +5,12 @@ import app.config.ThymeleafConfig;
 import app.controllers.PaymentController;
 import app.controllers.SalesController;
 import app.controllers.UserController;
+import app.entities.Specifications;
 import app.persistence.ConnectionPool;
+import app.persistence.SpecificationMapper;
+import app.service.MaterialService;
+import app.service.StandardFlatRoofCalculator;
+import app.service.SvgCalculationService;
 import app.util.AuthFilter;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinThymeleaf;
@@ -22,6 +27,7 @@ public class Main {
 
     public static void main(String[] args) {
         // Initializing Javalin and Jetty webserver
+
 
         Javalin app = Javalin.create(config -> {
             config.staticFiles.add("/static");
