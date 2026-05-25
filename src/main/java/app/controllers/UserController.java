@@ -126,6 +126,9 @@ public class UserController {
             ctx.render("create-user.html");
         } catch (DatabaseException | UserNotFoundException e) {
             System.err.println("[UserController.createUser] " + e.getMessage());
+            if (e.getMessage().contains("duplicate key")) {
+                ctx.attribute("errorMessage", "En bruger med denne email findes allerede.");
+            }
             ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
             ctx.render("create-user.html");
         }
@@ -232,11 +235,10 @@ public class UserController {
         } catch (DatabaseException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Noget+gik+galt,+prøv+igen+senere");
-        } catch (UnsupportedOperationException e){
+        } catch (UnsupportedOperationException e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
-            ctx.redirect(trueReferer+ "?error=Rejst+tag+er+ikke+understøttet+endnu");
-        }
-        catch (Exception e) {
+            ctx.redirect(trueReferer + "?error=Rejst+tag+er+ikke+understøttet+endnu");
+        } catch (Exception e) {
             System.err.println("[UserController.buildOrderWithForm] " + e.getMessage());
             ctx.redirect(trueReferer + "?error=Ugyldig+forespørgsel.");
         }

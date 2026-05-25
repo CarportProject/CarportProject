@@ -43,7 +43,6 @@ public abstract class MaterialService {
      */
     public void finalizeOrder(int orderId, Specifications specifications, ConnectionPool connectionPool) throws DatabaseException {
         List<MaterialType> materialTypes = getMaterialTypes();
-
         insertAllMaterials(materialTypes, orderId, specifications, connectionPool);
     }
 

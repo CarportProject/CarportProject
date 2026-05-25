@@ -60,12 +60,11 @@ public class CustomerEmailObserver implements OrderObserver {
             }
             String finalSubject = subject;
             String finalBody = body;
-            String finalEmail = email;
             new Thread(() -> {
                 try {
-                    gmailEmailSender.sendPlainTextEmail(finalEmail, finalSubject, finalBody);
+                    gmailEmailSender.sendPlainTextEmail(email, finalSubject, finalBody);
                 } catch (MessagingException e) {
-                    System.err.println("Could not send to email customer: " + finalEmail);
+                    System.err.println("Could not send to email customer: " + email);
                 }
             }).start();
         } catch (DatabaseException e) {
