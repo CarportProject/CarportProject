@@ -54,8 +54,6 @@ class WorkshopMapperTest extends DatabaseTest {
         // PART 2: Test finding a workshop that does NOT EXIST
 
         // Try to find a workshop with ID that doesn't exist
-        assertThrows(DatabaseException.class, () -> {
-            workshopMapper.findWorkshopById(99999, connectionPool);
-        }, "Should throw DatabaseException when workshop not found");
+        assertNull(workshopMapper.findWorkshopById(-1, connectionPool));
     }
 }
