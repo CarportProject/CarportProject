@@ -49,7 +49,7 @@ public class ConnectionPool {
         return instance;
     }
 
-    /***
+    /**
      * Getting a live connection from a Hikari Connection Pool
      * @return a database connection to be used in sql requests
      * @throws SQLException

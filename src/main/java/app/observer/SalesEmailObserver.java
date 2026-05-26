@@ -18,32 +18,24 @@ public class SalesEmailObserver implements OrderObserver {
                 ? System.getenv("BASE_URL") : "http://localhost:7070";
         String customerName = order.getContactInfo().getFirstName() + " " + order.getContactInfo().getLastName();
         String email = System.getenv("SALES_EMAIL");
-        String subject = "";
-        String body = "";
-
         int orderId = order.getId();
-
 
         switch (status) {
             case PENDING -> {
                 String[] strings = handlePendingStatus(orderId, customerName, baseUrl);
-                subject = strings[0];
-                body = strings[1];
+                String finalSubject = strings[0];
+                String finalBody = strings[1];
+                new Thread(() -> {
+                    try {
+                        gmailEmailSender.sendPlainTextEmail(email, finalSubject, finalBody);
+                    } catch (MessagingException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
             }
             case OFFER_SENT, PAID, REJECTED, CANCELLED -> {
             }
         }
-        String finalSubject = subject;
-        String finalBody = body;
-        new Thread(() -> {
-            try {
-                gmailEmailSender.sendPlainTextEmail(email, finalSubject, finalBody);
-            } catch (MessagingException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
-
-
     }
 
 
