@@ -2,68 +2,73 @@ package app.persistence;
 
 import app.entities.User;
 import app.exceptions.InvalidCredentialsException;
+import app.exceptions.UserNotFoundException;
 import app.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Integration tests for {@link UserService}.
- * <p>
- * Tests cover the login flow end-to-end: a user is inserted via {@link UserMapper}
- * with a BCrypt-hashed password, and the service is then asked to authenticate.
- * Each test runs against the {@code test} schema provided by {@link DatabaseTest}.
- * </p>
- */
-public class UserServiceTest extends DatabaseTest {
+class UserServiceTest extends DatabaseTest {
 
-    UserService userService = new UserService();
-    UserMapper userMapper = new UserMapper();
+    private final UserService userService = new UserService();
+    private final UserMapper userMapper = new UserMapper();
 
-    /**
-     * Verifies that a user can log in when supplying the correct plain-text password.
-     * The returned {@link User} must match the email and the stored hashed password.
-     */
     @Test
-    void shouldLoginWithValidCredentials() throws Exception {
-
+    void loginSuccess() throws Exception {
         // Arrange
-        String email = "UserLogin@example.com";
-        String plainPassword = "Password123";
-        String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
-        userMapper.insertUser(email, hashedPassword, connectionPool);
+        String email = "logintest@example.com";
+        String plain = "Secret123";
+        userMapper.insertUser(email, BCrypt.hashpw(plain, BCrypt.gensalt()), connectionPool);
 
         // Act
-        User user = new User.Builder()
-                .email(email)
-                .password(plainPassword)
-                .build();
+        User user = userService.login(email, plain, connectionPool);
 
         // Assert
         assertNotNull(user);
         assertEquals(email, user.getEmail());
-        assertEquals(hashedPassword, user.getPassword());
-
     }
 
-    /**
-     * Verifies that supplying the wrong password throws {@link InvalidCredentialsException}
-     * instead of returning a user, even when the email itself exists in the database.
-     */
     @Test
-    void shouldThrowExceptionOnWrongPassword() throws Exception {
-
+    void loginFailsWrongPassword() throws Exception {
         // Arrange
-        String email = "FailLogin@example.com";
-        String plainPassword = "Password123";
-        String hashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt());
-        String wrongPassword = "NotPassword123";
-        userMapper.insertUser(email, hashedPassword, connectionPool);
+        String email = "wrongpass@example.com";
+        String plain = "CorrectPass";
+        userMapper.insertUser(email, BCrypt.hashpw(plain, BCrypt.gensalt()), connectionPool);
 
         // Act & Assert
-        assertThrows(InvalidCredentialsException.class, () -> {
-            userService.login(email, wrongPassword, connectionPool);
-        });
+        assertThrows(InvalidCredentialsException.class,
+                () -> userService.login(email, "WrongPass", connectionPool));
+    }
+
+    @Test
+    void loginFailsUserNotFound() {
+
+        // Act & Assert
+        assertThrows(UserNotFoundException.class,
+                () -> userService.login("missing@example.com", "any", connectionPool));
+    }
+
+    @Test
+    void createUserSuccess() throws Exception {
+        // Arrange
+        String email = "newuser@example.com";
+        String pass = "MyPassword123";
+
+        // Act
+        userService.createUser(email, pass, pass, connectionPool);
+
+        // Assert
+        User user = userMapper.findUserByEmail(email, connectionPool);
+        assertNotNull(user);
+        assertTrue(BCrypt.checkpw(pass, user.getPassword()));
+    }
+
+    @Test
+    void createUserFailsPasswordMismatch() {
+
+        // Act & Assert
+        assertThrows(InvalidCredentialsException.class,
+                () -> userService.createUser("fail@example.com", "pass1", "pass2", connectionPool));
     }
 }
