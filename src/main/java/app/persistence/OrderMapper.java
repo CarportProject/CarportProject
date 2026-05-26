@@ -73,13 +73,16 @@ public class OrderMapper {
                 String remark = resultSet.getString("remarks");
                 String stringStatus = resultSet.getString("status");
 
-                double price = resultSet.getDouble("price");
+                double price = 0.0;
 
+                if (resultSet.getDouble("price") != 0.0) {
+                    price = resultSet.getDouble("price");
+                }
                 String uuidString = resultSet.getString("uuid");
 
                 OrderStatus status = OrderStatus.valueOf(stringStatus);
 
-                UUID uuid = UUID.fromString(uuidString);
+                UUID uuid = uuidString != null ? UUID.fromString(uuidString) : null;
 
                 return new Order.Builder()
                         .id(id)
@@ -90,7 +93,7 @@ public class OrderMapper {
                         .build();
             } else throw new DatabaseException("Order not found");
         } catch (SQLException e) {
-            System.err.println("[OrderMapper.getOrderDetailsById] " + e.getMessage());
+            System.err.println("[OrderMapper.getOrderById] " + e.getMessage());
             throw new DatabaseException("Something went wrong while getting order details");
         }
     }

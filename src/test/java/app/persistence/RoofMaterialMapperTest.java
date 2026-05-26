@@ -61,7 +61,7 @@ class RoofMaterialMapperTest extends DatabaseTest {
         assertTrue(found.getPrice() >= 0, "Price should be 0 or positive");
 
         // PART 2: Find material that does NOT EXIST
-        int nonExistentId = 99999;
+        int nonExistentId = -1;
         assertThrows(DatabaseException.class, () -> {
             roofMaterialMapper.findRoofMaterialById(nonExistentId, connectionPool);
         }, "Should throw DatabaseException when material not found");

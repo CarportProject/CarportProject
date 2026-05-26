@@ -1,5 +1,6 @@
 package app.entities;
 
+import app.persistence.ConnectionPool;
 import org.postgresql.util.PGobject;
 
 import java.sql.SQLException;
@@ -25,7 +26,8 @@ public enum RoofType {
 
     public PGobject getDatabaseEnum() throws SQLException {
         PGobject pGobject = new PGobject();
-        pGobject.setType("roof_type");
+        String schema = ConnectionPool.getSchema();
+        pGobject.setType(schema +".roof_type");
         pGobject.setValue(this.name());
         return pGobject;
     }
