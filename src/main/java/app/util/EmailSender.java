@@ -28,7 +28,7 @@ public class EmailSender {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true"); // TLS
         props.put("mail.smtp.host", "smtp.sendgrid.net");
-        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.port", "2525");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
@@ -53,7 +53,7 @@ public class EmailSender {
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true"); //TLS
         props.put("mail.smtp.host", "smtp.sendgrid.net");
-        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.port", "2525");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
