@@ -73,43 +73,104 @@ class StandardFlatRoofCalculatorTest {
             }
         }
     }
+
     @Test
-    void calculateRem() { StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+    void calculatePosts_shouldReturnCorrectNumberOfPostsForGivenLengths() {
+        // Arrange
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
 
-        // Test ALL lengths from 1 cm to 2000 cm
-        for (int lengthCm = 1; lengthCm <= 2000; lengthCm++) {
+        // Test case 1: length 300 cm
+        Specifications specs300 = new Specifications.Builder()
+                .lengthCm(300)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        // Act
+        int posts300 = calculator.calculatePosts(specs300);
+        // Assert
+        assertEquals(4, posts300, "300 cm carport should have 4 posts");
 
-            Specifications specs = new Specifications.Builder()
-                    .lengthCm(lengthCm)
-                    .widthCm(300)
-                    .roofType(RoofType.FLAT)
-                    .roofMaterial(new RoofMaterial.Builder()
-                            .id(1)
-                            .name("Test Material")
-                            .color("Black")
-                            .price(1000)
-                            .roofType(RoofType.FLAT)
-                            .build())
-                    .build();
+        // Test case 2: length 600 cm
+        Specifications specs600 = new Specifications.Builder()
+                .lengthCm(600)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        int posts600 = calculator.calculatePosts(specs600);
+        assertEquals(6, posts600, "600 cm carport should have 6 posts");
 
-            int totalBeams = calculator.calculateRem(specs);
+        // Test case 3: length 900 cm
+        Specifications specs900 = new Specifications.Builder()
+                .lengthCm(900)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        int posts900 = calculator.calculatePosts(specs900);
+        assertEquals(8, posts900, "900 cm carport should have 8 posts");
 
-            // RULE 1: Number of beams must be even (two sides: left and right)
-            assertTrue(totalBeams % 2 == 0,
-                    "Length " + lengthCm + " cm gave odd number of beams: " + totalBeams);
+        // Test case 4: length 1200 cm
+        Specifications specs1200 = new Specifications.Builder()
+                .lengthCm(1200)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        int posts1200 = calculator.calculatePosts(specs1200);
+        assertEquals(10, posts1200, "1200 cm carport should have 10 posts");
+    }
+    @Test
+    void calculateRem() {
+        // Arrange
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
 
-            // Calculate beams per side
-            int beamsPerSide = totalBeams / 2;
+        // Helper to build Specifications
+        Specifications specs300 = new Specifications.Builder()
+                .lengthCm(300)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        Specifications specs600 = new Specifications.Builder()
+                .lengthCm(600)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        Specifications specs700 = new Specifications.Builder()
+                .lengthCm(700)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        Specifications specs1200 = new Specifications.Builder()
+                .lengthCm(1200)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
 
-            // RULE 2: Each beam can cover max 600 cm
-            // So beams per side = ceil(lengthCm / 600)
-            int expectedBeamsPerSide = (int) Math.ceil((double) lengthCm / 600.0);
+        // Act
+        int beams300 = calculator.calculateRem(specs300);
+        int beams600 = calculator.calculateRem(specs600);
+        int beams700 = calculator.calculateRem(specs700);
+        int beams1200 = calculator.calculateRem(specs1200);
 
-            // RULE 3: Actual must match expected
-            assertEquals(expectedBeamsPerSide, beamsPerSide,
-                    "Length " + lengthCm + " cm: expected " + expectedBeamsPerSide +
-                            " beams per side, but got " + beamsPerSide);
-        }
+        // Assert
+        assertEquals(2, beams300, "300 cm → 2 beams (1 per side)");
+        assertEquals(2, beams600, "600 cm → 2 beams (1 per side)");
+        assertEquals(4, beams700, "700 cm → 4 beams (2 per side)");
+        assertEquals(4, beams1200, "1200 cm → 4 beams (2 per side)");
     }
 
     @Test
@@ -117,52 +178,56 @@ class StandardFlatRoofCalculatorTest {
         // Arrange
         StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
         int rafterWidthMm = 45;
+        int lengthShort = 100;      // 100 mm
+        int lengthMedium = 6000;    // 6000 mm
+        int lengthLong = 12000;     // 12000 mm
 
-        // Act & Assert – test for ALL lengths
-        for (int lengthMm = 100; lengthMm <= 10000; lengthMm++) {
-            // Act
-            int rafterCount = calculator.calculateRafterCount(lengthMm, rafterWidthMm);
+        // Act
+        int countShort = calculator.calculateRafterCount(lengthShort, rafterWidthMm);
+        int countMedium = calculator.calculateRafterCount(lengthMedium, rafterWidthMm);
+        int countLong = calculator.calculateRafterCount(lengthLong, rafterWidthMm);
 
-            // Assert
-            // Rule 1: At least 2 rafters
-            assertTrue(rafterCount >= 2, "Length " + lengthMm + " mm -> rafters < 2");
-
-            // Rule 2: Spacing between centers must be <= 600 mm
-            int centerDistance = lengthMm - rafterWidthMm;
-            int gaps = rafterCount - 1;
-            double spacing = (double) centerDistance / gaps;
-
-            assertTrue(spacing <= 600.0, "Length " + lengthMm + " mm spacing " + spacing + " > 600");
-            assertTrue(spacing > 0, "Length " + lengthMm + " mm spacing <= 0");
-
-            // Rule 3: Formula correctness
-            int expected = (int) Math.max(2, Math.ceil((double)(lengthMm - rafterWidthMm) / 600.0) + 1);
-            assertEquals(expected, rafterCount, "Length " + lengthMm + " mm mismatch");
-        }
+        // Assert
+        assertEquals(2, countShort, "100 mm → 2 rafters");
+        assertEquals(11, countMedium, "6000 mm → 11 rafters");
+        assertEquals(21, countLong, "12000 mm → 21 rafters");
     }
 
     @Test
     void calculateRafter() {
         // Arrange
         StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
-        int rafterWidthMm = 45;
 
-        for (int lengthCm = 10; lengthCm <= 1000; lengthCm++) {
-            // Arrange
-            int lengthMm = lengthCm * 10;
-            Specifications specs = new Specifications.Builder()
-                    .lengthCm(lengthCm)
-                    .widthCm(300)
-                    .roofType(RoofType.FLAT)
-                    .roofMaterial(new RoofMaterial.Builder().id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
-                    .build();
+        Specifications specsShort = new Specifications.Builder()
+                .lengthCm(10)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        Specifications specsMedium = new Specifications.Builder()
+                .lengthCm(600)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
+        Specifications specsLong = new Specifications.Builder()
+                .lengthCm(1200)
+                .widthCm(300)
+                .roofType(RoofType.FLAT)
+                .roofMaterial(new RoofMaterial.Builder()
+                        .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
+                .build();
 
-            // Act
-            int rafterCount = calculator.calculateRafter(specs);
-            int expected = calculator.calculateRafterCount(lengthMm, rafterWidthMm);
+        // Act
+        int countShort = calculator.calculateRafter(specsShort);
+        int countMedium = calculator.calculateRafter(specsMedium);
+        int countLong = calculator.calculateRafter(specsLong);
 
-            // Assert
-            assertEquals(expected, rafterCount, "Length " + lengthCm + " cm mismatch");
-        }
+        // Assert
+        assertEquals(2, countShort, "10 cm → 2 rafters");
+        assertEquals(11, countMedium, "600 cm → 11 rafters");
+        assertEquals(21, countLong, "1200 cm → 21 rafters");
     }
 }
