@@ -1,10 +1,6 @@
 package app.service;
 
-import app.entities.Material;
-import app.entities.MaterialListEntry;
-import app.entities.MaterialType;
-import app.entities.RoofType;
-import app.entities.Specifications;
+import app.entities.*;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
 import app.persistence.MaterialsMapper;
@@ -61,6 +57,9 @@ public abstract class MaterialService {
         for (MaterialType materialType : materialTypes) {
             insertMaterialLine(materialType, orderId, specifications, connectionPool);
         }
+    }
+    protected void insertRoofMaterial(RoofMaterial roofMaterial){
+
     }
 
     /**
@@ -133,7 +132,7 @@ public abstract class MaterialService {
      * @param specifications the carport dimensions and roof configuration
      * @return the number of rafters
      */
-    public abstract int calculateRafter(Specifications specifications);
+    protected abstract int calculateRafter(Specifications specifications);
 
     /**
      * Calculates the number of side beams (remme) required.
@@ -184,4 +183,6 @@ public abstract class MaterialService {
      * @return the number of regular boards
      */
     protected abstract int calculateRegular(Specifications specifications);
+
+    protected abstract int calculateRoof(Specifications specifications);
 }

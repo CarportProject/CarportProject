@@ -6,7 +6,7 @@ import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
 import app.persistence.UserMapper;
-import app.util.GmailEmailSender;
+import app.util.EmailSender;
 import jakarta.mail.MessagingException;
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -69,7 +69,7 @@ public class UserService {
 
         //Send welcome mail
         new Thread(() -> {
-            GmailEmailSender emailSender = new GmailEmailSender();
+            EmailSender emailSender = new EmailSender();
             try {
                 emailSender.sendPlainTextEmail(email, "Velkommen til Fog!", "Hej!\n\nDin konto er nu oprettet.\n\nMed venlig hilsen\nFog");
             } catch (MessagingException e) {

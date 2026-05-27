@@ -7,14 +7,14 @@ import app.persistence.MaterialsMapper;
 import app.persistence.OrderMapper;
 import app.service.PdfService;
 import app.service.SvgDrawingService;
-import app.util.GmailEmailSender;
+import app.util.EmailSender;
 import jakarta.mail.MessagingException;
 
 import java.util.List;
 import java.util.UUID;
 
 public class CustomerEmailObserver implements OrderObserver {
-    GmailEmailSender gmailEmailSender = new GmailEmailSender();
+    EmailSender emailSender = new EmailSender();
 
     @Override
     public void update(Order order, OrderStatus status, ConnectionPool connectionPool) {
@@ -62,13 +62,13 @@ public class CustomerEmailObserver implements OrderObserver {
             String finalBody = body;
             new Thread(() -> {
                 try {
-                    gmailEmailSender.sendPlainTextEmail(email, finalSubject, finalBody);
+                    emailSender.sendPlainTextEmail(email, finalSubject, finalBody);
                 } catch (MessagingException e) {
-                    System.err.println("Could not send to email customer: " + email);
+                    System.err.println("[CustomerEmailObserver.update] Could not send email to " + email + ": " + e.getMessage());
                 }
             }).start();
         } catch (DatabaseException e) {
-            throw new RuntimeException(e);
+            System.err.println("[CustomerEmailObserver.update] Something went wrong when trying to access the database " + e.getMessage());
         }
     }
 
@@ -160,11 +160,11 @@ public class CustomerEmailObserver implements OrderObserver {
                 byte[] tablePdf = pdfService.tableToPdf(pdfService.buildMaterialListHtml(entries));
                 byte[] finalPdf = pdfService.mergePdfs(tablePdf, svgPdf);
 
-                gmailEmailSender.sendEmailWithPdf(order.getContactInfo().getEmail(), subject, body, finalPdf, "carport.pdf");
+                emailSender.sendEmailWithPdf(order.getContactInfo().getEmail(), subject, body, finalPdf, "carport.pdf");
             } catch (Exception e) {
                 System.err.println("[CustomerEmailObserver] Kunne ikke generere PDF: " + e.getMessage());
                 try {
-                    gmailEmailSender.sendPlainTextEmail(order.getContactInfo().getEmail(), subject, body);
+                    emailSender.sendPlainTextEmail(order.getContactInfo().getEmail(), subject, body);
                 } catch (MessagingException ex) {
                     System.err.println("[CustomerEmailObserver] Kunne ikke sende fallback mail: " + ex.getMessage());
                 }

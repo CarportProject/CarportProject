@@ -30,7 +30,6 @@ public class RoofMaterialMapper {
         String sql = "SELECT * FROM roof_material";
         List<RoofMaterial> roofMaterials = new ArrayList<>();
         try (
-
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql);
         ) {
@@ -42,7 +41,10 @@ public class RoofMaterialMapper {
                 String name = resultSet.getString("name");
                 String color = resultSet.getString("color");
                 int price = resultSet.getInt("price_per_m2");
+                double roofWidth = resultSet.getDouble("width");
+                double roofLength = resultSet.getDouble("length");
                 String roofType = resultSet.getString("roof_type");
+
 
                 // Convert the roof type string from the database to the RoofType enum
                 RoofType roof = null;
@@ -57,6 +59,8 @@ public class RoofMaterialMapper {
                         .name(name)
                         .color(color)
                         .price(price)
+                        .lengthCm(roofLength / 10)
+                        .widthCm(roofWidth / 10)
                         .roofType(roof)
                         .build());
 
@@ -70,6 +74,7 @@ public class RoofMaterialMapper {
         }
 
     }
+
     public RoofMaterial findRoofMaterialById(int id, ConnectionPool connectionPool) throws DatabaseException {
 
         String sql = "SELECT * FROM roof_material WHERE id=?";

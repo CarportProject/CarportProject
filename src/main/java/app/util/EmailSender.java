@@ -9,15 +9,16 @@ import jakarta.mail.util.ByteArrayDataSource;
 
 import java.util.Properties;
 
-public class GmailEmailSender {
+public class EmailSender {
     private final String username;
-    private final String password;
-    public GmailEmailSender() {
-        this.username = System.getenv("MAIL_USERNAME");
-        this.password = System.getenv("MAIL_PASSWORD");
+    private final String apiKey;
 
-        if (username == null || password == null) {
-            throw new IllegalStateException("MAIL_USERNAME and MAIL_PASSWORD environment variables must be set.");
+    public EmailSender() {
+        this.username = System.getenv("MAIL_USERNAME");
+        this.apiKey = System.getenv("SENDGRID_API_KEY");
+
+        if (username == null || apiKey == null) {
+            throw new IllegalStateException("MAIL_USERNAME and SENDGRID_API_KEY environment variables must be set.");
         }
     }
 
@@ -26,13 +27,13 @@ public class GmailEmailSender {
 
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true"); // TLS
-        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.host", "smtp.sendgrid.net");
         props.put("mail.smtp.port", "587");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
+                return new PasswordAuthentication("apikey", apiKey);
             }
         });
 
@@ -50,14 +51,14 @@ public class GmailEmailSender {
         Properties props = new Properties();
 
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true"); // TLS
-        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.starttls.enable", "true"); //TLS
+        props.put("mail.smtp.host", "smtp.sendgrid.net");
         props.put("mail.smtp.port", "587");
 
         Session session = Session.getInstance(props, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
+                return new PasswordAuthentication("apikey", apiKey);
             }
         });
         Message message = new MimeMessage(session);
@@ -85,7 +86,7 @@ public class GmailEmailSender {
 
     // 🧪 Main-metode til test
     public static void main(String[] args) {
-        GmailEmailSender sender = new GmailEmailSender();
+        EmailSender sender = new EmailSender();
 
         String to = "recipient@example.com";  // Erstat med din modtager
         String subject = "Testmail fra Java";
