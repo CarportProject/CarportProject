@@ -33,9 +33,15 @@ public class OrderService {
      * @param order       the order the event relates to
      * @param orderStatus the type of event that occurred
      */
-    private static void notifyObservers(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException {
+    private static void notifyObservers(Order order, OrderStatus orderStatus, ConnectionPool connectionPool){
         for (OrderObserver observer : orderObserverList) {
-            observer.update(order, orderStatus, connectionPool);
+            new Thread(() -> {
+                try {
+                    observer.update(order, orderStatus, connectionPool);
+                } catch (Exception e) {
+                    System.err.println("[OrderService] Observer fejlede: " + e.getMessage());
+                }
+            }).start();
         }
     }
 
