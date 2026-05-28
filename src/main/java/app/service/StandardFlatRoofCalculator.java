@@ -22,14 +22,10 @@ import java.util.Map;
  */
 public class StandardFlatRoofCalculator extends MaterialService {
 
-    final int narrowBoardMaxLengthCm = 480;
-    final int wideBoardMaxLengthCm = 480;
     final int widthOverlapCm = 10;
     final int lengthOverlapCm = 20;
 
     final Map<MaterialType, Material> materials;
-
-    List<MaterialType> materialTypesUsed = new ArrayList<>();
 
     public StandardFlatRoofCalculator(ConnectionPool connectionPool) throws DatabaseException {
         this.materials = getMaterialTypeByMaterial(connectionPool);
