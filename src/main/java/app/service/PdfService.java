@@ -59,8 +59,9 @@ public class PdfService {
 
         for (MaterialListEntry entry : entries) {
             rows.append("<tr>")
-                    .append("<td>").append(entry.material().getName()).append("</td>")
-                    .append("<td>").append(entry.material().getWidth()).append(" x ").append(entry.material().getHeight()).append(" mm</td>")
+                    .append("<td>").append(entry.material().getWidth()).append(" x ").append(entry.material().getHeight()).append(" mm.")
+                    .append(entry.material().getName()).append("</td>")
+                    .append("<td>").append(entry.length()).append("<td>")
                     .append("<td>").append(entry.amount()).append("</td>")
                     .append("<td>stk</td>")
                     .append("<td>").append(entry.description()).append("</td>")
@@ -76,8 +77,8 @@ public class PdfService {
                     <h2>Stykliste</h2>
                     <table border="1" cellpadding="5" cellspacing="0" width="100%%">
                         <tr>
-                            <th>Navn</th>
-                            <th>Maal</th>
+                            <th>Materiale</th>
+                            <th>Længde</th>
                             <th>Antal</th>
                             <th>Enhed</th>
                             <th>Beskrivelse</th>

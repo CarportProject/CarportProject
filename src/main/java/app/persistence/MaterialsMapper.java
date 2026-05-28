@@ -40,9 +40,10 @@ public class MaterialsMapper {
             while (resultSet.next()) {
                 int materialId = resultSet.getInt("material_id");
                 int amount = resultSet.getInt("amount");
+                int length = resultSet.getInt("lengthmm")*10;
                 int sameOrderId = resultSet.getInt("order_id");
                 String description = resultSet.getString("description");
-                MaterialListEntry materialListEntry = new MaterialListEntry(getMaterialById(materialId, connectionPool), amount, sameOrderId, description);
+                MaterialListEntry materialListEntry = new MaterialListEntry(getMaterialById(materialId, connectionPool), amount, length, sameOrderId, description);
 
                 materialList.add(materialListEntry);
             }
