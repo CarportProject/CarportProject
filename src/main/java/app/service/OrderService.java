@@ -1,5 +1,4 @@
 package app.service;
-
 import app.entities.Order;
 import app.entities.OrderStatus;
 import app.exceptions.DatabaseException;
@@ -11,7 +10,6 @@ import app.persistence.MaterialsMapper;
 import app.entities.OrderDetails;
 import app.persistence.OrderMapper;
 import jakarta.mail.MessagingException;
-
 import java.util.ArrayList;
 import java.util.List;
 

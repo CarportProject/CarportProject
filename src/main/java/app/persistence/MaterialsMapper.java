@@ -208,7 +208,7 @@ public class MaterialsMapper {
      * @throws DatabaseException if a SQL error occurs during the insert
      */
     public void insertMaterialList(int orderId, int materialId, int amount, int length, String description, ConnectionPool connectionPool) throws DatabaseException {
-        String sql = "INSERT INTO material_list (order_id, material_id, amount, length_mm, description) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO material_list (order_id, material_id, amount, length_mm, description) VALUES (?, ?, ?, ?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)
