@@ -61,7 +61,7 @@ public class PdfService {
             rows.append("<tr>")
                     .append("<td>").append(entry.material().getWidth()).append(" x ").append(entry.material().getHeight()).append(" mm.")
                     .append(entry.material().getName()).append("</td>")
-                    .append("<td>").append(entry.length()).append("<td>")
+                    .append("<td>").append(entry.length()).append("</td>")
                     .append("<td>").append(entry.amount()).append("</td>")
                     .append("<td>stk</td>")
                     .append("<td>").append(entry.description()).append("</td>")
