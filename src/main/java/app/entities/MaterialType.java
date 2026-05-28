@@ -8,7 +8,7 @@ public enum MaterialType {
     RAFTER(2, "Spær, monteres på rem"),
     REM(2, "Remme i sider, sadles ned i stolper"),
 
-    WIDE_BOARD_FRONT(3, "Understernbrædder til for & bag ende"),
+    WIDE_BOARD_FRONT(3, "Understernbrædder til for &amp; bag ende"),
     WIDE_BOARD_SIDE(3, "Understernbrædder til siderne"),
 
     NARROW_BOARD_FRONT(4, "Oversternbrædder til forenden"),

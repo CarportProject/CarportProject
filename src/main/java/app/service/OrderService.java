@@ -1,5 +1,4 @@
 package app.service;
-
 import app.entities.Order;
 import app.entities.OrderStatus;
 import app.exceptions.DatabaseException;
@@ -11,7 +10,6 @@ import app.persistence.MaterialsMapper;
 import app.entities.OrderDetails;
 import app.persistence.OrderMapper;
 import jakarta.mail.MessagingException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,9 +31,15 @@ public class OrderService {
      * @param order       the order the event relates to
      * @param orderStatus the type of event that occurred
      */
-    private static void notifyObservers(Order order, OrderStatus orderStatus, ConnectionPool connectionPool) throws MessagingException {
+    private static void notifyObservers(Order order, OrderStatus orderStatus, ConnectionPool connectionPool){
         for (OrderObserver observer : orderObserverList) {
-            observer.update(order, orderStatus, connectionPool);
+            new Thread(() -> {
+                try {
+                    observer.update(order, orderStatus, connectionPool);
+                } catch (Exception e) {
+                    System.err.println("[OrderService] Observer fejlede: " + e.getMessage());
+                }
+            }).start();
         }
     }
 

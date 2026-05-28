@@ -18,46 +18,88 @@ package app.entities;
  */
 public class Material {
 
-    /** Unique identifier for the material in the database. */
+    /**
+     * Unique identifier for the material in the database.
+     */
     private int id;
 
-    /** Display name of the material. */
+    /**
+     * Display name of the material.
+     */
     private String name;
 
-    /** Detailed description of the material (dimensions, type, etc.). */
+    /**
+     * Detailed description of the material (dimensions, type, etc.).
+     */
     private String description;
 
-    /** Unit price of the material in øre (whole number, no decimals). */
+    /**
+     * Unit price of the material in øre (whole number, no decimals).
+     */
     private double price;
 
     private int widthMm;
 
     private int heightMm;
 
-    /** Private constructor — use {@link Builder} to create instances. */
+    private int minLengthMm;
+
+    private int maxLengthMm;
+
+    /**
+     * Private constructor — use {@link Builder} to create instances.
+     */
     private Material() {
     }
 
-    /** @return the material's database ID */
-    public int getId() { return id; }
+    /**
+     * @return the material's database ID
+     */
+    public int getId() {
+        return id;
+    }
 
-    /** @return the display name of the material */
-    public String getName() { return name; }
+    /**
+     * @return the display name of the material
+     */
+    public String getName() {
+        return name;
+    }
 
-    /** @return the detailed description of the material */
-    public String getDescription() { return description; }
+    /**
+     * @return the detailed description of the material
+     */
+    public String getDescription() {
+        return description;
+    }
 
-    /** @return the unit price of the material in øre */
-    public double getPrice() { return price; }
+    /**
+     * @return the unit price of the material in øre
+     */
+    public double getPrice() {
+        return price;
+    }
 
-    public int getWidth() { return widthMm; }
+    public int getWidth() {
+        return widthMm;
+    }
 
-    public int getHeight() { return heightMm; }
+    public int getHeight() {
+        return heightMm;
+    }
+
+    public int getMinLength() {
+        return minLengthMm;
+    }
+
+    public int getMaxLength() {
+        return maxLengthMm;
+    }
 
     /**
      * Builder for constructing {@link Material} instances.
      * <p>
-     * Each setter method returns the builder itself to allow method chaining.
+     * Each setter method returns the builder itself to allow method chaining
      * Call {@link #build()} when all desired fields have been set.
      * </p>
      */
@@ -68,6 +110,8 @@ public class Material {
         private double price;
         private int widthMm;
         private int heightMm;
+        private int minLengthMm;
+        private int maxLengthMm;
 
         /**
          * Sets the material's database ID.
@@ -123,6 +167,16 @@ public class Material {
             return this;
         }
 
+        public Builder minLengthMm(int minLengthMm) {
+            this.minLengthMm = minLengthMm;
+            return this;
+        }
+
+        public Builder maxLengthMm(int maxLengthMm) {
+            this.maxLengthMm = maxLengthMm;
+            return this;
+        }
+
         /**
          * Builds and returns a new {@link Material} with the values set on this builder.
          *
@@ -136,6 +190,8 @@ public class Material {
             material.price = this.price;
             material.widthMm = this.widthMm;
             material.heightMm = this.heightMm;
+            material.minLengthMm = this.minLengthMm;
+            material.maxLengthMm = this.maxLengthMm;
             return material;
         }
     }

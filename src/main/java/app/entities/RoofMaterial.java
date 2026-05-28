@@ -45,6 +45,11 @@ public class RoofMaterial {
 
     private String displayName;
 
+    private double widthCm;
+
+    private double lengthCm;
+
+
     /**
      * Private constructor — use {@link Builder} to create instances.
      */
@@ -96,6 +101,14 @@ public class RoofMaterial {
         return display;
     }
 
+    public double getLengthCm() {
+        return lengthCm;
+    }
+
+    public double getWidthCm() {
+        return widthCm;
+    }
+
     /**
      * Builder for constructing {@link RoofMaterial} instances.
      * <p>
@@ -110,6 +123,8 @@ public class RoofMaterial {
         private int price;
         private RoofType roofType;
         private String displayName;
+        private double widthCm;
+        private double lengthCm;
 
         /**
          * Sets the roof style's database ID.
@@ -166,6 +181,16 @@ public class RoofMaterial {
             return this;
         }
 
+        public Builder widthCm(double widthCm) {
+            this.widthCm = widthCm;
+            return this;
+        }
+
+        public Builder lengthCm(double lengthCm) {
+            this.lengthCm = lengthCm;
+            return this;
+        }
+
         /**
          * Builds and returns a new {@link RoofMaterial} with the values set on this builder.
          *
@@ -178,6 +203,8 @@ public class RoofMaterial {
             roofMaterial.color = this.color;
             roofMaterial.price = this.price;
             roofMaterial.roofType = this.roofType;
+            roofMaterial.widthCm = this.widthCm;
+            roofMaterial.lengthCm = this.lengthCm;
             return roofMaterial;
         }
     }

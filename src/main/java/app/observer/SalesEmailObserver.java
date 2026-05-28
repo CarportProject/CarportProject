@@ -3,16 +3,14 @@ package app.observer;
 import app.entities.Order;
 import app.entities.OrderStatus;
 import app.persistence.ConnectionPool;
-import app.util.GmailEmailSender;
+import app.util.EmailSender;
 import jakarta.mail.MessagingException;
-
-import java.util.Objects;
 
 public class SalesEmailObserver implements OrderObserver {
 
     @Override
     public void update(Order order, OrderStatus status, ConnectionPool connectionPool) {
-        GmailEmailSender gmailEmailSender = new GmailEmailSender();
+        EmailSender emailSender = new EmailSender();
 
         String baseUrl = System.getenv("BASE_URL") != null
                 ? System.getenv("BASE_URL") : "http://localhost:7070";
@@ -27,9 +25,9 @@ public class SalesEmailObserver implements OrderObserver {
                 String finalBody = strings[1];
                 new Thread(() -> {
                     try {
-                        gmailEmailSender.sendPlainTextEmail(email, finalSubject, finalBody);
+                        emailSender.sendPlainTextEmail(email, finalSubject, finalBody);
                     } catch (MessagingException e) {
-                        throw new RuntimeException(e);
+                        System.err.println("[SalesEmailObserver.update] Could not send email to " + email + ": " + e.getMessage());
                     }
                 }).start();
             }
