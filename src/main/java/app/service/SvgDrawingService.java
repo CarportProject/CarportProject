@@ -3,10 +3,16 @@ package app.service;
 import app.entities.MaterialType;
 import app.entities.Specifications;
 import app.exceptions.DatabaseException;
+import app.persistence.ConnectionPool;
 
 public class SvgDrawingService {
 
-    private final SvgCalculationService svgCalculationService = new SvgCalculationService();
+
+    public SvgDrawingService(ConnectionPool connectionPool) throws DatabaseException {
+        this.svgCalculationService = new SvgCalculationService(connectionPool);
+    }
+
+    private final SvgCalculationService svgCalculationService;
 
     public Svg createFlatRoofWithoutWorkshopSvg(Specifications specifications) throws DatabaseException {
         int carportLengthMm = svgCalculationService.getCarportLengthMm(specifications);
@@ -206,7 +212,7 @@ public class SvgDrawingService {
     // ===== MEASUREMENTS =====
 
     private void drawTopViewInnerPostDistanceMeasurement(Svg svg, Specifications specifications,
-            int innerSvgX, int topViewY) throws DatabaseException {
+                                                         int innerSvgX, int topViewY) throws DatabaseException {
         int fullWidthArrowX = svgCalculationService.getVerticalArrowX();
         int arrowX = (fullWidthArrowX + innerSvgX) / 2;
         int tickEndX = innerSvgX - 10;

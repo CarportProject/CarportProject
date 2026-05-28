@@ -5,7 +5,9 @@ import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
 import app.persistence.MaterialsMapper;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class MaterialService {
 
@@ -18,11 +20,13 @@ public abstract class MaterialService {
      * @return a {@link MaterialService} capable of calculating materials for that roof type
      * @throws UnsupportedOperationException if no implementation exists for the given roof type
      */
-    public static MaterialService forRoofType(RoofType roofType) throws UnsupportedOperationException {
+    public static MaterialService forRoofType(RoofType roofType, ConnectionPool connectionPool) throws UnsupportedOperationException, DatabaseException {
+
         return switch (roofType) {
-            case FLAT -> new StandardFlatRoofCalculator();
-            case RAISED -> throw new UnsupportedOperationException("Beregning for rejst tag er ikke implementeret endnu");
-        };
+           case FLAT -> new StandardFlatRoofCalculator(connectionPool);
+           case RAISED ->
+                   throw new UnsupportedOperationException("Beregning for rejst tag er ikke implementeret endnu");
+       };
     }
 
 
@@ -58,7 +62,8 @@ public abstract class MaterialService {
             insertMaterialLine(materialType, orderId, specifications, connectionPool);
         }
     }
-    protected void insertRoofMaterial(RoofMaterial roofMaterial){
+
+    protected void insertRoofMaterial(RoofMaterial roofMaterial) {
 
     }
 
@@ -85,7 +90,7 @@ public abstract class MaterialService {
      */
     public void insertMaterialLine(MaterialType materialType, int orderId, Specifications specifications,
                                    ConnectionPool connectionPool) throws DatabaseException {
-        int amount = switch (materialType) {
+        int[] specs = switch (materialType) {
             case POST -> calculatePosts(specifications);
             case RAFTER -> calculateRafter(specifications);
             case REM -> calculateRem(specifications);
@@ -97,7 +102,7 @@ public abstract class MaterialService {
             default -> throw new UnsupportedOperationException("Unknown type" + materialType);
         };
 
-        materialsMapper.insertMaterialList(orderId, materialType.getId(), amount, materialType.getDescription(), connectionPool);
+        materialsMapper.insertMaterialList(orderId, materialType.getId(), specs[0], specs[1], materialType.getDescription(), connectionPool);
     }
 
     /**
@@ -121,68 +126,81 @@ public abstract class MaterialService {
      * Posts are placed along both sides of the carport and sunk 90 cm into the ground.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of posts
+     * @return the number and length of posts
      */
-    protected abstract int calculatePosts(Specifications specifications);
+    protected abstract int[] calculatePosts(Specifications specifications);
 
     /**
      * Calculates the number of rafters (spær) required.
      * Rafters run across the width of the carport and rest on the side beams.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of rafters
+     * @return the number and length of rafters
      */
-    protected abstract int calculateRafter(Specifications specifications);
+    protected abstract int[] calculateRafter(Specifications specifications);
 
     /**
      * Calculates the number of side beams (remme) required.
      * Beams run along both sides of the carport, resting in notches cut into the posts.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of side beams
+     * @return the number and length of side beams
      */
-    protected abstract int calculateRem(Specifications specifications);
+    protected abstract int[] calculateRem(Specifications specifications);
 
     /**
      * Calculates the number of wide fascia boards (understernbrædder) for the front and back ends.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of wide fascia boards for the front and back ends
+     * @return the number and length of wide fascia boards for the front and back ends
      */
-    protected abstract int calculateWideBoardFront(Specifications specifications);
+    protected abstract int[] calculateWideBoardFront(Specifications specifications);
 
     /**
      * Calculates the number of wide fascia boards (understernbrædder) for the sides.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of wide fascia boards for the sides
+     * @return the number and length of wide fascia boards for the sides
      */
-    protected abstract int calculateWideBoardSide(Specifications specifications);
+    protected abstract int[] calculateWideBoardSide(Specifications specifications);
 
     /**
      * Calculates the number of narrow fascia boards (oversternbrædder) for the front end.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of narrow fascia boards for the front end
+     * @return the number and length of narrow fascia boards for the front end
      */
-    protected abstract int calculateNarrowBoardFront(Specifications specifications);
+    protected abstract int[] calculateNarrowBoardFront(Specifications specifications);
 
     /**
      * Calculates the number of narrow fascia boards (oversternbrædder) for the sides.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of narrow fascia boards for the sides
+     * @return the number and length of narrow fascia boards for the sides
      */
-    protected abstract int calculateNarrowBoardSide(Specifications specifications);
+    protected abstract int[] calculateNarrowBoardSide(Specifications specifications);
 
     /**
      * Calculates the number of regular boards (løsholter) required for shed gable ends.
      * Only relevant when a workshop is attached to the carport.
      *
      * @param specifications the carport dimensions and roof configuration
-     * @return the number of regular boards
+     * @return the number and length of regular boards
      */
-    protected abstract int calculateRegular(Specifications specifications);
+    protected abstract int[] calculateRegular(Specifications specifications);
 
     protected abstract int calculateRoof(Specifications specifications);
+
+    protected Map<MaterialType, Material> getMaterialTypeByMaterial(ConnectionPool connectionPool) throws DatabaseException {
+        List<Material> materials = MaterialsMapper.getAllMaterials(connectionPool);
+        Map<MaterialType, Material> materialMap = new EnumMap<>(MaterialType.class);
+        for (MaterialType materialType : MaterialType.values()) {
+            Material material = materials.stream()
+                    .filter(ids -> ids.getId() == materialType.getId())
+                    .findFirst().orElseThrow(()
+                            -> new DatabaseException("Could not find any material with the given ID: " + materialType.getId()));
+            materialMap.put(materialType, material);
+        }
+        return materialMap;
+    }
 }

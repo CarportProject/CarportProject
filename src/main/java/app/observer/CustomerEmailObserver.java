@@ -153,7 +153,7 @@ public class CustomerEmailObserver implements OrderObserver {
         new Thread(() -> {
             try {
                 PdfService pdfService = new PdfService();
-                String svg = new SvgDrawingService().createFlatRoofWithoutWorkshopSvg(order.getSpecifications()).toString();
+                String svg = new SvgDrawingService(connectionPool).createFlatRoofWithoutWorkshopSvg(order.getSpecifications()).toString();
                 byte[] svgPdf = pdfService.svgToPdf(svg);
 
                 List<MaterialListEntry> entries = new MaterialsMapper().findMaterialListById(orderId, connectionPool);

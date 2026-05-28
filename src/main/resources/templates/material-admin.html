@@ -154,6 +154,8 @@
                             <th>Pris (kr/m)</th>
                             <th>Bredde (mm)</th>
                             <th>Højde (mm)</th>
+                            <th>Min. Længde (mm)</th>
+                            <th>max. Længde (mm)</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -162,13 +164,18 @@
                             th:data-id="${material.id}"
                             th:data-name="${material.name}"
                             th:data-description="${material.description}"
-                            th:data-price="${material.price}">
+                            th:data-price="${material.price}"
+                            th:data-min-length="${material.minLength}"
+                            th:data-max-length="${material.maxLength}"
+                        >
                             <td th:text="${material.id}">1</td>
                             <td th:text="${material.name}">Navn</td>
                             <td th:text="${material.description}">Beskrivelse</td>
                             <td th:text="${material.price}">0</td>
                             <td th:text="${material.width}">0</td>
                             <td th:text="${material.height}">0</td>
+                            <td th:text="${material.minLength}">0</td>
+                            <td th:text="${material.maxLength}">0</td>
                         </tr>
                         </tbody>
                     </table>
@@ -275,6 +282,14 @@
                             <label for="modal-price">Pris (kr. pr. m)</label>
                             <input type="number" id="modal-price" name="price" step="1" min="1" required>
                         </div>
+                        <div class="edit-form-group">
+                            <label for="modal-length-min">Min. Længde</label>
+                            <input type="number" id="modal-length-min" name="min-length" step="30" min="30" required>
+                        </div>
+                        <div class="edit-form-group">
+                            <label for="modal-length-max">Min. Længde</label>
+                            <input type="number" id="modal-length-max" name="max-length" step="30" min="30" required>
+                        </div>
 
                         <div class="modal-actions">
                             <button type="button" class="btn-afvis" id="modalCancel">Annuller</button>
@@ -298,6 +313,8 @@
             document.getElementById('modal-name').value = row.dataset.name || '';
             document.getElementById('modal-description').value = row.dataset.description || '';
             document.getElementById('modal-price').value = row.dataset.price || '';
+            document.getElementById('modal-length-min').value = row.dataset.minLength || '';
+            document.getElementById('modal-length-max').value = row.dataset.maxLength || '';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
         });

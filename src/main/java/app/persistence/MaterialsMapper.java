@@ -2,6 +2,7 @@ package app.persistence;
 
 import app.entities.Material;
 import app.entities.MaterialListEntry;
+import app.entities.MaterialType;
 import app.exceptions.DatabaseException;
 
 import java.sql.Connection;
@@ -10,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MaterialsMapper {
 
@@ -115,6 +117,8 @@ public class MaterialsMapper {
                         .price(resultSet.getInt("price_per_m"))
                         .widthMm(resultSet.getInt("width_mm"))
                         .heightMm(resultSet.getInt("height_mm"))
+                        .minLengthMm(resultSet.getInt("min_length_mm"))
+                        .maxLengthMm(resultSet.getInt("max_length_mm"))
                         .build()
                 );
             }
@@ -160,6 +164,14 @@ public class MaterialsMapper {
             sql.append("height_mm = ?, ");
             params.add(material.getHeight());
         }
+        if (material.getMinLength() > 0) {
+            sql.append("min_length_mm = ?, ");
+            params.add(material.getMinLength());
+        }
+        if (material.getMaxLength() > 0) {
+            sql.append("max_length_mm = ?, ");
+            params.add(material.getMaxLength());
+        }
 
         if (params.isEmpty()) {
             throw new DatabaseException("No fields to update for material with id " + material.getId());
@@ -194,8 +206,8 @@ public class MaterialsMapper {
      * @param connectionPool the database connection pool
      * @throws DatabaseException if a SQL error occurs during the insert
      */
-    public void insertMaterialList(int orderId, int materialId, int amount, String description, ConnectionPool connectionPool) throws DatabaseException {
-        String sql = "INSERT INTO material_list (order_id, material_id, amount, description) VALUES (?, ?, ?, ?)";
+    public void insertMaterialList(int orderId, int materialId, int amount, int length, String description, ConnectionPool connectionPool) throws DatabaseException {
+        String sql = "INSERT INTO material_list (order_id, material_id, amount, length_mm, description) VALUES (?, ?, ?, ?)";
         try (
                 Connection connection = connectionPool.getConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(sql)
@@ -203,7 +215,8 @@ public class MaterialsMapper {
             preparedStatement.setInt(1, orderId);
             preparedStatement.setInt(2, materialId);
             preparedStatement.setInt(3, amount);
-            preparedStatement.setString(4, description);
+            preparedStatement.setInt(4, length);
+            preparedStatement.setString(5, description);
             preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
@@ -211,4 +224,5 @@ public class MaterialsMapper {
             throw new DatabaseException("Could not insert material " + materialId + " for order " + orderId);
         }
     }
+
 }

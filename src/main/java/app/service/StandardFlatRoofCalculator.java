@@ -1,9 +1,14 @@
 package app.service;
 
+import app.entities.Material;
 import app.entities.MaterialType;
 import app.entities.Specifications;
+import app.exceptions.DatabaseException;
+import app.persistence.ConnectionPool;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Concrete material calculator for a standard flat-roof carport.
@@ -21,6 +26,14 @@ public class StandardFlatRoofCalculator extends MaterialService {
     final int wideBoardMaxLengthCm = 480;
     final int widthOverlapCm = 10;
     final int lengthOverlapCm = 20;
+
+    final Map<MaterialType, Material> materials;
+
+    List<MaterialType> materialTypesUsed = new ArrayList<>();
+
+    public StandardFlatRoofCalculator(ConnectionPool connectionPool) throws DatabaseException {
+        this.materials = getMaterialTypeByMaterial(connectionPool);
+    }
 
     /**
      * Returns the material types used by a standard flat-roof carport.
@@ -68,8 +81,24 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @return the total number of side beams
      */
     @Override
-    protected int calculateRem(Specifications specifications) {
-        return (int) Math.ceil((double) specifications.getLengthCm() / 600) * 2;
+    protected int[] calculateRem(Specifications specifications) {
+
+        int minLength = materials.get(MaterialType.REM).getMinLength() / 10;
+        int maxLength = materials.get(MaterialType.REM).getMaxLength() / 10;
+
+        int count = 1;
+        int length;
+        do {
+            double d = Math.ceil((double) specifications.getLengthCm() / count / 30);
+
+            length = (int) d * 30;
+            count++;
+        }
+        while (minLength < length || length > maxLength);
+
+        count--;
+
+        return new int[]{count, length};
     }
 
     /**
@@ -91,7 +120,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
     }
 
     @Override
-    protected int calculateRafter(Specifications specifications) {
+    protected int[] calculateRafter(Specifications specifications) {
         int carportLengthMm = specifications.getLengthCm() * 10;
         int rafterWidthMm = 45;
 
@@ -104,7 +133,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @throws UnsupportedOperationException always
      */
     @Override
-    protected int calculateWideBoardFront(Specifications specifications) {
+    protected int[] calculateWideBoardFront(Specifications specifications) {
         int carportWidth = specifications.getWidthCm();
         return (int) (Math.ceil((double) carportWidth / wideBoardMaxLengthCm));
     }
@@ -115,7 +144,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @throws UnsupportedOperationException always
      */
     @Override
-    protected int calculateWideBoardSide(Specifications specifications) {
+    protected int[] calculateWideBoardSide(Specifications specifications) {
         int carportLength = specifications.getLengthCm();
         return (int) (Math.ceil((double) carportLength / wideBoardMaxLengthCm) * 2);
     }
@@ -126,7 +155,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @throws UnsupportedOperationException always
      */
     @Override
-    protected int calculateNarrowBoardFront(Specifications specifications) {
+    protected int[] calculateNarrowBoardFront(Specifications specifications) {
         int carportWidth = specifications.getWidthCm();
         return (int) (Math.ceil((double) carportWidth / narrowBoardMaxLengthCm) * 2);
     }
@@ -137,7 +166,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @throws UnsupportedOperationException always
      */
     @Override
-    protected int calculateNarrowBoardSide(Specifications specifications) {
+    protected int[] calculateNarrowBoardSide(Specifications specifications) {
         int carportLength = specifications.getLengthCm();
         return (int) (Math.ceil((double) carportLength / narrowBoardMaxLengthCm));
     }
@@ -148,7 +177,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @throws UnsupportedOperationException always
      */
     @Override
-    protected int calculateRegular(Specifications specifications) {
+    protected int[] calculateRegular(Specifications specifications) {
         throw new UnsupportedOperationException("This material is not supported yet");
     }
 
