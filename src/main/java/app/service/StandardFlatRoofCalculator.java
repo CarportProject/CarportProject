@@ -67,7 +67,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
     protected int[] calculatePosts(Specifications specifications) {
         int roomBetween = specifications.getLengthCm() - (2 * 100);
         int sections = (int) Math.ceil((double) roomBetween / 300);
-        return new int[] {(sections + 1) * 2, materials.get(MaterialType.POST).getMaxLength()};
+        return new int[] {(sections + 1) * 2, materials.get(MaterialType.POST).getMaxLength() / 10};
     }
 
     /**
