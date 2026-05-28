@@ -220,7 +220,7 @@ public class UserController {
             formService.validateOrderForm(ctx);
 
             RoofType roofType = RoofType.valueOf(ctx.formParam("roofType"));
-            MaterialService materialService = MaterialService.forRoofType(roofType);
+            MaterialService materialService = MaterialService.forRoofType(roofType, connectionPool);
 
             Order order = new Order.Builder()
                     .contactInfo(buildContactInfo(ctx))
