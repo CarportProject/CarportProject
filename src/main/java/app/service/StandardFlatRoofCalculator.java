@@ -157,7 +157,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
             length = (int) d * 30;
             count++;
         }
-        while (minLength < length || length > maxLength);
+        while (minLength > length || length > maxLength);
 
         count--;
 

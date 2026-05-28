@@ -139,12 +139,16 @@ public class SalesController {
         String name = ctx.formParam("name");
         String description = ctx.formParam("description");
         double price = Double.parseDouble(ctx.formParam("price"));
+        int minLength = Integer.parseInt(ctx.formParam("min-length"));
+        int maxLength = Integer.parseInt(ctx.formParam("max-length"));
 
         Material material = new Material.Builder()
                 .id(materialId)
                 .name(name)
                 .description(description)
                 .price(price)
+                .minLengthMm(minLength)
+                .maxLengthMm(maxLength)
                 .build();
 
         try {

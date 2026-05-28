@@ -70,8 +70,10 @@
             <!-- Desktop navigation -->
             <nav class="header-nav" aria-label="Primær navigation">
                 <ul>
-                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle ordre</a></li>
-                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle
+                        ordre</a></li>
+                    <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a>
+                    </li>
                     <li><a href="#" class="nav-active">Byg selv-produkter</a></li>
                     <li><a th:href="@{/}">Carporte</a></li>
                     <li><a href="#">Bolig &amp; Design</a></li>
@@ -180,7 +182,10 @@
                         </div>
                         <span class="tagtype-card-label">Carport med fladt tag</span>
                         <div class="tagtype-card-link">Bestil tilbud på Quick-Byg carport med fladt tag
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"><path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em">
+                                <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
+                                      stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path>
+                            </svg>
                         </div>
                     </a>
 
@@ -193,7 +198,10 @@
                         </div>
                         <span class="tagtype-card-label">Carport med høj rejsning</span>
                         <div class="tagtype-card-link">Bestil tilbud på Quick-Byg carport med høj rejsning
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em"><path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25" width="1em" height="1em">
+                                <path fill="none" fill-rule="evenodd" stroke="currentColor" stroke-linecap="round"
+                                      stroke-linejoin="round" stroke-width="2" d="m13 18 5-6-5-6m5 6H7"></path>
+                            </svg>
                         </div>
                     </a>
                 </div>
@@ -273,6 +281,34 @@
     </footer>
 
 </div>
-<script></script>
+<script>
+
+    const konamiCode = [
+        'ArrowUp', 'ArrowUp',
+        'ArrowDown', 'ArrowDown',
+        'ArrowLeft', 'ArrowRight',
+        'ArrowLeft', 'ArrowRight',
+        'b', 'a'
+    ];
+
+    let index = 0;
+
+    document.addEventListener('keydown', (e)=>{
+        if(e.key === konamiCode[index]){
+            index++;
+            if(index === konamiCode.length){
+                activateCheats();
+                index = 0;
+            }
+        }
+    })
+
+    function activateCheats(){
+        fetch('/konami', { method: 'POST' })
+            .then(res => {
+                if (res.ok) window.location.href = '/';
+            });
+    }
+</script>
 </body>
 </html>

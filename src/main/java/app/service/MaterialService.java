@@ -101,7 +101,6 @@ public abstract class MaterialService {
             case REGULAR -> calculateRegular(specifications);
             default -> throw new UnsupportedOperationException("Unknown type" + materialType);
         };
-
         materialsMapper.insertMaterialList(orderId, materialType.getId(), specs[0], specs[1], materialType.getDescription(), connectionPool);
     }
 
@@ -199,6 +198,9 @@ public abstract class MaterialService {
                     .filter(ids -> ids.getId() == materialType.getId())
                     .findFirst().orElseThrow(()
                             -> new DatabaseException("Could not find any material with the given ID: " + materialType.getId()));
+            if (material.getMaxLength() <= 0) {
+                throw new DatabaseException("Material '" + material.getName() + "' (type " + materialType + ") has max_length_mm = 0 in the database. Please populate min_length_mm and max_length_mm.");
+            }
             materialMap.put(materialType, material);
         }
         return materialMap;

