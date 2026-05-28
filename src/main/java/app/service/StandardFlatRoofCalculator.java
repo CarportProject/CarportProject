@@ -64,10 +64,10 @@ public class StandardFlatRoofCalculator extends MaterialService {
      * @return the total number of posts
      */
     @Override
-    protected int calculatePosts(Specifications specifications) {
+    protected int[] calculatePosts(Specifications specifications) {
         int roomBetween = specifications.getLengthCm() - (2 * 100);
         int sections = (int) Math.ceil((double) roomBetween / 300);
-        return (sections + 1) * 2;
+        return new int[] {(sections + 1) * 2, materials.get(MaterialType.POST).getMaxLength()};
     }
 
     /**
@@ -94,9 +94,11 @@ public class StandardFlatRoofCalculator extends MaterialService {
             length = (int) d * 30;
             count++;
         }
-        while (minLength < length || length > maxLength);
+        while (minLength > length || length > maxLength);
 
         count--;
+
+        count = count * 2;
 
         return new int[]{count, length};
     }
@@ -121,21 +123,45 @@ public class StandardFlatRoofCalculator extends MaterialService {
 
     @Override
     protected int[] calculateRafter(Specifications specifications) {
-        int carportLengthMm = specifications.getLengthCm() * 10;
-        int rafterWidthMm = 45;
 
-        return calculateRafterCount(carportLengthMm, rafterWidthMm);
+        int carportLengthCm = specifications.getLengthCm();
+
+        int intervalCount = (int) Math.ceil((double) carportLengthCm / 60);
+        int actualInterval = carportLengthCm / intervalCount;
+
+        // If interval is under 50, add more rafter
+        if (actualInterval < 50) {
+            intervalCount++;
+        }
+
+        int count = intervalCount + 1;
+        int length = specifications.getWidthCm();
+
+
+        return new int[]{count, length};
     }
 
-    /**
-     * Not applicable to a flat-roof carport.
-     *
-     * @throws UnsupportedOperationException always
-     */
+
     @Override
     protected int[] calculateWideBoardFront(Specifications specifications) {
-        int carportWidth = specifications.getWidthCm();
-        return (int) (Math.ceil((double) carportWidth / wideBoardMaxLengthCm));
+
+
+        int minLength = materials.get(MaterialType.WIDE_BOARD_FRONT).getMinLength() / 10;
+        int maxLength = materials.get(MaterialType.WIDE_BOARD_FRONT).getMaxLength() / 10;
+
+        int count = 1;
+        int length;
+        do {
+            double d = Math.ceil((double) specifications.getWidthCm() / count / 30);
+
+            length = (int) d * 30;
+            count++;
+        }
+        while (minLength < length || length > maxLength);
+
+        count--;
+
+        return new int[]{count, length};
     }
 
     /**
@@ -145,8 +171,26 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int[] calculateWideBoardSide(Specifications specifications) {
-        int carportLength = specifications.getLengthCm();
-        return (int) (Math.ceil((double) carportLength / wideBoardMaxLengthCm) * 2);
+
+
+        int minLength = materials.get(MaterialType.WIDE_BOARD_SIDE).getMinLength() / 10;
+        int maxLength = materials.get(MaterialType.WIDE_BOARD_SIDE).getMaxLength() / 10;
+
+        int count = 1;
+        int length;
+        do {
+            double d = Math.ceil((double) specifications.getLengthCm() / count / 30);
+
+            length = (int) d * 30;
+            count++;
+        }
+        while (minLength > length || length > maxLength);
+
+        count--;
+
+        count = count * 2;
+
+        return new int[]{count, length};
     }
 
     /**
@@ -156,8 +200,24 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int[] calculateNarrowBoardFront(Specifications specifications) {
-        int carportWidth = specifications.getWidthCm();
-        return (int) (Math.ceil((double) carportWidth / narrowBoardMaxLengthCm) * 2);
+
+
+        int minLength = materials.get(MaterialType.NARROW_BOARD_FRONT).getMinLength() / 10;
+        int maxLength = materials.get(MaterialType.NARROW_BOARD_FRONT).getMaxLength() / 10;
+
+        int count = 1;
+        int length;
+        do {
+            double d = Math.ceil((double) specifications.getWidthCm() / count / 30);
+
+            length = (int) d * 30;
+            count++;
+        }
+        while (minLength > length || length > maxLength);
+
+        count--;
+
+        return new int[]{count, length};
     }
 
     /**
@@ -167,8 +227,26 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int[] calculateNarrowBoardSide(Specifications specifications) {
-        int carportLength = specifications.getLengthCm();
-        return (int) (Math.ceil((double) carportLength / narrowBoardMaxLengthCm));
+
+
+        int minLength = materials.get(MaterialType.NARROW_BOARD_SIDE).getMinLength() / 10;
+        int maxLength = materials.get(MaterialType.NARROW_BOARD_SIDE).getMaxLength() / 10;
+
+        int count = 1;
+        int length;
+        do {
+            double d = Math.ceil((double) specifications.getLengthCm() / count / 30);
+
+            length = (int) d * 30;
+            count++;
+        }
+        while (minLength > length || length > maxLength);
+
+        count--;
+
+        count = count * 2;
+
+        return new int[]{count, length};
     }
 
     /**
