@@ -36,7 +36,6 @@ public class SalesEmailObserver implements OrderObserver {
         }
     }
 
-
     private String[] handlePendingStatus(int orderId, String customerName, String baseUrl) {
         String subject = "Ny carport forespørgsel modtaget – QuickByg";
         String body = """

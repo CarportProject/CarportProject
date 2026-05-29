@@ -6,99 +6,7 @@
     <title>Betal ordre – QuickByg fra Fog</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="/css/fog-style.css">
-    <style>
-        .payment-wrapper {
-            max-width: 520px;
-            margin: 40px auto;
-        }
-
-        .payment-card {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 32px;
-        }
-
-        .payment-card h2 {
-            margin: 0 0 24px;
-            font-size: 1.25rem;
-            color: #101820;
-        }
-
-        .order-summary {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.95rem;
-            color: #333;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .summary-row:last-child {
-            border-bottom: none;
-        }
-
-        .summary-row .label {
-            color: #666;
-        }
-
-        .summary-row.total {
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: #101820;
-            border-top: 2px solid #101820;
-            padding-top: 12px;
-            margin-top: 4px;
-        }
-
-        .payment-actions {
-            display: flex;
-            gap: 12px;
-            margin-top: 8px;
-        }
-
-        .payment-actions form {
-            flex: 1;
-        }
-
-        .btn-pay,
-        .btn-cancel {
-            width: 100%;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .btn-pay {
-            background-color: #1a35c0;
-            color: #fff;
-        }
-
-        .btn-pay:hover {
-            background-color: #142da8;
-        }
-
-        .btn-cancel {
-            background-color: #fff;
-            color: #c0392b;
-            border: 1px solid #c0392b;
-        }
-
-        .btn-cancel:hover {
-            background-color: #fdf2f2;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/payment.css">
 </head>
 <body>
 <div id="page-wrapper">
@@ -331,5 +239,6 @@
     </footer>
 
 </div>
+<script src="/js/konami.js"></script>
 </body>
 </html>
