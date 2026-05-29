@@ -105,7 +105,7 @@ class ContactInfoMapperTest extends DatabaseTest {
 
         //PART 2: Test finding a ContactInfo that does NOT EXIST
         // ARRANGE: Use an ID that does not exist in the database
-        int nonExistentId = 99999;
+        int nonExistentId = -1;
         // ACT & ASSERT: Expect a DatabaseException when trying to find non-existent ID
         assertThrows(DatabaseException.class, () -> {
             contactInfoMapper.findContactInfoById(nonExistentId, connectionPool);
