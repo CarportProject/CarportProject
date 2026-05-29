@@ -1,0 +1,424 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype polyline
+skinparam ranksep 60
+skinparam nodesep 40
+
+' ---- ENTITIES ----
+package "app.entities" {
+
+    class Order {
+        - id : int
+        - contactInfo : ContactInfo
+        - specifications : Specifications
+        - workshop : Workshop
+        - orderDetails : OrderDetails
+        + getId() : int
+        + setId(int) : void
+        + getContactInfo() : ContactInfo
+        + getSpecifications() : Specifications
+        + getWorkshop() : Workshop
+        + getOrderDetails() : OrderDetails
+    }
+
+    class ContactInfo {
+        - id : int
+        - firstName : String
+        - lastName : String
+        - email : String
+        - address : String
+        - postalCode : int
+        - city : String
+        - phoneNumber : String
+        - user : User
+    }
+
+    class User {
+        - id : int
+        - email : String
+        - password : String
+        - role : Role
+    }
+
+    class Specifications {
+        - id : int
+        - roofType : RoofType
+        - roofMaterial : RoofMaterial
+        - widthCm : int
+        - lengthCm : int
+        - roofPitch : int
+    }
+
+    class Workshop {
+        - id : int
+        - widthCm : int
+        - lengthCm : int
+    }
+
+    class Material {
+        - id : int
+        - name : String
+        - description : String
+        - price : double
+        - widthMm : int
+        - heightMm : int
+        - minLengthMm : int
+        - maxLengthMm : int
+        + getMinLength() : int
+        + getMaxLength() : int
+        + getWidth() : int
+        + getHeight() : int
+        + getPrice() : double
+    }
+
+    class RoofMaterial {
+        - id : int
+        - name : String
+        - color : String
+        - price : int
+        - roofType : RoofType
+        - widthCm : double
+        - lengthCm : double
+    }
+
+    class OrderDetails <<record>> {
+        remark : String
+        status : OrderStatus
+        price : Double
+        uuid : UUID
+    }
+
+    class MaterialListEntry <<record>> {
+        material : Material
+        amount : int
+        length : int
+        orderId : int
+        description : String
+    }
+
+    class SvgPost <<record>> {
+        xMm : int
+        yMm : int
+    }
+
+    enum Role {
+        ADMIN
+        EMPLOYEE
+        CUSTOMER
+    }
+
+    enum RoofType {
+        FLAT
+        RAISED
+    }
+
+    enum OrderStatus {
+        PENDING
+        OFFER_SENT
+        PAID
+        REJECTED
+        CANCELLED
+    }
+
+    enum MaterialType {
+        POST
+        RAFTER
+        REM
+        WIDE_BOARD_FRONT
+        WIDE_BOARD_SIDE
+        NARROW_BOARD_FRONT
+        NARROW_BOARD_SIDE
+        REGULAR
+    }
+}
+
+' ------------------------------------------
+'  EXCEPTIONS
+' ------------------------------------------
+package "app.exceptions" {
+    class DatabaseException {
+        + DatabaseException(String)
+    }
+    class InvalidCredentialsException {
+        + InvalidCredentialsException(String)
+    }
+    class UserNotFoundException {
+        + UserNotFoundException(String)
+    }
+}
+
+' ------------------------------------------
+'  PERSISTENCE
+' ------------------------------------------
+package "app.persistence" {
+
+    class ConnectionPool <<Singleton>> {
+        - {static} instance : ConnectionPool
+        - ds : HikariDataSource
+        + {static} getInstance(...) : ConnectionPool
+        + getConnection() : Connection
+        + close() : void
+    }
+
+    class OrderMapper {
+        + {static} insertOrder(Order, ConnectionPool) : int
+        + {static} getOrderById(int, ConnectionPool) : Order
+        + {static} getAllOrders(ConnectionPool) : List
+        + {static} changeOrderStatus(ConnectionPool, OrderStatus, Order) : void
+        + {static} changeOrderDetails(int, OrderDetails, ConnectionPool) : void
+        + {static} getOrderByUuid(UUID, ConnectionPool) : Order
+    }
+
+    class MaterialsMapper {
+        + findMaterialListById(int, ConnectionPool) : List
+        + getMaterialById(int, ConnectionPool) : Material
+        + {static} getAllMaterials(ConnectionPool) : List
+        + updateMaterialInfo(Material, ConnectionPool) : void
+        + insertMaterialList(int, int, int, int, String, ConnectionPool) : void
+    }
+
+    class ContactInfoMapper {
+        + insertContactInfo(ContactInfo, ConnectionPool) : int
+        + findContactInfoById(int, ConnectionPool) : ContactInfo
+    }
+
+    class SpecificationMapper {
+        + insertSpecifications(Specifications, ConnectionPool) : int
+        + findSpecificationsById(int, ConnectionPool) : Specifications
+    }
+
+    class WorkshopMapper {
+        + insertWorkshop(Workshop, ConnectionPool) : int
+        + findWorkshopById(int, ConnectionPool) : Workshop
+    }
+
+    class RoofMaterialMapper {
+        + getAllRoofMaterial(ConnectionPool) : List
+        + findRoofMaterialById(int, ConnectionPool) : RoofMaterial
+    }
+
+    class UserMapper {
+        + findUserByEmail(String, ConnectionPool) : User
+        + insertUser(String, String, ConnectionPool) : void
+    }
+}
+
+' ------------------------------------------
+'  SERVICES
+' ------------------------------------------
+package "app.service" {
+
+    abstract class MaterialService {
+        # materialsMapper : MaterialsMapper
+        + {static} forRoofType(RoofType, ConnectionPool) : MaterialService
+        + finalizeOrder(int, Specifications, ConnectionPool) : void
+        + insertMaterialLine(MaterialType, int, Specifications, ConnectionPool) : void
+        + getMaterialListCost(List) : double
+        # {abstract} getMaterialTypes() : List
+        # {abstract} calculatePosts(Specifications) : int[]
+        # {abstract} calculateRem(Specifications) : int[]
+        # {abstract} calculateRafter(Specifications) : int[]
+        # {abstract} calculateWideBoardFront(Specifications) : int[]
+        # {abstract} calculateWideBoardSide(Specifications) : int[]
+        # {abstract} calculateNarrowBoardFront(Specifications) : int[]
+        # {abstract} calculateNarrowBoardSide(Specifications) : int[]
+        # {abstract} calculateRegular(Specifications) : int[]
+        # getMaterialTypeByMaterial(ConnectionPool) : Map
+    }
+
+    class StandardFlatRoofCalculator {
+        - materials : Map
+        - widthOverlapCm : int
+        - lengthOverlapCm : int
+        + StandardFlatRoofCalculator(ConnectionPool)
+        + calculateRafterCount(int, int) : int
+        # calculatePosts(Specifications) : int[]
+        # calculateRem(Specifications) : int[]
+        # calculateRafter(Specifications) : int[]
+        # calculateWideBoardFront(Specifications) : int[]
+        # calculateWideBoardSide(Specifications) : int[]
+        # calculateNarrowBoardFront(Specifications) : int[]
+        # calculateNarrowBoardSide(Specifications) : int[]
+        # calculateRegular(Specifications) : int[]
+    }
+
+    class OrderService {
+        - {static} orderObserverList : List
+        + {static} createOrder(Order, MaterialService, ConnectionPool) : void
+        + {static} changeOrderStatus(Order, OrderStatus, ConnectionPool) : void
+        - {static} notifyObservers(Order, OrderStatus, ConnectionPool) : void
+    }
+
+    class UserService {
+        - {static} USER_MAPPER : UserMapper
+        + login(String, String, ConnectionPool) : User
+        + createUser(String, String, String, ConnectionPool) : void
+    }
+
+    class OrderFormService {
+        + getRange(int, int, int) : List
+        + validateOrderForm(Context) : void
+        + getRoofByRoofType(RoofType, ConnectionPool) : List
+    }
+
+    class SvgDrawingService {
+        - svgCalculationService : SvgCalculationService
+        + SvgDrawingService(ConnectionPool)
+        + createFlatRoofWithoutWorkshopSvg(Specifications) : Svg
+    }
+
+    class SvgCalculationService {
+        - connectionPool : ConnectionPool
+        - standardFlatRoofCalculator : StandardFlatRoofCalculator
+        + SvgCalculationService(ConnectionPool)
+        + getCarportLengthMm(Specifications) : int
+        + getCarportWidthMm(Specifications) : int
+        + calculatePostsForFlatRoofWithoutWorkshop(Specifications) : List
+        + calculateRafterPositionsFromLeftSide(Specifications) : List
+    }
+
+    class PdfService {
+        + svgToPdf(String) : byte[]
+        + tableToPdf(String) : byte[]
+        + mergePdfs(byte[], byte[]) : byte[]
+        + buildMaterialListHtml(List) : String
+    }
+
+    class Svg {
+        - svg : StringBuilder
+        + addRectangle(int, int, double, double, String) : void
+        + addLine(int, int, int, int, boolean, boolean, String) : void
+        + addText(int, String, int, int, int, String) : void
+        + toString() : String
+    }
+}
+
+' ------------------------------------------
+'  OBSERVER
+' ------------------------------------------
+package "app.observer" {
+
+    interface OrderObserver {
+        + update(Order, OrderStatus, ConnectionPool) : void
+    }
+
+    class CustomerEmailObserver {
+        - emailSender : EmailSender
+        + update(Order, OrderStatus, ConnectionPool) : void
+        - handlePendingStatus(String, int) : String[]
+        - handleOfferSentStatus(String, int, String, String) : String[]
+        - handlePaidStatus(Order, String, int, ConnectionPool) : void
+        - handleCancelledStatus(String, int) : String[]
+        - handleRejectedStatus(String, int) : String[]
+    }
+
+    class SalesEmailObserver {
+        + update(Order, OrderStatus, ConnectionPool) : void
+        - handlePendingStatus(int, String, String) : String[]
+    }
+}
+
+' ------------------------------------------
+'  UTIL
+' ------------------------------------------
+package "app.util" {
+
+    class EmailSender {
+        - username : String
+        - apiKey : String
+        + sendPlainTextEmail(String, String, String) : void
+        + sendEmailWithPdf(String, String, String, byte[], String) : void
+    }
+
+    class AuthFilter {
+        + {static} registerFilters(Javalin) : void
+    }
+
+    class ErrorRenderer {
+        + {static} renderError(Context, int, String, String) : void
+    }
+}
+
+' ------------------------------------------
+'  CONTROLLERS
+' ------------------------------------------
+package "app.controllers" {
+
+    class UserController {
+        + {static} addRouts(Javalin, ConnectionPool) : void
+        - {static} buildOrderWithForm(Context, ConnectionPool) : void
+        - {static} getFlatRoof(Context, ConnectionPool) : void
+        - {static} login(Context, ConnectionPool) : void
+        - {static} createUser(Context, ConnectionPool) : void
+    }
+
+    class SalesController {
+        - {static} MATERIALS_MAPPER : MaterialsMapper
+        + {static} addRoutes(Javalin, ConnectionPool) : void
+        - {static} rejectOrder(Context, ConnectionPool) : void
+        - {static} acceptOrder(Context, ConnectionPool) : void
+        - {static} updateMaterial(Context, ConnectionPool) : void
+    }
+
+    class PaymentController {
+        + {static} addRoutes(Javalin, ConnectionPool) : void
+        - {static} payOrder(Context, ConnectionPool) : void
+        - {static} declineOrder(Context, ConnectionPool) : void
+    }
+}
+
+' ==========================================
+'  ALLE RELATIONER (uden for pakkeblokke)
+' ==========================================
+
+' Arv og implementation
+StandardFlatRoofCalculator --|> MaterialService
+DatabaseException --|> Exception
+InvalidCredentialsException --|> Exception
+UserNotFoundException --|> Exception
+CustomerEmailObserver ..|> OrderObserver
+SalesEmailObserver ..|> OrderObserver
+
+' Entities — komposition og association
+Order "1" *-- "1" ContactInfo
+Order "1" *-- "1" Specifications
+Order "1" *-- "0..1" Workshop
+Order "1" *-- "1" OrderDetails
+ContactInfo "1" --> "0..1" User
+User --> Role
+Specifications --> RoofType
+Specifications "1" --> "1" RoofMaterial
+RoofMaterial --> RoofType
+OrderDetails --> OrderStatus
+MaterialListEntry --> Material
+
+' Service — interne relationer
+SvgDrawingService --> SvgCalculationService
+SvgCalculationService --> StandardFlatRoofCalculator
+SvgDrawingService ..> Svg : creates
+OrderService "1" o-- "2" OrderObserver
+
+' Service ↔ Persistence
+MaterialService --> MaterialsMapper
+UserService --> UserMapper
+OrderService --> OrderMapper
+OrderFormService --> RoofMaterialMapper
+SvgCalculationService --> MaterialsMapper
+
+' Controller ↔ Service
+UserController --> UserService
+UserController --> OrderService
+UserController --> MaterialService
+UserController --> OrderFormService
+SalesController --> OrderService
+SalesController --> MaterialsMapper
+PaymentController --> OrderService
+
+' Observer ↔ Util
+CustomerEmailObserver --> EmailSender
+CustomerEmailObserver --> PdfService
+CustomerEmailObserver --> SvgDrawingService
+SalesEmailObserver --> EmailSender
+
+@enduml
