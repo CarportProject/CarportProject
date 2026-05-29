@@ -111,13 +111,14 @@ public class OrderMapper {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int id = resultSet.getInt(1);
-                int contactInfo = resultSet.getInt(2);
-                int specifications = resultSet.getInt(3);
-                int workshop = resultSet.getInt(4);
-                String remarks = resultSet.getString(5);
-                String orderStatusString = resultSet.getString(6);
-                Double price = resultSet.getDouble(7);
+                int id = resultSet.getInt("id");
+                int contactInfo = resultSet.getInt("contact_info");
+                int specifications = resultSet.getInt("specifications");
+                int workshop = resultSet.getInt("workshop");
+                String remarks = resultSet.getString("remarks");
+                String orderStatusString = resultSet.getString("status");
+                double rawPrice = resultSet.getDouble("price");
+                Double price = resultSet.wasNull() ? null : rawPrice;
 
                 OrderStatus orderStatus = OrderStatus.valueOf(orderStatusString);
                 OrderDetails orderDetails = new OrderDetails(remarks, orderStatus, price, null);

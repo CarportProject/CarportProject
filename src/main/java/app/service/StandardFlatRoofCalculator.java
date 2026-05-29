@@ -22,14 +22,10 @@ import java.util.Map;
  */
 public class StandardFlatRoofCalculator extends MaterialService {
 
-    final int narrowBoardMaxLengthCm = 480;
-    final int wideBoardMaxLengthCm = 480;
     final int widthOverlapCm = 10;
     final int lengthOverlapCm = 20;
 
     final Map<MaterialType, Material> materials;
-
-    List<MaterialType> materialTypesUsed = new ArrayList<>();
 
     public StandardFlatRoofCalculator(ConnectionPool connectionPool) throws DatabaseException {
         this.materials = getMaterialTypeByMaterial(connectionPool);
@@ -67,7 +63,7 @@ public class StandardFlatRoofCalculator extends MaterialService {
     protected int[] calculatePosts(Specifications specifications) {
         int roomBetween = specifications.getLengthCm() - (2 * 100);
         int sections = (int) Math.ceil((double) roomBetween / 300);
-        return new int[] {(sections + 1) * 2, materials.get(MaterialType.POST).getMaxLength()};
+        return new int[] {(sections + 1) * 2, materials.get(MaterialType.POST).getMaxLength() / 10};
     }
 
     /**
@@ -144,8 +140,6 @@ public class StandardFlatRoofCalculator extends MaterialService {
 
     @Override
     protected int[] calculateWideBoardFront(Specifications specifications) {
-
-
         int minLength = materials.get(MaterialType.WIDE_BOARD_FRONT).getMinLength() / 10;
         int maxLength = materials.get(MaterialType.WIDE_BOARD_FRONT).getMaxLength() / 10;
 
@@ -153,13 +147,12 @@ public class StandardFlatRoofCalculator extends MaterialService {
         int length;
         do {
             double d = Math.ceil((double) specifications.getWidthCm() / count / 30);
-
             length = (int) d * 30;
             count++;
-        }
-        while (minLength > length || length > maxLength);
+        } while (length > maxLength);
 
         count--;
+        length = Math.max(length, minLength);
 
         return new int[]{count, length};
     }
@@ -171,8 +164,6 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int[] calculateWideBoardSide(Specifications specifications) {
-
-
         int minLength = materials.get(MaterialType.WIDE_BOARD_SIDE).getMinLength() / 10;
         int maxLength = materials.get(MaterialType.WIDE_BOARD_SIDE).getMaxLength() / 10;
 
@@ -180,14 +171,12 @@ public class StandardFlatRoofCalculator extends MaterialService {
         int length;
         do {
             double d = Math.ceil((double) specifications.getLengthCm() / count / 30);
-
             length = (int) d * 30;
             count++;
-        }
-        while (minLength > length || length > maxLength);
+        } while (length > maxLength);
 
         count--;
-
+        length = Math.max(length, minLength);
         count = count * 2;
 
         return new int[]{count, length};
@@ -200,8 +189,6 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int[] calculateNarrowBoardFront(Specifications specifications) {
-
-
         int minLength = materials.get(MaterialType.NARROW_BOARD_FRONT).getMinLength() / 10;
         int maxLength = materials.get(MaterialType.NARROW_BOARD_FRONT).getMaxLength() / 10;
 
@@ -209,13 +196,12 @@ public class StandardFlatRoofCalculator extends MaterialService {
         int length;
         do {
             double d = Math.ceil((double) specifications.getWidthCm() / count / 30);
-
             length = (int) d * 30;
             count++;
-        }
-        while (minLength > length || length > maxLength);
+        } while (length > maxLength);
 
         count--;
+        length = Math.max(length, minLength);
 
         return new int[]{count, length};
     }
@@ -227,8 +213,6 @@ public class StandardFlatRoofCalculator extends MaterialService {
      */
     @Override
     protected int[] calculateNarrowBoardSide(Specifications specifications) {
-
-
         int minLength = materials.get(MaterialType.NARROW_BOARD_SIDE).getMinLength() / 10;
         int maxLength = materials.get(MaterialType.NARROW_BOARD_SIDE).getMaxLength() / 10;
 
@@ -236,14 +220,12 @@ public class StandardFlatRoofCalculator extends MaterialService {
         int length;
         do {
             double d = Math.ceil((double) specifications.getLengthCm() / count / 30);
-
             length = (int) d * 30;
             count++;
-        }
-        while (minLength > length || length > maxLength);
+        } while (length > maxLength);
 
         count--;
-
+        length = Math.max(length, minLength);
         count = count * 2;
 
         return new int[]{count, length};

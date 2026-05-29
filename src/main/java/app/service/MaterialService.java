@@ -114,7 +114,8 @@ public abstract class MaterialService {
         double cost = 0;
 
         for (MaterialListEntry materialListEntry : materialList) {
-            cost += materialListEntry.material().getPrice() * materialListEntry.amount();
+            double lengthM = materialListEntry.length() / 1000.0;
+            cost += materialListEntry.material().getPrice() * lengthM * materialListEntry.amount();
         }
 
         return cost;

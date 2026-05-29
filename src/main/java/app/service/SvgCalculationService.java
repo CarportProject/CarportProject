@@ -34,12 +34,13 @@ public class SvgCalculationService {
     private static final int backPostHeightMm = 2020;
     private static final int postDistanceFromSideMm = 450;
 
-    private ConnectionPool connectionPool = null;
+    private final ConnectionPool connectionPool;
 
-    private final StandardFlatRoofCalculator standardFlatRoofCalculator = new StandardFlatRoofCalculator(connectionPool);
+    private final StandardFlatRoofCalculator standardFlatRoofCalculator;
 
     public SvgCalculationService(ConnectionPool connectionPool) throws DatabaseException {
         this.connectionPool = connectionPool;
+        this.standardFlatRoofCalculator = new StandardFlatRoofCalculator(connectionPool);
     }
 
     // ===== MATERIAL LOOKUP =====
