@@ -6,6 +6,10 @@
     <meta name="theme-color" content="#1a35c0">
     <title>Bestil Quick-Byg tilbud - carport med høj rejsning</title>
     <link rel="stylesheet" href="/css/fog-style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 </head>
 <body>
 <div id="page-wrapper">
@@ -13,52 +17,6 @@
     <!-- ===== HEADER ===== -->
     <header class="site-header">
         <div class="header-inner">
-
-            <!-- USP bar -->
-            <section class="usp-bar">
-                <ul aria-label="Unique Selling Points">
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                             aria-hidden="true">
-                            <polyline points="23 4 23 10 17 10"/>
-                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-                        </svg>
-                        <a href="#">30 dages returret</a>
-                    </li>
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                             aria-hidden="true">
-                            <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z"/>
-                            <path d="M3 9l2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9"/>
-                        </svg>
-                        <a href="#">Klik og hent inden for 3 timer*</a>
-                    </li>
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                             aria-hidden="true">
-                            <rect x="1" y="3" width="15" height="13"/>
-                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/>
-                            <circle cx="5.5" cy="18.5" r="2.5"/>
-                            <circle cx="18.5" cy="18.5" r="2.5"/>
-                        </svg>
-                        <a href="#">1-3 dages levering*</a>
-                    </li>
-                    <li>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                             aria-hidden="true">
-                            <path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11v14H5z"/>
-                            <circle cx="7" cy="20" r="1"/>
-                            <path d="M14 5h7l2 7v5h-9V5z"/>
-                            <circle cx="18" cy="20" r="1"/>
-                        </svg>
-                        <a href="#">Lån en trailer</a>
-                    </li>
-                </ul>
-            </section>
 
             <!-- Logo -->
             <a href="/" class="header-logo" aria-label="Erhvervsakademi København - gå til forside">
@@ -72,8 +30,6 @@
                     <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}" >Materialer</a></li>
                     <li><a href="#">Byg selv-produkter</a></li>
                     <li><a th:href="@{/}" class="nav-active">Carporte</a></li>
-                    <li><a href="#">Bolig &amp; Design</a></li>
-                    <li><a href="#">Tilbud</a></li>
                 </ul>
             </nav>
 
@@ -295,49 +251,6 @@
     <!-- ===== FOOTER ===== -->
     <footer class="site-footer">
         <div class="footer-inner">
-            <div class="footer-grid">
-
-                <div class="footer-links">
-                    <div class="footer-links-columns">
-                        <div class="footer-col">
-                            <h4>Kundeservice</h4>
-                            <ul>
-                                <li><a href="#">Kontakt os</a></li>
-                                <li><a href="#">Levering</a></li>
-                                <li><a href="#">Returnering</a></li>
-                                <li><a href="#">Reklamation</a></li>
-                                <li><a href="#">Handelsbetingelser</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Om os</h4>
-                            <ul>
-                                <li><a href="#">Om os</a></li>
-                                <li><a href="#">Butikker</a></li>
-                                <li><a href="#">Job hos os</a></li>
-                                <li><a href="#">Presse</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Produkter</h4>
-                            <ul>
-                                <li><a href="#">Træ &amp; Byggematerialer</a></li>
-                                <li><a href="#">Carporte</a></li>
-                                <li><a href="#">Drivhuse</a></li>
-                                <li><a href="#">Hegn &amp; Terrasse</a></li>
-                            </ul>
-                        </div>
-                        <div class="footer-col">
-                            <h4>Guides</h4>
-                            <ul>
-                                <li><a href="#">Byg en carport</a></li>
-                                <li><a href="#">Behandling af træ</a></li>
-                                <li><a href="#">Beregningsværktøjer</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="footer-info">
                     <div>
                         <a href="/" class="footer-logo" aria-label="Erhvervsakademi København logo">
@@ -348,9 +261,6 @@
                         <p>E-mail: <a href="mailto:mikkelfuglsig@gmail.com">mikkelfuglsig@gmail.com</a></p>
                     </div>
                 </div>
-
-            </div>
-
             <div class="footer-bottom">
                 <span>© 2025 Københavns Erhvervsakademi</span>
                 <div style="display:flex; gap:15px; flex-wrap:wrap;">

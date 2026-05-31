@@ -1,9 +1,12 @@
 package app.service;
 
+import app.entities.Material;
+import app.entities.MaterialType;
 import app.entities.RoofMaterial;
 import app.entities.RoofType;
 import app.exceptions.DatabaseException;
 import app.persistence.ConnectionPool;
+import app.persistence.MaterialsMapper;
 import app.persistence.RoofMaterialMapper;
 import io.javalin.http.Context;
 
@@ -13,6 +16,23 @@ import java.util.List;
 public class OrderFormService {
 
     public List<Integer> getRange(int min, int max, int interval) {
+        List<Integer> numbers = new ArrayList<>();
+        for (int i = min; i <= max; i += interval) {
+            numbers.add(i);
+        }
+        return numbers;
+    }
+
+    public List<Integer> getCarportwidth(int interval, ConnectionPool connectionPool) throws DatabaseException {
+
+        Material material = MaterialsMapper.getMaterialById(MaterialType.RAFTER.getId(), connectionPool);
+
+        int min = material.getMinLength() / 10;
+        int max = material.getMaxLength() / 10;
+
+        System.out.println(min);
+        System.out.println(max);
+
         List<Integer> numbers = new ArrayList<>();
         for (int i = min; i <= max; i += interval) {
             numbers.add(i);

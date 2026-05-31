@@ -64,7 +64,7 @@ public class MaterialsMapper {
      * @return the {@link Material} with the given ID
      * @throws DatabaseException if no material is found with the given ID, or if a SQL error occurs
      */
-    public Material getMaterialById(int id, ConnectionPool connectionPool) throws DatabaseException {
+    public static Material getMaterialById(int id, ConnectionPool connectionPool) throws DatabaseException {
         String sql = "SELECT * FROM materials WHERE id = ?";
 
         try (
@@ -82,6 +82,8 @@ public class MaterialsMapper {
                         .price(resultSet.getDouble("price_per_m"))
                         .widthMm(resultSet.getInt("width_mm"))
                         .heightMm(resultSet.getInt("height_mm"))
+                        .minLengthMm(resultSet.getInt("min_length_mm"))
+                        .maxLengthMm(resultSet.getInt("max_length_mm"))
                         .build();
             }
 

@@ -1,3 +1,6 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
 /* ===== RESET ===== */
 html, body, div, span, h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, address, code, em, img, ins, small, strong, sub, sup, b, u, i,
@@ -51,38 +54,10 @@ html {
     box-sizing: inherit;
 }
 
-/* ===== FONTS ===== */
-@font-face {
-    font-family: 'Dinpro';
-    src: url('https://www.johannesfog.dk/assets/fonts/Dinpro-Bold.woff') format('woff'),
-    url('https://www.johannesfog.dk/assets/fonts/Dinpro-Bold2.woff2') format('woff2');
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Dinpro';
-    src: url('https://www.johannesfog.dk/assets/fonts/Dinpro-Medium.woff') format('woff'),
-    url('https://www.johannesfog.dk/assets/fonts/Dinpro-Medium2.woff2') format('woff2');
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: 'Dinpro';
-    src: url('https://www.johannesfog.dk/assets/fonts/Dinpro-Regular.woff') format('woff'),
-    url('https://www.johannesfog.dk/assets/fonts/Dinpro-Regular2.woff2') format('woff2');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-}
-
 /* ===== BODY ===== */
 body {
     height: 100vh;
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     background-color: #f5f5f3;
     margin: 0;
     color: #101820;
@@ -211,7 +186,7 @@ body {
 }
 
 .header-nav a {
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     text-decoration: none;
     color: #101820;
     font-size: 15px;
@@ -290,7 +265,7 @@ body {
     padding: 0.5rem 0.75rem;
     flex: 1 1;
     grid-area: searchInput;
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-size: 15px;
     color: #101820;
 }
@@ -530,7 +505,7 @@ body {
     padding: 10px 12px;
     border: 1px solid #e3e5e4;
     border-radius: 2px;
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-size: 15px;
     color: #101820;
     background-color: #ffffff;
@@ -554,7 +529,7 @@ body {
     border: none;
     border-radius: 2px;
     padding: 12px 24px;
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
@@ -576,7 +551,7 @@ body {
     border: 1px solid #1a35c0;
     border-radius: 2px;
     padding: 12px 24px;
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-size: 15px;
     font-weight: bold;
     cursor: pointer;
@@ -647,7 +622,7 @@ body {
 
 /* ===== TYPOGRAPHY ===== */
 .body-text {
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     color: #101820;
     font-size: 15px;
     line-height: 23px;
@@ -681,7 +656,7 @@ body {
 }
 
 h2 {
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-weight: bold;
     font-size: 22px;
     line-height: 27px;
@@ -697,7 +672,7 @@ h2 {
 }
 
 h3 {
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-weight: 500;
     font-size: 17px;
     line-height: 22px;
@@ -713,7 +688,7 @@ h3 {
 }
 
 a {
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     text-decoration: none;
     color: #101820;
 }
@@ -1165,7 +1140,7 @@ a {
     padding: 8px 10px;
     border: 1px solid #c8cfd6;
     border-radius: 2px;
-    font-family: Dinpro, helvetica, arial, sans-serif;
+    font-family: Poppins, helvetica, arial, sans-serif;
     font-size: 14px;
     color: #101820;
     background-color: #ffffff;

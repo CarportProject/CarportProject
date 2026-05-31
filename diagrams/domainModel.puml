@@ -1,7 +1,39 @@
-@startuml
+@startuml Domain Model – Fog Carport
 
-class Customer {
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam ranksep 70
+skinparam nodesep 50
+skinparam defaultFontName Arial
+skinparam class {
+    BackgroundColor #FEFEFE
+    BorderColor #444444
+    ArrowColor #444444
+    HeaderBackgroundColor #D6E8F7
+}
+skinparam enum {
+    BackgroundColor #FFF9E6
+    BorderColor #999900
+    HeaderBackgroundColor #FFF3C0
+}
+
+' =====================
+'  CORE ENTITIES
+' =====================
+
+class Order {
     id : int
+    --
+    uuid : UUID
+    remark : String
+    status : OrderStatus
+    price : Double
+}
+
+class ContactInfo {
+    id : int
+    --
     firstName : String
     lastName : String
     email : String
@@ -11,48 +43,76 @@ class Customer {
     phoneNumber : String
 }
 
-class Order {
+class User {
     id : int
-    remarks : String
+    --
+    email : String
+    password : String
+    role : Role
 }
 
 class Specifications {
     id : int
+    --
     widthCm : int
     lengthCm : int
     roofPitch : int
+    roofType : RoofType
 }
 
 class Workshop {
     id : int
+    --
     widthCm : int
     lengthCm : int
 }
 
-class Material {
+class RoofMaterial {
     id : int
-    name : String
-    description : String
-    price : int
-}
-
-class RoofStyle {
-    id : int
+    --
     name : String
     color : String
+    widthCm : double
+    lengthCm : double
     price : int
+    roofType : RoofType
 }
 
-class User {
+class Material {
     id : int
-    email : String
-    password : String
+    --
+    name : String
+    description : String
+    price : double
+    widthMm : int
+    heightMm : int
+    minLengthMm : int
+    maxLengthMm : int
 }
+
+class MaterialListEntry {
+    amount : int
+    length : int
+    description : String
+    materialType : MaterialType
+}
+
+' =====================
+'  ENUMS
+' =====================
 
 enum Role {
     ADMIN
-    SALES
+    EMPLOYEE
     CUSTOMER
+}
+
+enum OrderStatus {
+    PENDING
+    OFFER_SENT
+    PAID
+    REJECTED
+    CANCELLED
 }
 
 enum RoofType {
@@ -60,13 +120,37 @@ enum RoofType {
     RAISED
 }
 
-Customer "many" -- "0..1" User : linked to
-Customer "1" -- "many" Order : places
-Order "1" -- "1" Specifications : has
-Order "1" -- "0..1" Workshop : has
-Order "many" -- "many" Material : contains
-Specifications "many" -- "1" RoofStyle : has
-Specifications "many" -- "1" RoofType : has
-User "1" -- "1" Role : has
+enum MaterialType {
+    POST
+    RAFTER
+    REM
+    WIDE_BOARD_FRONT
+    WIDE_BOARD_SIDE
+    NARROW_BOARD_FRONT
+    NARROW_BOARD_SIDE
+    REGULAR
+}
+
+' =====================
+'  RELATIONER
+' =====================
+
+Order "1" *-- "1"    ContactInfo       : placeret af >
+Order "1" *-- "1"    Specifications    : specificeret med >
+Order "1" *-- "0..1" Workshop          : har valgfrit >
+Order "1" *-- "1..*" MaterialListEntry : indeholder >
+
+ContactInfo "many" --> "0..1" User         : linket til >
+
+Specifications "1" --> "1" RoofMaterial   : tækket med >
+Specifications       -->     RoofType      : har type >
+
+RoofMaterial         -->     RoofType      : gælder for >
+
+MaterialListEntry "many" --> "1" Material  : bruger >
+MaterialListEntry           -->   MaterialType
+
+User        --> Role
+Order       --> OrderStatus
 
 @enduml

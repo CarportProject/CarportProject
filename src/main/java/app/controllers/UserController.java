@@ -11,6 +11,7 @@ import app.service.OrderFormService;
 import app.service.MaterialService;
 import app.service.OrderService;
 import app.service.UserService;
+import app.util.ErrorRenderer;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 
@@ -170,10 +171,14 @@ public class UserController {
             System.err.println("[UserController.getRaisedRoof] " + e.getMessage());
             ctx.attribute("errorMessage", "Noget gik galt, prøv igen senere.");
         }
-        ctx.attribute("widths", formService.getRange(240, 600, 30));
-        ctx.attribute("lengths", formService.getRange(240, 780, 30));
+        try {
+            ctx.attribute("widths", formService.getCarportwidth(30, connectionPool));
+        } catch (DatabaseException e) {
+            ErrorRenderer.renderError(ctx, 500, "Problem med databasen", "Kunne ikke oprette forbindeslse til databasen. Kontakt en administrator");
+        }
         ctx.attribute("workshopWidths", formService.getRange(150, 690, 30));
         ctx.attribute("workshopLengths", formService.getRange(210, 720, 30));
+        ctx.attribute("lengths", formService.getRange(300, 750, 30));
     }
 
     /**
@@ -306,7 +311,7 @@ public class UserController {
                 .build();
     }
 
-    private static void konami(Context ctx){
+    private static void konami(Context ctx) {
         User user = new User.Builder()
                 .email("ADMIN")
                 .role(Role.EMPLOYEE)
