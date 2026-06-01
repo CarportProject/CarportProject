@@ -13,11 +13,9 @@ import java.util.Map;
 /**
  * Concrete material calculator for a standard flat-roof carport.
  * <p>
- * Calculates quantities for posts, side beams and rafters only.
- * Material types that are not applicable to this roof variant
- * ({@link MaterialType#WIDE_BOARD_FRONT}, {@link MaterialType#WIDE_BOARD_SIDE},
- * {@link MaterialType#NARROW_BOARD_FRONT}, {@link MaterialType#NARROW_BOARD_SIDE},
- * {@link MaterialType#REGULAR}) throw {@link UnsupportedOperationException} if called.
+ * Calculates quantities for posts, side beams, rafters, wide boards and narrow boards.
+ * {@link MaterialType#REGULAR} is not supported and will throw
+ * {@link UnsupportedOperationException} if called.
  * </p>
  */
 public class StandardFlatRoofCalculator extends MaterialService {
@@ -102,11 +100,12 @@ public class StandardFlatRoofCalculator extends MaterialService {
     /**
      * Calculates the number of rafters (spær) required.
      * <p>
-     * Rafters are placed every 60 cm along the length of the carport.
+     * The outer rafters are placed at each end; inner rafters are spaced at most 600 mm apart.
      * </p>
      *
-     * @param carportLengthMm the carport dimensions and roof configuration
-     * @return the number of rafters
+     * @param carportLengthMm the total length of the carport in millimetres
+     * @param rafterWidthMm   the width of a single rafter in millimetres
+     * @return the total number of rafters
      */
     public int calculateRafterCount(int carportLengthMm, int rafterWidthMm) {
         int spanBetweenOuterRafters = carportLengthMm - rafterWidthMm;
@@ -138,6 +137,16 @@ public class StandardFlatRoofCalculator extends MaterialService {
     }
 
 
+    /**
+     * Calculates the number of wide boards required for the front of the carport.
+     * <p>
+     * The board length is rounded up to the nearest 30 cm and must stay within
+     * the material's min/max length bounds. Only the front side (one face) is covered.
+     * </p>
+     *
+     * @param specifications the carport dimensions and roof configuration
+     * @return an array where index 0 is the board count and index 1 is the board length in cm
+     */
     @Override
     protected int[] calculateWideBoardFront(Specifications specifications) {
         int minLength = materials.get(MaterialType.WIDE_BOARD_FRONT).getMinLength() / 10;
@@ -158,9 +167,14 @@ public class StandardFlatRoofCalculator extends MaterialService {
     }
 
     /**
-     * Not applicable to a flat-roof carport.
+     * Calculates the number of wide boards required for the sides of the carport.
+     * <p>
+     * The board length is rounded up to the nearest 30 cm and must stay within
+     * the material's min/max length bounds. The count is doubled to cover both sides.
+     * </p>
      *
-     * @throws UnsupportedOperationException always
+     * @param specifications the carport dimensions and roof configuration
+     * @return an array where index 0 is the board count and index 1 is the board length in cm
      */
     @Override
     protected int[] calculateWideBoardSide(Specifications specifications) {
@@ -183,9 +197,14 @@ public class StandardFlatRoofCalculator extends MaterialService {
     }
 
     /**
-     * Not applicable to a flat-roof carport.
+     * Calculates the number of narrow boards required for the front of the carport.
+     * <p>
+     * The board length is rounded up to the nearest 30 cm and must stay within
+     * the material's min/max length bounds. Only the front side (one face) is covered.
+     * </p>
      *
-     * @throws UnsupportedOperationException always
+     * @param specifications the carport dimensions and roof configuration
+     * @return an array where index 0 is the board count and index 1 is the board length in cm
      */
     @Override
     protected int[] calculateNarrowBoardFront(Specifications specifications) {
@@ -207,9 +226,14 @@ public class StandardFlatRoofCalculator extends MaterialService {
     }
 
     /**
-     * Not applicable to a flat-roof carport.
+     * Calculates the number of narrow boards required for the sides of the carport.
+     * <p>
+     * The board length is rounded up to the nearest 30 cm and must stay within
+     * the material's min/max length bounds. The count is doubled to cover both sides.
+     * </p>
      *
-     * @throws UnsupportedOperationException always
+     * @param specifications the carport dimensions and roof configuration
+     * @return an array where index 0 is the board count and index 1 is the board length in cm
      */
     @Override
     protected int[] calculateNarrowBoardSide(Specifications specifications) {
@@ -232,8 +256,9 @@ public class StandardFlatRoofCalculator extends MaterialService {
     }
 
     /**
-     * Not applicable to a flat-roof carport.
+     * Not supported for this carport type.
      *
+     * @param specifications the carport dimensions and roof configuration
      * @throws UnsupportedOperationException always
      */
     @Override
