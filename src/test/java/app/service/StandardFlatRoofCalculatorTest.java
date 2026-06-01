@@ -1,23 +1,25 @@
 package app.service;
 
-/*
-
 import app.entities.MaterialType;
 import app.entities.RoofMaterial;
 import app.entities.RoofType;
 import app.entities.Specifications;
+import app.exceptions.DatabaseException;
+import app.persistence.DatabaseTest;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class StandardFlatRoofCalculatorTest {
+
+
+class StandardFlatRoofCalculatorTest extends DatabaseTest {
 
     @Test
-    void getMaterialTypes_shouldReturnCorrectOrderedList() {
+    void getMaterialTypesShouldReturnCorrectOrderedList() throws DatabaseException {
         // Arrange
-        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator(connectionPool);
 
         // Act
         List<MaterialType> actualTypes = calculator.getMaterialTypes();
@@ -26,15 +28,19 @@ class StandardFlatRoofCalculatorTest {
         List<MaterialType> expectedTypes = List.of(
                 MaterialType.POST,
                 MaterialType.REM,
-                MaterialType.RAFTER
+                MaterialType.RAFTER,
+                MaterialType.NARROW_BOARD_SIDE,
+                MaterialType.NARROW_BOARD_FRONT,
+                MaterialType.WIDE_BOARD_SIDE,
+                MaterialType.WIDE_BOARD_FRONT
         );
         assertEquals(expectedTypes, actualTypes,
                 "The material types list must be exactly [POST, REM, RAFTER] in that order");
     }
 
     @Test
-    void calculatePosts_shouldAlwaysFollowTheRules() {
-        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+    void calculatePostsShouldAlwaysFollowTheRules() throws DatabaseException {
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator(connectionPool);
 
         for (int lengthCm = 200; lengthCm <= 2000; lengthCm++) {
 
@@ -51,13 +57,13 @@ class StandardFlatRoofCalculatorTest {
                             .build())
                     .build();
 
-            int totalPosts = calculator.calculatePosts(specs);
+            int[] totalPosts = calculator.calculatePosts(specs);
 
             // RULE 1: Number of posts must be even
-            assertTrue(totalPosts % 2 == 0,
+            assertTrue(totalPosts[0] % 2 == 0,
                     "Length " + lengthCm + " cm gave odd number of posts: " + totalPosts);
 
-            int postsPerSide = totalPosts / 2;
+            int postsPerSide = totalPosts[0] / 2;
             int roomBetween = lengthCm - 200;
             int gaps = postsPerSide - 1;
 
@@ -77,9 +83,9 @@ class StandardFlatRoofCalculatorTest {
     }
 
     @Test
-    void calculatePosts_shouldReturnCorrectNumberOfPostsForGivenLengths() {
+    void calculatePostsShouldReturnCorrectNumberOfPostsForGivenLengths() throws DatabaseException {
         // Arrange
-        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator(connectionPool);
 
         // Test case 1: length 300 cm
         Specifications specs300 = new Specifications.Builder()
@@ -90,9 +96,9 @@ class StandardFlatRoofCalculatorTest {
                         .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
                 .build();
         // Act
-        int posts300 = calculator.calculatePosts(specs300);
+        int[] posts300 = calculator.calculatePosts(specs300);
         // Assert
-        assertEquals(4, posts300, "300 cm carport should have 4 posts");
+        assertEquals(4, posts300[0], "300 cm carport should have 4 posts");
 
         // Test case 2: length 600 cm
         Specifications specs600 = new Specifications.Builder()
@@ -102,8 +108,8 @@ class StandardFlatRoofCalculatorTest {
                 .roofMaterial(new RoofMaterial.Builder()
                         .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
                 .build();
-        int posts600 = calculator.calculatePosts(specs600);
-        assertEquals(6, posts600, "600 cm carport should have 6 posts");
+        int[] posts600 = calculator.calculatePosts(specs600);
+        assertEquals(6, posts600[0], "600 cm carport should have 6 posts");
 
         // Test case 3: length 900 cm
         Specifications specs900 = new Specifications.Builder()
@@ -113,8 +119,8 @@ class StandardFlatRoofCalculatorTest {
                 .roofMaterial(new RoofMaterial.Builder()
                         .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
                 .build();
-        int posts900 = calculator.calculatePosts(specs900);
-        assertEquals(8, posts900, "900 cm carport should have 8 posts");
+        int[] posts900 = calculator.calculatePosts(specs900);
+        assertEquals(8, posts900[0], "900 cm carport should have 8 posts");
 
         // Test case 4: length 1200 cm
         Specifications specs1200 = new Specifications.Builder()
@@ -124,13 +130,14 @@ class StandardFlatRoofCalculatorTest {
                 .roofMaterial(new RoofMaterial.Builder()
                         .id(1).name("Test").color("Black").price(1000).roofType(RoofType.FLAT).build())
                 .build();
-        int posts1200 = calculator.calculatePosts(specs1200);
-        assertEquals(10, posts1200, "1200 cm carport should have 10 posts");
+        int[] posts1200 = calculator.calculatePosts(specs1200);
+        assertEquals(10, posts1200[0], "1200 cm carport should have 10 posts");
     }
+
     @Test
-    void calculateRem() {
+    void calculateRem() throws DatabaseException {
         // Arrange
-        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator(connectionPool);
 
         // Helper to build Specifications
         Specifications specs300 = new Specifications.Builder()
@@ -163,22 +170,22 @@ class StandardFlatRoofCalculatorTest {
                 .build();
 
         // Act
-        int beams300 = calculator.calculateRem(specs300);
-        int beams600 = calculator.calculateRem(specs600);
-        int beams700 = calculator.calculateRem(specs700);
-        int beams1200 = calculator.calculateRem(specs1200);
+        int[] beams300 = calculator.calculateRem(specs300);
+        int[] beams540 = calculator.calculateRem(specs600);
+        int[] beams700 = calculator.calculateRem(specs700);
+        int[] beams1200 = calculator.calculateRem(specs1200);
 
         // Assert
-        assertEquals(2, beams300, "300 cm → 2 beams (1 per side)");
-        assertEquals(2, beams600, "600 cm → 2 beams (1 per side)");
-        assertEquals(4, beams700, "700 cm → 4 beams (2 per side)");
-        assertEquals(4, beams1200, "1200 cm → 4 beams (2 per side)");
+        assertEquals(2, beams300[0], "300 cm → 2 beams (1 per side)");
+        assertEquals(4, beams540[0], "540 cm → 4 beams (2 per side)");
+        assertEquals(4, beams700[0], "700 cm → 4 beams (2 per side)");
+        assertEquals(6, beams1200[0], "1200 cm → 6 beams (3 per side)");
     }
 
     @Test
-    void calculateRafterCount() {
+    void calculateRafterCount() throws DatabaseException {
         // Arrange
-        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator(connectionPool);
         int rafterWidthMm = 45;
         int lengthShort = 100;      // 100 mm
         int lengthMedium = 6000;    // 6000 mm
@@ -196,12 +203,12 @@ class StandardFlatRoofCalculatorTest {
     }
 
     @Test
-    void calculateRafter() {
+    void calculateRafter() throws DatabaseException {
         // Arrange
-        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator();
+        StandardFlatRoofCalculator calculator = new StandardFlatRoofCalculator(connectionPool);
 
         Specifications specsShort = new Specifications.Builder()
-                .lengthCm(10)
+                .lengthCm(100)
                 .widthCm(300)
                 .roofType(RoofType.FLAT)
                 .roofMaterial(new RoofMaterial.Builder()
@@ -223,14 +230,13 @@ class StandardFlatRoofCalculatorTest {
                 .build();
 
         // Act
-        int countShort = calculator.calculateRafter(specsShort);
-        int countMedium = calculator.calculateRafter(specsMedium);
-        int countLong = calculator.calculateRafter(specsLong);
+        int[] countShort = calculator.calculateRafter(specsShort);
+        int[] countMedium = calculator.calculateRafter(specsMedium);
+        int[] countLong = calculator.calculateRafter(specsLong);
 
         // Assert
-        assertEquals(2, countShort, "10 cm → 2 rafters");
-        assertEquals(11, countMedium, "600 cm → 11 rafters");
-        assertEquals(21, countLong, "1200 cm → 21 rafters");
+        assertEquals(3, countShort[0], "100 cm → 3 rafters");
+        assertEquals(11, countMedium[0], "600 cm → 11 rafters");
+        assertEquals(21, countLong[0], "1200 cm → 21 rafters");
     }
 }
-*/
