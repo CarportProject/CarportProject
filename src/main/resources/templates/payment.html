@@ -27,8 +27,7 @@
                 <ul>
                     <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/orders}">Se alle ordre</a></li>
                     <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a></li>
-                    <li><a href="#">Byg selv-produkter</a></li>
-                    <li><a th:href="@{/}">Carporte</a></li>
+                    <li><a th:href="@{/}">Byg selv-produkter</a></li>
                 </ul>
             </nav>
 

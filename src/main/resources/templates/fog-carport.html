@@ -33,7 +33,6 @@
                     <li th:if="${user != null and user.role.name() == 'EMPLOYEE'}"><a th:href="@{/admin/materials}">Materialer</a>
                     </li>
                     <li><a th:href="@{/}" class="nav-active">Byg selv-produkter</a></li>
-                    <li><a th:href="@{/}">Carporte</a></li>
                 </ul>
             </nav>
 
@@ -98,13 +97,9 @@
 
             <!-- Breadcrumb -->
             <nav class="breadcrumb" aria-label="Brødkrumme">
-                <a href="/">Forside</a>
+                <a th:href="@{/}">Forside</a>
                 <span aria-hidden="true">/</span>
-                <a href="/byg-selv-produkter">Byg selv-produkter</a>
-                <span aria-hidden="true">/</span>
-                <a href="/byg-selv-produkter/carporte">Carporte</a>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">Quick-Byg carporte</span>
+                <span aria-current="page">Byg selv-produkter</span>
             </nav>
 
             <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>

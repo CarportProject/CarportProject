@@ -83,15 +83,11 @@
 
             <!-- Breadcrumb -->
             <nav class="breadcrumb" aria-label="Brødkrumme">
-                <a href="/">Forside</a>
+                <a th:href="@{/}">Forside</a>
                 <span aria-hidden="true">/</span>
-                <a href="/byg-selv-produkter">Byg selv-produkter</a>
+                <a th:href="@{/}">Byg selv-produkter</a>
                 <span aria-hidden="true">/</span>
-                <a href="/Side1">Carporte</a>
-                <span aria-hidden="true">/</span>
-                <a href="/Side1">Quick-Byg carporte</a>
-                <span aria-hidden="true">/</span>
-                <span aria-current="page">Quick-Byg carport med fladt tag</span>
+                <span aria-current="page">Carport med flat tag</span>
             </nav>
 
             <div th:if="${errorMessage}" class="flash-message flash-error" th:text="${errorMessage}"></div>
